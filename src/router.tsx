@@ -5,8 +5,6 @@ import Home from "./page/home/Home";
 import LoginPage from "./page/login/LoginPage";
 import RegisterPage from "./page/login/RegisterPage";
 
-
-
 const router = createBrowserRouter([
   {
     path: "/",

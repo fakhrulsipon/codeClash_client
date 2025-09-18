@@ -50,12 +50,12 @@ function Navbar() {
     >
       <Container maxWidth="xl">
         <Toolbar disableGutters>
-          {/* 👉 Left Logo (Desktop) */}
+          {/*  Left Logo (Desktop) */}
           <div className="hidden lg:block mr-4">
             <Logo />
           </div>
 
-          {/* 👉 Mobile Menu + Logo side by side */}
+          {/*  Mobile Menu + Logo side by side */}
           <Box
             sx={{
               flexGrow: 1,
@@ -107,7 +107,7 @@ function Navbar() {
             </Menu>
           </Box>
 
-          {/* 👉 Middle Pages (Desktop) */}
+          {/*  Middle Pages (Desktop) */}
           <Box
             sx={{
               flexGrow: 1,
@@ -134,7 +134,7 @@ function Navbar() {
             ))}
           </Box>
 
-          {/* 👉 User Menu */}
+          {/*  User Menu */}
           <div className="hidden">
             <Box sx={{ flexGrow: 0 }}>
               <Tooltip title="Open settings">
@@ -169,7 +169,7 @@ function Navbar() {
             </Box>
           </div>
 
-          {/* 👉 Login Button */}
+          {/*  Login Button */}
           <Link to="/login">
             <button className="ml-4 px-5 py-2 bg-yellow-400 text-blue-900 font-semibold rounded-lg hover:bg-yellow-500 transition-colors">
               Login
