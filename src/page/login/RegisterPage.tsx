@@ -13,7 +13,7 @@ import {
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import { Link as RouterLink } from "react-router";
 
-const LoginPage: React.FC = () => {
+const RegisterPage: React.FC = () => {
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
   };
@@ -26,9 +26,17 @@ const LoginPage: React.FC = () => {
             <LockOutlinedIcon />
           </Avatar>
           <Typography component="h1" variant="h5">
-            Login
+            Sign Up
           </Typography>
           <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1 }}>
+            {/* Name */}
+            <TextField
+              margin="normal"
+              required
+              fullWidth
+              label="Full Name"
+              autoComplete="name"
+            />
             {/* Email */}
             <TextField
               margin="normal"
@@ -36,7 +44,6 @@ const LoginPage: React.FC = () => {
               fullWidth
               label="Email Address"
               autoComplete="email"
-              autoFocus
             />
             {/* Password */}
             <TextField
@@ -45,29 +52,41 @@ const LoginPage: React.FC = () => {
               fullWidth
               label="Password"
               type="password"
-              autoComplete="current-password"
+              autoComplete="new-password"
             />
-            
-            {/* Sign In Button */}
+            {/* Confirm Password */}
+            <TextField
+              margin="normal"
+              required
+              fullWidth
+              label="Confirm Password"
+              type="password"
+              autoComplete="new-password"
+            />
+            {/* Profile Image File Upload */}
             <Button
+              variant="outlined"
+              component="label"
+              fullWidth
+              sx={{ mt: 2, mb: 1 }}
+            >
+              Upload Profile Picture
+              <input type="file" hidden accept="image/*" />
+            </Button>
+            {/* Sign Up Button */}
+            <Button
+              type="submit"
               fullWidth
               variant="contained"
               sx={{ mt: 3, mb: 2 }}
-              type="submit"
             >
-              Sign In
+              Sign Up
             </Button>
-
-            {/* Links stacked vertically */}
-            <Grid container direction="column" alignItems="center">
+            {/* Link to Login */}
+            <Grid container justifyContent="center">
               <Grid item>
-                <Link component={RouterLink} to="/forgot-password" variant="body2">
-                  Forgot password?
-                </Link>
-              </Grid>
-              <Grid item>
-                <Link component={RouterLink} to="/register" variant="body2">
-                  Don&apos;t have an account? Sign Up
+                <Link component={RouterLink} to="/login" variant="body2">
+                  Already have an account? Sign In
                 </Link>
               </Grid>
             </Grid>
@@ -78,4 +97,4 @@ const LoginPage: React.FC = () => {
   );
 };
 
-export default LoginPage;
+export default RegisterPage;
