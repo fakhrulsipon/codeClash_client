@@ -31,7 +31,7 @@ const testimonials = [
     feedback:
       "codeClash has completely changed how I practice coding! Competing with friends in real-time makes learning so much fun.",
     image: "https://randomuser.me/api/portraits/women/44.jpg",
-    rating: 5,
+    rating: 3,
   },
   {
     name: "Michael Lee",
