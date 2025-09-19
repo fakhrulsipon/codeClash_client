@@ -1,6 +1,6 @@
 import * as React from "react";
 import { Link as RouterLink } from "react-router";
-import { FaLock } from "react-icons/fa"; // react-icons Lock icon
+import { FaLock } from "react-icons/fa";
 
 const LoginPage: React.FC = () => {
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
