@@ -1,17 +1,6 @@
 import * as React from "react";
-import {
-  Avatar,
-  Button,
-  TextField,
-  Link,
-  Grid,
-  Box,
-  Typography,
-  Container,
-  Paper,
-} from "@mui/material";
-import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import { Link as RouterLink } from "react-router";
+import { FaLock } from "react-icons/fa"; // react-icons Lock icon
 
 const LoginPage: React.FC = () => {
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -19,62 +8,60 @@ const LoginPage: React.FC = () => {
   };
 
   return (
-    <Container component="main" maxWidth="xs">
-      <Paper elevation={6} sx={{ p: 4, borderRadius: 3, mt: 8 }}>
-        <Box display="flex" flexDirection="column" alignItems="center">
-          <Avatar sx={{ m: 1, bgcolor: "primary.main" }}>
-            <LockOutlinedIcon />
-          </Avatar>
-          <Typography component="h1" variant="h5">
-            Login
-          </Typography>
-          <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1 }}>
+    <div className="flex items-center justify-center min-h-screen bg-gray-100">
+      <div className="bg-white p-8 rounded-2xl shadow-lg w-full max-w-xs">
+        <div className="flex flex-col items-center">
+          {/* Lock Icon */}
+          <div className="bg-blue-500 rounded-full p-4 mb-4">
+            <FaLock className="text-white text-2xl" />
+          </div>
+
+          <h1 className="text-2xl font-semibold mb-4">Login</h1>
+
+          <form onSubmit={handleSubmit} className="w-full flex flex-col">
             {/* Email */}
-            <TextField
-              margin="normal"
+            <input
+              type="email"
+              placeholder="Email Address"
               required
-              fullWidth
-              label="Email Address"
-              autoComplete="email"
               autoFocus
+              className="mb-2 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
             {/* Password */}
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              label="Password"
+            <input
               type="password"
-              autoComplete="current-password"
+              placeholder="Password"
+              required
+              className="mb-2 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
-            
+
             {/* Sign In Button */}
-            <Button
-              fullWidth
-              variant="contained"
-              sx={{ mt: 3, mb: 2 }}
+            <button
               type="submit"
+              className="mt-3 mb-2 w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition-colors"
             >
               Sign In
-            </Button>
+            </button>
 
             {/* Links stacked vertically */}
-            <Grid container direction="column" alignItems="center">
-              <Grid item>
-                <Link component={RouterLink} to="/forgot-password" variant="body2">
-                  Forgot password?
-                </Link>
-              </Grid>
-              <Grid item>
-                <Link component={RouterLink} to="/register" variant="body2">
-                  Don&apos;t have an account? Sign Up
-                </Link>
-              </Grid>
-            </Grid>
-          </Box>
-        </Box>
-      </Paper>
-    </Container>
+            <div className="flex flex-col items-center mt-2 space-y-1">
+              <RouterLink
+                to="/forgot-password"
+                className="text-blue-500 text-sm hover:underline"
+              >
+                Forgot password?
+              </RouterLink>
+              <RouterLink
+                to="/register"
+                className="text-blue-500 text-sm hover:underline"
+              >
+                Don&apos;t have an account? Sign Up
+              </RouterLink>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
   );
 };
 
