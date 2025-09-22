@@ -1,10 +1,19 @@
-import * as React from "react";
-import { Link as RouterLink } from "react-router";
-import { FaLock } from "react-icons/fa";
+import { Link } from "react-router";
+import { FaLock, FaEye, FaEyeSlash } from "react-icons/fa";
+import { useForm } from "react-hook-form";
+import { useState } from "react";
 
-const LoginPage: React.FC = () => {
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+type LoginFormInputs = {
+  email: string;
+  password: string;
+};
+
+const LoginPage = () => {
+  const { register, handleSubmit, formState: { errors } } = useForm<LoginFormInputs>();
+  const [showPassword, setShowPassword] = useState(false);
+
+  const onSubmit = (data: LoginFormInputs) => {
+    console.log("Form Data:", data);
   };
 
   return (
@@ -18,22 +27,34 @@ const LoginPage: React.FC = () => {
 
           <h1 className="text-2xl font-semibold mb-4">Login</h1>
 
-          <form onSubmit={handleSubmit} className="w-full flex flex-col">
+          <form onSubmit={handleSubmit(onSubmit)} className="w-full flex flex-col">
             {/* Email */}
             <input
               type="email"
               placeholder="Email Address"
-              required
               autoFocus
+              {...register("email", { required: "Email is required" })}
               className="mb-2 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
-            {/* Password */}
-            <input
-              type="password"
-              placeholder="Password"
-              required
-              className="mb-2 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
+            {errors.email && <span className="text-red-500 text-sm">{errors.email.message}</span>}
+
+            {/* Password with Eye Toggle */}
+            <div className="relative mb-2">
+              <input
+                type={showPassword ? "text" : "password"}
+                placeholder="Password"
+                {...register("password", { required: "Password is required" })}
+                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 pr-10"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(prev => !prev)}
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+              >
+                {showPassword ? <FaEyeSlash /> : <FaEye />}
+              </button>
+            </div>
+            {errors.password && <span className="text-red-500 text-sm">{errors.password.message}</span>}
 
             {/* Sign In Button */}
             <button
@@ -45,18 +66,18 @@ const LoginPage: React.FC = () => {
 
             {/* Links stacked vertically */}
             <div className="flex flex-col items-center mt-2 space-y-1">
-              <RouterLink
+              <Link
                 to="/forgot-password"
                 className="text-blue-500 text-sm hover:underline"
               >
                 Forgot password?
-              </RouterLink>
-              <RouterLink
+              </Link>
+              <Link
                 to="/register"
                 className="text-blue-500 text-sm hover:underline"
               >
                 Don&apos;t have an account? Sign Up
-              </RouterLink>
+              </Link>
             </div>
           </form>
         </div>
