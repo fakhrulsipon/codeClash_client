@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { use, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Link } from "react-router";
 import { FaLock, FaEye, FaEyeSlash } from "react-icons/fa";
 import axios from "axios";
+import { AuthContext } from "../../provider/AuthProvider";
 
 type RegisterFormData = {
   fullName: string;
@@ -13,11 +14,13 @@ type RegisterFormData = {
 };
 
 const RegisterPage: React.FC = () => {
+  const {registerUser} = use(AuthContext)!;
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [showConfirmPassword, setShowConfirmPassword] =
     useState<boolean>(false);
   const [profileImage, setProfileImage] = useState<string>("");
-  console.log(profileImage);
+  
+  
 
   const {
     register,
@@ -39,7 +42,17 @@ const RegisterPage: React.FC = () => {
   };
 
   const onSubmit = (data: RegisterFormData) => {
-    console.log(data);
+     if (data.password !== data.confirmPassword) {
+      alert("Passwords do not match!");
+      return;
+    }
+    registerUser(data.email, data.password)
+    .then((res) => {
+    console.log("register succesfull",res.user)
+    })
+    .catch((err) => {
+      console.log("error", err)
+    })
   };
 
   return (
