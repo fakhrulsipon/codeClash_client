@@ -4,6 +4,7 @@ import About from "./page/about/About";
 import Home from "./page/home/Home";
 import LoginPage from "./page/login/LoginPage";
 import RegisterPage from "./page/login/RegisterPage";
+import Problems from "./page/Problems/Problems";
 
 const router = createBrowserRouter([
   {
@@ -13,23 +14,25 @@ const router = createBrowserRouter([
       {
         index: true,
         Component: Home,
-        
-    },
+      },
+      {
+        path: "problems",
+        Component: Problems,
+      },
       {
         path: "about",
         Component: About,
       },
-    {
-      path: 'login',
-      Component: LoginPage
-    },
-    {
-      path: 'register',
-      Component: RegisterPage
-    }
-  ],
+      {
+        path: "login",
+        Component: LoginPage,
+      },
+      {
+        path: "register",
+        Component: RegisterPage,
+      },
+    ],
   },
- 
 ]);
 
 export default router;
