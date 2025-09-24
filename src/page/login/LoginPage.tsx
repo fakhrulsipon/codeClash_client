@@ -1,7 +1,8 @@
 import { Link } from "react-router";
 import { FaLock, FaEye, FaEyeSlash } from "react-icons/fa";
 import { useForm } from "react-hook-form";
-import { useState } from "react";
+import { use, useState } from "react";
+import { AuthContext } from "../../provider/AuthProvider";
 
 type LoginFormInputs = {
   email: string;
@@ -9,11 +10,18 @@ type LoginFormInputs = {
 };
 
 const LoginPage = () => {
+  const {loginUser} = use(AuthContext)!;
   const { register, handleSubmit, formState: { errors } } = useForm<LoginFormInputs>();
-  const [showPassword, setShowPassword] = useState(false);
+  const [showPassword, setShowPassword] = useState<boolean>(false);
 
   const onSubmit = (data: LoginFormInputs) => {
-    console.log("Form Data:", data);
+    loginUser(data.email, data.password)
+    .then((res) => {
+      console.log('succssull login', res.user)
+    })
+    .catch((err) => {
+      console.log("error", err.message)
+    })
   };
 
   return (

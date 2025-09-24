@@ -1,99 +1,189 @@
-import * as React from "react";
-import {
-  Avatar,
-  Button,
-  TextField,
-  Link,
-  Grid,
-  Box,
-  Typography,
-  Container,
-  Paper,
-} from "@mui/material";
-import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
-import { Link as RouterLink } from "react-router";
+import { use, useState } from "react";
+import { useForm } from "react-hook-form";
+import { Link } from "react-router";
+import { FaLock, FaEye, FaEyeSlash } from "react-icons/fa";
+import axios from "axios";
+import { AuthContext } from "../../provider/AuthProvider";
+
+type RegisterFormData = {
+  fullName: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+  postImage?: FileList;
+};
 
 const RegisterPage: React.FC = () => {
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  const {registerUser} = use(AuthContext)!;
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [showConfirmPassword, setShowConfirmPassword] =
+    useState<boolean>(false);
+  const [profileImage, setProfileImage] = useState<string>("");
+  
+  
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<RegisterFormData>();
+
+  const handleImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const image = e.target.files?.[0];
+    if (!image) return;
+
+    const formData = new FormData();
+    formData.append("image", image);
+
+    const imgUrl = `https://api.imgbb.com/1/upload?key=${import.meta.env.VITE_image_upload_key}`;
+    const res = await axios.post(imgUrl, formData);
+
+    setProfileImage(res.data.data.url);
+  };
+
+  const onSubmit = (data: RegisterFormData) => {
+     if (data.password !== data.confirmPassword) {
+      alert("Passwords do not match!");
+      return;
+    }
+    registerUser(data.email, data.password)
+    .then((res) => {
+    console.log("register succesfull",res.user)
+    })
+    .catch((err) => {
+      console.log("error", err)
+    })
   };
 
   return (
-    <Container component="main" maxWidth="xs">
-      <Paper elevation={6} sx={{ p: 4, borderRadius: 3, mt: 8 }}>
-        <Box display="flex" flexDirection="column" alignItems="center">
-          <Avatar sx={{ m: 1, bgcolor: "primary.main" }}>
-            <LockOutlinedIcon />
-          </Avatar>
-          <Typography component="h1" variant="h5">
-            Sign Up
-          </Typography>
-          <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1 }}>
+    <div className="flex items-center justify-center min-h-screen bg-gray-100">
+      <div className="bg-white p-8 rounded-2xl shadow-lg w-full max-w-xs">
+        <div className="flex flex-col items-center">
+          {/* Lock Icon */}
+          <div className="bg-blue-500 rounded-full p-4 mb-4">
+            <FaLock className="text-white text-2xl" />
+          </div>
+
+          <h1 className="text-2xl font-semibold mb-4">Register</h1>
+
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            className="w-full flex flex-col"
+          >
             {/* Name */}
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              label="Full Name"
-              autoComplete="name"
+            <input
+              type="text"
+              placeholder="Full Name"
+              {...register("fullName", { required: "Full Name is required" })}
+              className="mb-2 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
+            {errors.fullName && (
+              <span className="text-red-500 text-sm">
+                {errors.fullName.message}
+              </span>
+            )}
+
+            {/* Profile Image Upload */}
+            <label className="mb-2 w-full flex flex-col items-center px-3 py-4 border-2 border-dashed border-blue-400 rounded-lg cursor-pointer hover:bg-blue-50 transition">
+              {!profileImage ? (
+                <span className="text-sm text-gray-600">
+                  Upload Profile Image
+                </span>
+              ) : (
+                <img
+                  src={profileImage}
+                  alt="Profile Preview"
+                  className="w-20 h-20 object-cover rounded-full border border-gray-300"
+                />
+              )}
+              <input
+                type="file"
+                onChange={handleImage}
+                className="hidden"
+                accept="image/*"
+              />
+            </label>
+
             {/* Email */}
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              label="Email Address"
-              autoComplete="email"
+            <input
+              type="email"
+              placeholder="Email Address"
+              {...register("email", { required: "Email is required" })}
+              className="mb-2 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
+            {errors.email && (
+              <span className="text-red-500 text-sm">
+                {errors.email.message}
+              </span>
+            )}
+
             {/* Password */}
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              label="Password"
-              type="password"
-              autoComplete="new-password"
-            />
+            <div className="relative mb-2">
+              <input
+                type={showPassword ? "text" : "password"}
+                placeholder="Password"
+                {...register("password", { required: "Password is required" })}
+                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 pr-10"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword((prev) => !prev)}
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+              >
+                {showPassword ? <FaEyeSlash /> : <FaEye />}
+              </button>
+            </div>
+            {errors.password && (
+              <span className="text-red-500 text-sm">
+                {errors.password.message}
+              </span>
+            )}
+
             {/* Confirm Password */}
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              label="Confirm Password"
-              type="password"
-              autoComplete="new-password"
-            />
-            {/* Profile Image File Upload */}
-            <Button
-              variant="outlined"
-              component="label"
-              fullWidth
-              sx={{ mt: 2, mb: 1 }}
-            >
-              Upload Profile Picture
-              <input type="file" hidden accept="image/*" />
-            </Button>
+            <div className="relative mb-2">
+              <input
+                type={showConfirmPassword ? "text" : "password"}
+                placeholder="Confirm Password"
+                {...register("confirmPassword", {
+                  required: "Confirm password is required",
+                })}
+                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 pr-10"
+              />
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword((prev) => !prev)}
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+              >
+                {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
+              </button>
+            </div>
+            {errors.confirmPassword && (
+              <span className="text-red-500 text-sm">
+                {errors.confirmPassword.message}
+              </span>
+            )}
+
             {/* Sign Up Button */}
-            <Button
+            <button
               type="submit"
-              fullWidth
-              variant="contained"
-              sx={{ mt: 3, mb: 2 }}
+              className="mt-2 mb-2 w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition-colors"
             >
-              Sign Up
-            </Button>
+              Register
+            </button>
+
             {/* Link to Login */}
-            <Grid container justifyContent="center">
-              <Grid item>
-                <Link component={RouterLink} to="/login" variant="body2">
-                  Already have an account? Sign In
-                </Link>
-              </Grid>
-            </Grid>
-          </Box>
-        </Box>
-      </Paper>
-    </Container>
+            <div className="flex justify-center mt-2">
+              <Link
+                to="/login"
+                className="text-blue-500 hover:underline text-sm"
+              >
+                Already have an account? Sign In
+              </Link>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
   );
 };
 
