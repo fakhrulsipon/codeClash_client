@@ -3,9 +3,9 @@ import { Button, Typography, Container } from "@mui/material";
 
 const Hero: React.FC = () => {
   return (
-    <section className="relative bg-gradient-to-r from-blue-300 via-indigo-300 to-purple-400 text-white">
+    <section className="relative text-white">
       {/* Overlay for better readability */}
-      <div className="absolute inset-0 bg-black/30"></div>
+      <div className="absolute inset-0"></div>
 
       <Container maxWidth="lg">
         <div className="relative flex flex-col-reverse lg:flex-row items-center gap-12 py-20">

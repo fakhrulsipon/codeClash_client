@@ -31,10 +31,11 @@ const router = createBrowserRouter([
       path: 'register',
       Component: RegisterPage
     },
-    {
-      path: '/forgot-password',
-      element: <ForgotPasswordPage></ForgotPasswordPage>
-    }
+    // {
+    //   path: '/forgot-password',
+    //   element: <ForgotPasswordPage></ForgotPasswordPage>
+    // }
+
   ],
   },
 ]);
