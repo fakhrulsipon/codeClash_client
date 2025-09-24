@@ -15,8 +15,9 @@ import { Link } from "react-router"
 import Logo from "../../components/Logo";
 
 const pages = [
-    { name: "Home", path: "/" },
-    { name: "About", path: "/about" },
+  { name: "Home", path: "/" },
+  { name: "Problem set", path: "/problems" },
+  { name: "About", path: "/about" },
 ];
 const settings = ["Profile", "Dashboard", "Logout"];
 
