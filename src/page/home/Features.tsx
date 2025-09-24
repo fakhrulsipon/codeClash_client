@@ -32,7 +32,7 @@ const Features: React.FC = () => {
   ];
 
   return (
-    <section className="bg-gray-50 py-20">
+    <section className=" py-20">
       <Container maxWidth="lg">
         {/* Title */}
         <Typography
