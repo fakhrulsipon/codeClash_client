@@ -4,6 +4,7 @@ import { Link } from "react-router";
 import { FaLock, FaEye, FaEyeSlash } from "react-icons/fa";
 import axios from "axios";
 import { AuthContext } from "../../provider/AuthProvider";
+import SocialLogin from "./SocialLogin";
 
 type RegisterFormData = {
   fullName: string;
@@ -14,13 +15,11 @@ type RegisterFormData = {
 };
 
 const RegisterPage: React.FC = () => {
-  const {registerUser} = use(AuthContext)!;
+  const { registerUser, updateProfileInfo } = use(AuthContext)!;
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [showConfirmPassword, setShowConfirmPassword] =
     useState<boolean>(false);
   const [profileImage, setProfileImage] = useState<string>("");
-  
-  
 
   const {
     register,
@@ -42,17 +41,28 @@ const RegisterPage: React.FC = () => {
   };
 
   const onSubmit = (data: RegisterFormData) => {
-     if (data.password !== data.confirmPassword) {
+    if (data.password !== data.confirmPassword) {
       alert("Passwords do not match!");
       return;
     }
     registerUser(data.email, data.password)
-    .then((res) => {
-    console.log("register succesfull",res.user)
-    })
-    .catch((err) => {
-      console.log("error", err)
-    })
+      .then((res) => {
+        console.log(res.user);
+        const updatInfo = {
+          displayName: data.fullName,
+          photoURL: profileImage,
+        };
+        updateProfileInfo(updatInfo)
+          .then(() => {
+            alert("successfully register");
+          })
+          .catch((err) => {
+            console.log("error", err.message);
+          });
+      })
+      .catch((err) => {
+        console.log("error", err);
+      });
   };
 
   return (
@@ -166,21 +176,23 @@ const RegisterPage: React.FC = () => {
             {/* Sign Up Button */}
             <button
               type="submit"
-              className="mt-2 mb-2 w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition-colors"
+              className="mt-2 mb-2 w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition-colors cursor-pointer"
             >
               Register
             </button>
 
             {/* Link to Login */}
-            <div className="flex justify-center mt-2">
+            <div className="flex justify-center items-center gap-1 mt-2 cursor-pointer">
+              <p>Already have an account?</p>
               <Link
                 to="/login"
-                className="text-blue-500 hover:underline text-sm"
+                className="text-blue-500 hover:underline text-sm cursor-pointer"
               >
-                Already have an account? Sign In
+                Sign In
               </Link>
             </div>
           </form>
+          <SocialLogin></SocialLogin>
         </div>
       </div>
     </div>
