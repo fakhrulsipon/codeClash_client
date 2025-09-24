@@ -1,20 +1,37 @@
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword, type UserCredential } from "firebase/auth";
-import { createContext, useState} from "react";
+import {
+  createUserWithEmailAndPassword,
+  GithubAuthProvider,
+  GoogleAuthProvider,
+  onAuthStateChanged,
+  sendPasswordResetEmail,
+  signInWithEmailAndPassword,
+  signInWithPopup,
+  signOut,
+  updateProfile,
+  type UserCredential,
+} from "firebase/auth";
+import { createContext, useEffect, useState } from "react";
 import type { ReactNode } from "react";
 import { auth } from "../firebase/firebase.init";
+import type { User as FirebaseUser } from "firebase/auth";
 
-// User টাইপ
-interface User {
-  email: string;
-  name: string;
-}
+const googleProvider = new GoogleAuthProvider();
+const provider = new GithubAuthProvider()
 
 // Context টাইপ
 interface AuthContextType {
-  user: User | null;
-  setUser: (user: User | null) => void;
+  user: FirebaseUser | null;
+  setUser: (user: FirebaseUser | null) => void;
   registerUser: (email: string, password: string) => Promise<UserCredential>;
   loginUser: (email: string, password: string) => Promise<UserCredential>;
+  logoutUser: () => Promise<void>;
+  updateProfileInfo: (profile: {
+    displayName?: string;
+    photoURL?: string;
+  }) => Promise<void>;
+  resetPassword: (email: string) => Promise<void>;
+  googleSignIn: () => Promise<UserCredential>;
+  githubSignIn: () => Promise<UserCredential>;
 }
 
 // Context তৈরি
@@ -26,28 +43,68 @@ interface AuthProviderProps {
 }
 
 const AuthProvider = ({ children }: AuthProviderProps) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<FirebaseUser | null>(null);
+  console.log(user);
 
-  const registerUser = (email: string, password : string) => {
-        return createUserWithEmailAndPassword(auth, email, password)
+  const registerUser = (email: string, password: string) => {
+    return createUserWithEmailAndPassword(auth, email, password);
+  };
+
+  const loginUser = (email: string, password: string) => {
+    return signInWithEmailAndPassword(auth, email, password);
+  };
+
+  const logoutUser = () => {
+    return signOut(auth);
+  };
+
+  const updateProfileInfo = (profile: {
+    displayName?: string;
+    photoURL?: string;
+  }) => {
+    const currentUser = auth.currentUser;
+    if (!currentUser) {
+      return Promise.reject(new Error("No user logged in"));
+    }
+    return updateProfile(currentUser, profile);
+  };
+
+  const resetPassword = (email: string) => {
+  return sendPasswordResetEmail(auth, email);
+};
+
+const googleSignIn = () => {
+        return signInWithPopup(auth, googleProvider);
     }
 
-    const loginUser = (email:string, password:string) => {
-        return signInWithEmailAndPassword(auth, email, password)
+    const githubSignIn = () => {
+        return signInWithPopup(auth, provider);
     }
+
+  // Firebase onAuthStateChanged হুক
+  useEffect(() => {
+    const unSubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+    });
+
+    return () => {
+      unSubscribe();
+    };
+  }, []);
 
   const authValue: AuthContextType = {
     user,
     setUser,
     registerUser,
-    loginUser
+    loginUser,
+    logoutUser,
+    updateProfileInfo,
+    resetPassword,
+    googleSignIn,
+    githubSignIn
   };
 
-  return (
-    <AuthContext value={authValue}>
-      {children}
-    </AuthContext>
-  );
+  return <AuthContext value={authValue}>{children}</AuthContext>;
 };
 
 export default AuthProvider;

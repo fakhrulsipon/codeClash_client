@@ -3,6 +3,7 @@ import { FaLock, FaEye, FaEyeSlash } from "react-icons/fa";
 import { useForm } from "react-hook-form";
 import { use, useState } from "react";
 import { AuthContext } from "../../provider/AuthProvider";
+import SocialLogin from "./SocialLogin";
 
 type LoginFormInputs = {
   email: string;
@@ -18,6 +19,7 @@ const LoginPage = () => {
     loginUser(data.email, data.password)
     .then((res) => {
       console.log('succssull login', res.user)
+      alert('succesfully login')
     })
     .catch((err) => {
       console.log("error", err.message)
@@ -64,30 +66,33 @@ const LoginPage = () => {
             </div>
             {errors.password && <span className="text-red-500 text-sm">{errors.password.message}</span>}
 
+            <Link
+                to="/forgot-password"
+                className="text-blue-500 text-sm hover:underline cursor-pointer"
+              >
+                Forgot password?
+              </Link>
+
             {/* Sign In Button */}
             <button
               type="submit"
-              className="mt-3 mb-2 w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition-colors"
+              className="mt-3 mb-2 w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition-colors cursor-pointer"
             >
               Sign In
             </button>
 
             {/* Links stacked vertically */}
-            <div className="flex flex-col items-center mt-2 space-y-1">
-              <Link
-                to="/forgot-password"
-                className="text-blue-500 text-sm hover:underline"
-              >
-                Forgot password?
-              </Link>
+            <div className="flex items-center mt-2 gap-1 justify-center">
+              <p>Don&apos;t have an account?</p>
               <Link
                 to="/register"
-                className="text-blue-500 text-sm hover:underline"
+                className="text-blue-500 text-sm hover:underline cursor-pointer"
               >
-                Don&apos;t have an account? Sign Up
+                  Sign Up
               </Link>
             </div>
           </form>
+          <SocialLogin></SocialLogin>
         </div>
       </div>
     </div>

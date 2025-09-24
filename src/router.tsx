@@ -23,15 +23,19 @@ const router = createBrowserRouter([
         path: "about",
         Component: About,
       },
-      {
-        path: "login",
-        Component: LoginPage,
-      },
-      {
-        path: "register",
-        Component: RegisterPage,
-      },
-    ],
+    {
+      path: 'login',
+      Component: LoginPage
+    },
+    {
+      path: 'register',
+      Component: RegisterPage
+    },
+    {
+      path: '/forgot-password',
+      element: <ForgotPasswordPage></ForgotPasswordPage>
+    }
+  ],
   },
 ]);
 
