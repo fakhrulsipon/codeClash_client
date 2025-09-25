@@ -27,7 +27,7 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
+    <div className="flex items-center justify-center min-h-screen">
       <div className="bg-white p-8 rounded-2xl shadow-lg w-full max-w-xs">
         <div className="flex flex-col items-center">
           {/* Lock Icon */}

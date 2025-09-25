@@ -80,8 +80,8 @@ const Footer = () => {
             </p>
             <ul className="mt-2 space-y-2">
               <li>
-                <a href="/" className=" hover:text-blue-600">
-                  Problem Bank
+                <a href="/problems" className=" hover:text-blue-600">
+                  Problem Set
                 </a>
               </li>
               <li>

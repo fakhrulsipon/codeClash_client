@@ -4,7 +4,7 @@ import About from "./page/about/About";
 import Home from "./page/home/Home";
 import LoginPage from "./page/login/LoginPage";
 import RegisterPage from "./page/login/RegisterPage";
-import ForgotPasswordPage from "./page/login/ForgotPasswordPage";
+import Problems from "./page/Problems/Problems";
 
 const router = createBrowserRouter([
   {
@@ -14,8 +14,11 @@ const router = createBrowserRouter([
       {
         index: true,
         Component: Home,
-        
-    },
+      },
+      {
+        path: "problems",
+        Component: Problems,
+      },
       {
         path: "about",
         Component: About,
@@ -28,13 +31,13 @@ const router = createBrowserRouter([
       path: 'register',
       Component: RegisterPage
     },
-    {
-      path: '/forgot-password',
-      element: <ForgotPasswordPage></ForgotPasswordPage>
-    }
+    // {
+    //   path: '/forgot-password',
+    //   element: <ForgotPasswordPage></ForgotPasswordPage>
+    // }
+
   ],
   },
- 
 ]);
 
 export default router;
