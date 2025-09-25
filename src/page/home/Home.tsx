@@ -1,3 +1,4 @@
+import ProblemsSection from "../../components/ProblemsSection";
 import FAQ from "./FAQ";
 import Features from "./Features";
 import Footer from "./Footer";
@@ -9,6 +10,7 @@ const Home = () => {
     <div>
       <Hero></Hero>
       <Features></Features>
+      <ProblemsSection></ProblemsSection>
       <Testimonial></Testimonial>
       <FAQ></FAQ>
       <Footer></Footer>

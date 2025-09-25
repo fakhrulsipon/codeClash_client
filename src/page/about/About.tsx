@@ -3,9 +3,9 @@ import { Users, Target, Award, Cpu } from "lucide-react";
 
 const About: React.FC = () => {
   return (
-    <div className="bg-blue-50 min-h-screen text-gray-800">
+    <div className=" min-h-screen text-gray-800">
       {/* Hero Section */}
-      <section className="text-center py-16 px-4 bg-blue-100">
+      <section className="text-center py-16 px-4">
         <h1 className="text-4xl md:text-5xl font-bold text-blue-700 mb-4">
           CodeClash
         </h1>
@@ -41,7 +41,7 @@ const About: React.FC = () => {
       </section>
 
       {/* Features */}
-      <section className="py-12 px-6 bg-blue-100">
+      <section className="py-12 px-6">
         <h2 className="text-2xl md:text-3xl font-semibold text-blue-700 mb-8 text-center">
           Key Features
         </h2>
@@ -98,7 +98,7 @@ const About: React.FC = () => {
       </section>
 
       {/* Technology */}
-      <section className="py-12 px-6 bg-blue-100">
+      <section className="py-12 px-6">
         <h2 className="text-2xl md:text-3xl font-semibold text-blue-700 mb-6 text-center">
           Technology & Innovation
         </h2>
@@ -124,7 +124,7 @@ const About: React.FC = () => {
       </section>
 
       {/* Call to Action */}
-      <section className="text-center py-12 bg-blue-200">
+      <section className="text-center py-12">
         <h2 className="text-2xl md:text-3xl font-semibold text-blue-800 mb-4">
           Ready to Code with Your Team?
         </h2>
