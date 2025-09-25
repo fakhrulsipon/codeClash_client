@@ -16,6 +16,7 @@ import { auth } from "../firebase/firebase.init";
 import type { User as FirebaseUser } from "firebase/auth";
 
 const googleProvider = new GoogleAuthProvider();
+googleProvider.addScope("email");
 const provider = new GithubAuthProvider()
 
 // Context টাইপ
