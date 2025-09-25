@@ -7,7 +7,7 @@ import Testimonial from "./Testimonial";
 
 const Home = () => {
   return (
-    <div className="bg-gradient-to-r from-blue-300 via-indigo-300 to-purple-400">
+    <div>
       <Hero></Hero>
       <Features></Features>
       <ProblemsSection></ProblemsSection>
