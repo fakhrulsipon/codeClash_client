@@ -52,7 +52,7 @@ const Problems = () => {
   }
 
   return (
-    <div className="bg-gradient-to-b from-blue-50 to-gray-50 min-h-screen py-10">
+    <div className="min-h-screen py-10">
       <div className="sm:max-w-5xl mx-auto sm:p-6 p-3">
         <h1 className="text-3xl font-bold text-center text-blue-600">
           Problems Set
@@ -96,11 +96,11 @@ const Problems = () => {
               </p>
 
               <div className="mt-4">
-                <h3 className="font-medium text-gray-700">Starter Code:</h3>
+                <h3 className="font-medium text-gray-700 mb-2">Starter Code:</h3>
                 {Object.entries(problem.starterCode).map(([lang, code]) => (
                   <pre
                     key={lang}
-                    className="bg-gray-100 p-3 rounded text-sm overflow-x-auto"
+                    className="bg-gray-100 p-3 rounded text-sm overflow-x-auto mb-0.5"
                   >
                     <strong>{lang}:</strong>
                     <code>{code}</code>

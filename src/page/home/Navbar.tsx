@@ -46,7 +46,7 @@ function Navbar() {
 
     return (
         <AppBar
-            position="static"
+            position="sticky"
             sx={{ background: "linear-gradient(to right, #1e3a8a, #2563eb)" }}
         >
             <Container maxWidth="xl">
