@@ -1,10 +1,10 @@
 import { use, useState } from "react";
 import { useForm } from "react-hook-form";
-import { Link } from "react-router";
 import { FaLock, FaEye, FaEyeSlash } from "react-icons/fa";
 import axios from "axios";
 import { AuthContext } from "../../provider/AuthProvider";
 import SocialLogin from "./SocialLogin";
+import { Link } from "react-router";
 
 type RegisterFormData = {
   fullName: string;
@@ -12,6 +12,13 @@ type RegisterFormData = {
   password: string;
   confirmPassword: string;
   postImage?: FileList;
+};
+
+type UserPayload = {
+  userName: string;
+  userEmail: string;
+  userImage: string;
+  userRole: string;
 };
 
 const RegisterPage: React.FC = () => {
@@ -53,11 +60,35 @@ const RegisterPage: React.FC = () => {
           photoURL: profileImage,
         };
         updateProfileInfo(updatInfo)
-          .then(() => {
-            alert("successfully register");
+          .then(async () => {
+
+            //post user data
+            const userData: UserPayload = {
+              userName: data.fullName,
+              userEmail: data.email,
+              userImage: profileImage,
+              userRole: "user",
+            };
+
+            try {
+              const response = await axios.post(
+                "http://localhost:3000/api/users",
+                userData
+              );
+
+              if (response.data?.userId) {
+                alert("Successfully registered and saved to DB!");
+              }
+            } catch (error) {
+              if (error instanceof Error) {
+                console.error("Error:", error.message);
+              } else {
+                console.error("Unexpected error:", error);
+              }
+            }
           })
           .catch((err) => {
-            console.log("error", err.message);
+            console.log("Error updating profile:", err.message);
           });
       })
       .catch((err) => {
