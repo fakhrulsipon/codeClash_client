@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { motion } from "framer-motion";
+import LoadingSpinner from "./LoadingSpinner";
 
 interface Problem {
   _id: string;
@@ -12,13 +13,30 @@ interface Problem {
 
 const ProblemsSection: React.FC = () => {
   const [problems, setProblems] = useState<Problem[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    axios
-      .get<Problem[]>("http://localhost:3000/api/problems")
-      .then((res) => setProblems(res.data))
-      .catch((err) => console.error(err));
-  }, []);
+    // We use an async function inside useEffect for cleaner async/await syntax.
+    const fetchProblems = async () => {
+      try {
+        const res = await axios.get<Problem[]>(
+          "http://localhost:3000/api/problems"
+        );
+        setProblems(res.data);
+      } catch (err) {
+        console.error("Failed to fetch problems:", err);
+        // You could also set an error state here to show a user-friendly message
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProblems();
+  }, []); // The empty dependency array ensures this effect runs only once on mount.
+
+  if (loading) {
+    return <LoadingSpinner />;
+  }
 
   return (
     <section className="relative py-16 px-6 overflow-hidden">
@@ -43,7 +61,7 @@ const ProblemsSection: React.FC = () => {
           return (
             <motion.a
               key={problem._id}
-              href={`/problems/${problem._id}`}
+              href={`/problems`}
               initial={{ opacity: 0, x: fromLeft ? -200 : 200 }}
               whileInView={{ opacity: 1, x: offsetX }}
               viewport={{ once: false, amount: 0.3 }}
@@ -58,17 +76,18 @@ const ProblemsSection: React.FC = () => {
                 {problem.title}
               </h3>
               <p className="mt-2 text-sm text-gray-700">
-                Category: <span className="font-medium">{problem.category}</span>
+                Category:{" "}
+                <span className="font-medium">{problem.category}</span>
               </p>
               <p className="text-sm mt-1">
                 Difficulty:{" "}
                 <span
-                  className={`font-bold ${
+                  className={`px-3 py-1 rounded-full font-bold ${
                     problem.difficulty === "easy"
-                      ? "text-green-600"
+                      ? "bg-green-100 text-green-600"
                       : problem.difficulty === "medium"
-                      ? "text-yellow-500"
-                      : "text-red-600"
+                        ? "bg-yellow-100 text-yellow-500"
+                        : "bg-red-100 text-red-600"
                   }`}
                 >
                   {problem.difficulty}

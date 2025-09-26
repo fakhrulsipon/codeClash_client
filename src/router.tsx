@@ -5,40 +5,68 @@ import Home from "./page/home/Home";
 import LoginPage from "./page/login/LoginPage";
 import RegisterPage from "./page/login/RegisterPage";
 import Problems from "./page/Problems/Problems";
-import ForgotPasswordPage from "./page/login/ForgotPasswordPage";
+import DashboardLayout from "./layout/DashboardLayout";
+import DashboardHome from "./page/dashboard/dashboardHome/DashboardHome";
+import Error from "./page/error/Error";
+import AddContest from "./page/dashboard/addContest/AddContest";
 import PrivetRoute from "./route/PrivetRoute";
+import ForgotPasswordPage from "./page/login/ForgotPasswordPage";
 
 const router = createBrowserRouter([
   {
     path: "/",
-    Component: Mainlayout,
+    element: <Mainlayout />,
+    errorElement: <Error />,
     children: [
       {
         index: true,
-        Component: Home,
+        element: <Home />,
       },
       {
         path: "problems",
-        element: <PrivetRoute><Problems></Problems></PrivetRoute>
+        element: (
+          <PrivetRoute>
+            <Problems />
+          </PrivetRoute>
+        ),
       },
       {
         path: "about",
-        Component: About,
+        element: <About />,
       },
-    {
-      path: 'login',
-      Component: LoginPage
-    },
-    {
-      path: 'register',
-      Component: RegisterPage
-    },
-    {
-      path: '/forgot-password',
-      element: <ForgotPasswordPage></ForgotPasswordPage>
-    }
+      {
+        path: "login",
+        element: <LoginPage />,
+      },
+      {
+        path: "register",
+        element: <RegisterPage />,
+      },
+      {
+        path: "forgot-password",
+        element: <ForgotPasswordPage />,
+      },
+    ],
+  },
 
-  ],
+  // ========= admin dashboard ===========
+  {
+    path: "/dashboard",
+    element: <DashboardLayout />,
+    children: [
+      {
+        index: true,
+        element: <DashboardHome />,
+      },
+      {
+        path: "addContest",
+        element: <AddContest />,
+      },
+    ],
+  },
+  {
+    path: "/*",
+    element: <Error />,
   },
 ]);
 

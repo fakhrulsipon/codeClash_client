@@ -18,6 +18,7 @@ import toast from "react-hot-toast";
 const pages = [
   { name: "Home", path: "/" },
   { name: "Problem set", path: "/problems" },
+  {name:"Dashboard",path:"/dashboard"},
   { name: "About", path: "/about" },
 ];
 const settings = ["Profile"];

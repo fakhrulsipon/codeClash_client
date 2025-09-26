@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import LoadingSpinner from "../../components/LoadingSpinner";
 
 interface StarterCode {
   javascript: string;
@@ -31,7 +32,7 @@ const Problems = () => {
   useEffect(() => {
     const fetchProblems = async () => {
       try {
-        const res = await fetch("http://localhost:3000/api/problems"); // server route
+        const res = await fetch("http://localhost:3000/api/problems");
         const data = await res.json();
         setProblems(data);
       } catch (error) {
@@ -44,11 +45,7 @@ const Problems = () => {
   }, []);
 
   if (loading) {
-    return (
-      <div className="flex justify-center items-center h-screen text-xl font-semibold text-gray-600">
-        Loading Problems...
-      </div>
-    );
+    return <LoadingSpinner />;
   }
 
   return (
@@ -96,7 +93,9 @@ const Problems = () => {
               </p>
 
               <div className="mt-4">
-                <h3 className="font-medium text-gray-700 mb-2">Starter Code:</h3>
+                <h3 className="font-medium text-gray-700 mb-2">
+                  Starter Code:
+                </h3>
                 {Object.entries(problem.starterCode).map(([lang, code]) => (
                   <pre
                     key={lang}
