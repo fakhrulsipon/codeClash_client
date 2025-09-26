@@ -13,6 +13,7 @@ import MenuItem from "@mui/material/MenuItem";
 import { Link } from "react-router"
 import Logo from "../../components/Logo";
 import { AuthContext } from "../../provider/AuthProvider";
+import toast from "react-hot-toast";
 
 const pages = [
   { name: "Home", path: "/" },
@@ -48,10 +49,10 @@ function Navbar() {
     const handleLogout = () => {
      logoutUser()
      .then(() => {
-        alert('logout successfully')
+        toast.success("👋 Logged out successfully!");
      })
-     .catch((err) => {
-        console.log(err.message)
+     .catch((error) => {
+         toast.error("❌ Logout failed: " + error.message);
      })
     }
 
@@ -152,7 +153,7 @@ function Navbar() {
                             <Tooltip title="Open settings">
                                 <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
                                     {
-                                        user && <img className="w-12 h-12 rounded-full" src={user?.photoURL || "/default-img.jpg"} /> 
+                                        user && <img className="w-8 h-8 md:w-12 md:h-12 rounded-full" src={user?.photoURL || "/default-img.jpg"} /> 
                                     }
                                 </IconButton>
                             </Tooltip>

@@ -4,7 +4,8 @@ import { FaLock, FaEye, FaEyeSlash } from "react-icons/fa";
 import axios from "axios";
 import { AuthContext } from "../../provider/AuthProvider";
 import SocialLogin from "./SocialLogin";
-import { Link } from "react-router";
+import { Link, useLocation, useNavigate } from "react-router";
+import toast from "react-hot-toast";
 
 type RegisterFormData = {
   fullName: string;
@@ -27,6 +28,8 @@ const RegisterPage: React.FC = () => {
   const [showConfirmPassword, setShowConfirmPassword] =
     useState<boolean>(false);
   const [profileImage, setProfileImage] = useState<string>("");
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const {
     register,
@@ -77,7 +80,8 @@ const RegisterPage: React.FC = () => {
               );
 
               if (response.data?.userId) {
-                alert("Successfully registered and saved to DB!");
+                toast.success("🎉 Account created successfully!");
+                navigate(location.state || '/')
               }
             } catch (error) {
               if (error instanceof Error) {
