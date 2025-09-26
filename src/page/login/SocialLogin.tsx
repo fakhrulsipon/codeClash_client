@@ -3,6 +3,8 @@ import { FaGithub } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
 import { AuthContext } from "../../provider/AuthProvider";
 import axios from "axios";
+import { useLocation, useNavigate } from "react-router";
+import toast from "react-hot-toast";
 
 type UserPayload = {
   userName: string;
@@ -13,6 +15,10 @@ type UserPayload = {
 
 const SocialLogin = () => {
   const { googleSignIn, githubSignIn } = use(AuthContext)!;
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  
 
   // database a save korar function
   const saveUserToDB = async (user: UserPayload) => {
@@ -48,10 +54,11 @@ const SocialLogin = () => {
 
         saveUserToDB(userData);
 
-        alert("Successfully login with Google");
+        toast.success("✅ Successfully logged in with Google");
+        navigate(location.state || '/')
       })
       .catch((err) => {
-        console.log("error", err.message);
+        toast.error("❌ Google login failed: " + err.message);
       });
   };
 
@@ -70,10 +77,12 @@ const SocialLogin = () => {
 
         saveUserToDB(userData);
 
-        alert("Successfully login with GitHub");
+        toast.success("✅ Successfully logged in with GitHub");
+        navigate(location.state || '/')
       })
       .catch((err) => {
         console.log(err.message);
+         toast.error("❌ GitHub login failed: " + err.message);
       });
   };
 

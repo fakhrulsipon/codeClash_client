@@ -6,6 +6,7 @@ import LoginPage from "./page/login/LoginPage";
 import RegisterPage from "./page/login/RegisterPage";
 import Problems from "./page/Problems/Problems";
 import ForgotPasswordPage from "./page/login/ForgotPasswordPage";
+import PrivetRoute from "./route/PrivetRoute";
 
 const router = createBrowserRouter([
   {
@@ -18,7 +19,7 @@ const router = createBrowserRouter([
       },
       {
         path: "problems",
-        Component: Problems,
+        element: <PrivetRoute><Problems></Problems></PrivetRoute>
       },
       {
         path: "about",

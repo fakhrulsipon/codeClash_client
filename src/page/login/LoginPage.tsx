@@ -1,9 +1,10 @@
-import { Link } from "react-router";
+import { Link, useLocation, useNavigate } from "react-router";
 import { FaLock, FaEye, FaEyeSlash } from "react-icons/fa";
 import { useForm } from "react-hook-form";
 import { use, useState } from "react";
 import { AuthContext } from "../../provider/AuthProvider";
 import SocialLogin from "./SocialLogin";
+import toast from "react-hot-toast";
 
 type LoginFormInputs = {
   email: string;
@@ -14,15 +15,18 @@ const LoginPage = () => {
   const {loginUser} = use(AuthContext)!;
   const { register, handleSubmit, formState: { errors } } = useForm<LoginFormInputs>();
   const [showPassword, setShowPassword] = useState<boolean>(false);
+   const navigate = useNavigate();
+    const location = useLocation();
 
   const onSubmit = (data: LoginFormInputs) => {
     loginUser(data.email, data.password)
     .then((res) => {
       console.log('succssull login', res.user)
-      alert('succesfully login')
+      toast.success("✅ Login successful!")
+      navigate(location.state || '/')
     })
-    .catch((err) => {
-      console.log("error", err.message)
+    .catch((error) => {
+      toast.error("❌ Login failed: " + error.message);
     })
   };
 
