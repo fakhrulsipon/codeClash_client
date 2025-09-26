@@ -16,6 +16,7 @@ import { auth } from "../firebase/firebase.init";
 import type { User as FirebaseUser } from "firebase/auth";
 
 const googleProvider = new GoogleAuthProvider();
+googleProvider.addScope("email");
 const provider = new GithubAuthProvider()
 
 // Context টাইপ
@@ -32,6 +33,7 @@ interface AuthContextType {
   resetPassword: (email: string) => Promise<void>;
   googleSignIn: () => Promise<UserCredential>;
   githubSignIn: () => Promise<UserCredential>;
+  loading: boolean;
 }
 
 // Context তৈরি
@@ -44,17 +46,21 @@ interface AuthProviderProps {
 
 const AuthProvider = ({ children }: AuthProviderProps) => {
   const [user, setUser] = useState<FirebaseUser | null>(null);
+  const [loading, setLoading] = useState<boolean>(true)
   console.log(user);
 
   const registerUser = (email: string, password: string) => {
+    setLoading(true)
     return createUserWithEmailAndPassword(auth, email, password);
   };
 
   const loginUser = (email: string, password: string) => {
+     setLoading(true)
     return signInWithEmailAndPassword(auth, email, password);
   };
 
   const logoutUser = () => {
+     setLoading(true)
     return signOut(auth);
   };
 
@@ -74,10 +80,12 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
 };
 
 const googleSignIn = () => {
+   setLoading(true)
         return signInWithPopup(auth, googleProvider);
     }
 
     const githubSignIn = () => {
+       setLoading(true)
         return signInWithPopup(auth, provider);
     }
 
@@ -85,6 +93,7 @@ const googleSignIn = () => {
   useEffect(() => {
     const unSubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
+      setLoading(false);
     });
 
     return () => {
@@ -101,7 +110,8 @@ const googleSignIn = () => {
     updateProfileInfo,
     resetPassword,
     googleSignIn,
-    githubSignIn
+    githubSignIn,
+    loading,
   };
 
   return <AuthContext value={authValue}>{children}</AuthContext>;

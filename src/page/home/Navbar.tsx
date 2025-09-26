@@ -7,12 +7,13 @@ import Typography from "@mui/material/Typography";
 import Menu from "@mui/material/Menu";
 import MenuIcon from "@mui/icons-material/Menu";
 import Container from "@mui/material/Container";
-import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
 import { Link } from "react-router"
 import Logo from "../../components/Logo";
+import { AuthContext } from "../../provider/AuthProvider";
+import toast from "react-hot-toast";
 
 const pages = [
   { name: "Home", path: "/" },
@@ -20,7 +21,7 @@ const pages = [
   {name:"Dashboard",path:"/dashboard"},
   { name: "About", path: "/about" },
 ];
-const settings = ["Profile", "Dashboard", "Logout"];
+const settings = ["Profile"];
 
 function Navbar() {
     const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(
@@ -29,6 +30,7 @@ function Navbar() {
     const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(
         null
     );
+    const { user, logoutUser } = React.use(AuthContext)!;
 
     const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
         setAnchorElNav(event.currentTarget);
@@ -44,6 +46,16 @@ function Navbar() {
     const handleCloseUserMenu = () => {
         setAnchorElUser(null);
     };
+
+    const handleLogout = () => {
+     logoutUser()
+     .then(() => {
+        toast.success("👋 Logged out successfully!");
+     })
+     .catch((error) => {
+         toast.error("❌ Logout failed: " + error.message);
+     })
+    }
 
     return (
         <AppBar
@@ -137,11 +149,13 @@ function Navbar() {
                     </Box>
 
                     {/*  User Menu */}
-                    <div className="hidden">
+                    <div className="">
                         <Box sx={{ flexGrow: 0 }}>
                             <Tooltip title="Open settings">
                                 <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                                    <Avatar alt="User" src="/static/images/avatar/2.jpg" />
+                                    {
+                                        user && <img className="w-8 h-8 md:w-12 md:h-12 rounded-full" src={user?.photoURL || "/default-img.jpg"} /> 
+                                    }
                                 </IconButton>
                             </Tooltip>
                             <Menu
@@ -171,13 +185,20 @@ function Navbar() {
                         </Box>
                     </div>
 
-                    {/*  Login Button */}
-                    <Link to="/login">
+                    {
+                        user ? (
+                            <button onClick={handleLogout} className="ml-4 px-3 py-1 sm:px-4 sm:py-2 md:px-5 md:py-2 bg-yellow-400 text-blue-900 font-semibold rounded-lg hover:bg-yellow-500 transition-colors text-sm sm:text-base">Logout</button>
+
+                    
+                        ): (
+                           <Link to="/login">
                         <button className="ml-4 px-3 py-1 sm:px-4 sm:py-2 md:px-5 md:py-2 bg-yellow-400 text-blue-900 font-semibold rounded-lg hover:bg-yellow-500 transition-colors text-sm sm:text-base">
                             Login
                         </button>
-
-                    </Link>
+                        </Link>
+                        )
+                    }
+                    
                 </Toolbar>
             </Container>
         </AppBar>

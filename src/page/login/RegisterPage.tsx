@@ -1,10 +1,11 @@
 import { use, useState } from "react";
 import { useForm } from "react-hook-form";
-import { Link } from "react-router";
 import { FaLock, FaEye, FaEyeSlash } from "react-icons/fa";
 import axios from "axios";
 import { AuthContext } from "../../provider/AuthProvider";
 import SocialLogin from "./SocialLogin";
+import { Link, useLocation, useNavigate } from "react-router";
+import toast from "react-hot-toast";
 
 type RegisterFormData = {
   fullName: string;
@@ -14,12 +15,21 @@ type RegisterFormData = {
   postImage?: FileList;
 };
 
+type UserPayload = {
+  userName: string;
+  userEmail: string;
+  userImage: string;
+  userRole: string;
+};
+
 const RegisterPage: React.FC = () => {
   const { registerUser, updateProfileInfo } = use(AuthContext)!;
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [showConfirmPassword, setShowConfirmPassword] =
     useState<boolean>(false);
   const [profileImage, setProfileImage] = useState<string>("");
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const {
     register,
@@ -53,11 +63,36 @@ const RegisterPage: React.FC = () => {
           photoURL: profileImage,
         };
         updateProfileInfo(updatInfo)
-          .then(() => {
-            alert("successfully register");
+          .then(async () => {
+
+            //post user data
+            const userData: UserPayload = {
+              userName: data.fullName,
+              userEmail: data.email,
+              userImage: profileImage,
+              userRole: "user",
+            };
+
+            try {
+              const response = await axios.post(
+                "http://localhost:3000/api/users",
+                userData
+              );
+
+              if (response.data?.userId) {
+                toast.success("🎉 Account created successfully!");
+                navigate(location.state || '/')
+              }
+            } catch (error) {
+              if (error instanceof Error) {
+                console.error("Error:", error.message);
+              } else {
+                console.error("Unexpected error:", error);
+              }
+            }
           })
           .catch((err) => {
-            console.log("error", err.message);
+            console.log("Error updating profile:", err.message);
           });
       })
       .catch((err) => {
