@@ -187,12 +187,12 @@ function Navbar() {
 
                     {
                         user ? (
-                            <button onClick={handleLogout} className="ml-4 px-3 py-1 sm:px-4 sm:py-2 md:px-5 md:py-2 bg-yellow-400 text-blue-900 font-semibold rounded-lg hover:bg-yellow-500 transition-colors text-sm sm:text-base">Logout</button>
+                            <button onClick={handleLogout} className="ml-4 px-3 py-1 sm:px-4 sm:py-2 md:px-5 md:py-2 bg-yellow-400 text-blue-900 font-semibold rounded-lg hover:bg-yellow-500 transition-colors text-sm sm:text-base cursor-pointer">Logout</button>
 
                     
                         ): (
                            <Link to="/login">
-                        <button className="ml-4 px-3 py-1 sm:px-4 sm:py-2 md:px-5 md:py-2 bg-yellow-400 text-blue-900 font-semibold rounded-lg hover:bg-yellow-500 transition-colors text-sm sm:text-base">
+                        <button className="ml-4 px-3 py-1 sm:px-4 sm:py-2 md:px-5 md:py-2 bg-yellow-400 text-blue-900 font-semibold rounded-lg hover:bg-yellow-500 transition-colors text-sm sm:text-base cursor-pointer">
                             Login
                         </button>
                         </Link>

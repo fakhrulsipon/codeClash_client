@@ -1,3 +1,4 @@
+import ContestSection from "../../components/ContestSection";
 import ProblemsSection from "../../components/ProblemsSection";
 import FAQ from "./FAQ";
 import Features from "./Features";
@@ -11,6 +12,7 @@ const Home = () => {
       <Hero></Hero>
       <Features></Features>
       <ProblemsSection></ProblemsSection>
+      <ContestSection></ContestSection>
       <Testimonial></Testimonial>
       <FAQ></FAQ>
       <Footer></Footer>
