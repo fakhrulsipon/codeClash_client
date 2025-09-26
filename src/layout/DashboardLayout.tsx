@@ -40,14 +40,14 @@ export default function DashboardLayout() {
   );
 
   return (
-    <div className="h-screen bg-gray-100">
+    <div className=" bg-gray-100">
       {/* Navbar for desktop */}
       <div className="pb-5">
         <DashboardNavbar />
       </div>
       <div className="flex">
         {/* Sidebar for desktop only (lg↑) */}
-        <aside className="hidden lg:flex flex-col w-64 h-screen bg-white -mt-5">
+        <aside className="hidden lg:flex flex-col w-64 h-screen bg-white fixed top-0 left-0 shadow-md">
           <div className="p-6 text-2xl font-bold text-blue-600">Dashboard</div>
           <nav className="flex flex-col gap-2 p-4">{links}</nav>
         </aside>
