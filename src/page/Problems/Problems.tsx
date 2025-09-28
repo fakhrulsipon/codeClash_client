@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import LoadingSpinner from "../../components/LoadingSpinner";
+import { Link } from "react-router";
 
 interface StarterCode {
   javascript: string;
@@ -86,41 +87,13 @@ const Problems = () => {
                 <span className="px-3 py-1 rounded-full bg-blue-100 text-blue-600 text-sm font-medium">
                   {problem.category}
                 </span>
+                
               </div>
-
-              <p className="mt-4 text-sm text-gray-500">
-                Languages: {problem.languages.join(", ")}
-              </p>
-
-              <div className="mt-4">
-                <h3 className="font-medium text-gray-700 mb-2">
-                  Starter Code:
-                </h3>
-                {Object.entries(problem.starterCode).map(([lang, code]) => (
-                  <pre
-                    key={lang}
-                    className="bg-gray-100 p-3 rounded text-sm overflow-x-auto mb-0.5"
-                  >
-                    <strong>{lang}:</strong>
-                    <code>{code}</code>
-                  </pre>
-                ))}
-              </div>
-
-              <div className="mt-4">
-                <h3 className="font-medium text-gray-700">Test Cases:</h3>
-                <ul className="list-disc list-inside">
-                  {problem.testCases.map((test, index) => (
-                    <li key={index} className="text-sm text-gray-600">
-                      Input: <code>{test.input}</code> → Expected Output:{" "}
-                      <code>{test.expectedOutput}</code>
-                    </li>
-                  ))}
-                </ul>
-              </div>
+              <Link to={`/problems/${problem._id}`}><button className="bg-emerald-500 px-5 py-3 mt-6 text-white hover:bg-emerald-700 cursor-pointer rounded-2xl">Solve Problem</button></Link>
             </li>
           ))}
         </ul>
+        
       </div>
     </div>
   );

@@ -11,6 +11,7 @@ import Error from "./page/error/Error";
 import AddContest from "./page/dashboard/addContest/AddContest";
 import PrivetRoute from "./route/PrivetRoute";
 import ForgotPasswordPage from "./page/login/ForgotPasswordPage";
+import SolveProblem from "./page/SolveProblem";
 
 const router = createBrowserRouter([
   {
@@ -45,6 +46,14 @@ const router = createBrowserRouter([
       {
         path: "forgot-password",
         element: <ForgotPasswordPage />,
+      },
+      {
+        path: "problems/:id",
+        element: (
+          <PrivetRoute>
+            <SolveProblem />
+          </PrivetRoute>
+        ),
       },
     ],
   },
