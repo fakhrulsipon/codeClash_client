@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import LoadingSpinner from "../../../components/LoadingSpinner";
+import LoadingSpinner from "../../components/LoadingSpinner";
 
 type Problem = {
   _id: string;
@@ -62,7 +62,7 @@ const AllContests: React.FC = () => {
   };
 
   return (
-    <div className="p-4 sm:p-6 max-w-7xl mx-auto min-h-screen">
+    <div className="p-4 sm:p-6 max-w-7xl mx-auto mb-0">
       <h1 className="text-3xl sm:text-4xl font-bold mb-6 text-center text-blue-800">
         All Contests
       </h1>
@@ -77,18 +77,18 @@ const AllContests: React.FC = () => {
       />
 
       {/* Contest grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 auto-rows-fr">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 justify-items-center">
         {filtered.map((contest) => {
           const status = getStatus(contest.startTime, contest.endTime);
           return (
             <div
               key={contest._id}
-              className="w-full h-full relative rounded-3xl p-5 sm:p-6 bg-gradient-to-br from-white/80 via-blue-50/80 to-cyan-50/80
-                         backdrop-blur-lg border border-white/30 shadow-lg hover:shadow-2xl transition-transform duration-300 hover:scale-105 flex flex-col justify-between"
+              className="w-full max-w-sm relative rounded-3xl p-5 sm:p-6 bg-gradient-to-br from-white/80 via-blue-50/80 to-cyan-50/80
+             backdrop-blur-lg border border-white/30 shadow-lg hover:shadow-2xl transition-transform duration-300 hover:scale-105 flex flex-col justify-between"
             >
               {/* Status badge */}
               <span
-                className={`absolute top-4 right-4 px-3 py-1 rounded-full text-sm font-semibold ${statusColors[status]}`}
+                className={`absolute top-4 right-4 px-3 py-1 rounded-full text-sm mt-0 md:mt-16 font-semibold ${statusColors[status]}`}
               >
                 {status}
               </span>
