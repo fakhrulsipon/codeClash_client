@@ -12,6 +12,7 @@ import AddContest from "./page/dashboard/addContest/AddContest";
 import PrivetRoute from "./route/PrivetRoute";
 import ForgotPasswordPage from "./page/login/ForgotPasswordPage";
 import AllContests from "./page/contests/AllContests";
+import ContestDetails from "./page/contests/ContestDetails";
 
 const router = createBrowserRouter([
   {
@@ -34,6 +35,10 @@ const router = createBrowserRouter([
       {
         path: "all-contests",
         element: <AllContests></AllContests>
+      },
+      {
+        path: "/contests/:id",
+        element: <ContestDetails></ContestDetails>
       },
       {
         path: "about",
