@@ -14,6 +14,8 @@ import ForgotPasswordPage from "./page/login/ForgotPasswordPage";
 import AllContests from "./page/contests/AllContests";
 import ContestDetails from "./page/contests/ContestDetails";
 import SolveProblem from "./page/SolveProblem";
+import Profile from "./page/Profile";
+import History from "./page/History";
 
 const router = createBrowserRouter([
   {
@@ -65,6 +67,14 @@ const router = createBrowserRouter([
           </PrivetRoute>
         ),
       },
+      {
+        path: 'profile',
+        element: <PrivetRoute><Profile/></PrivetRoute>
+      },
+      {
+        path: 'history',
+        element: <PrivetRoute><History/></PrivetRoute>
+      }
     ],
   },
 
