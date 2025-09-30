@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router";
 import axios from "axios";
 import LoadingSpinner from "../../components/LoadingSpinner";
+import Modal from "react-modal";
 
 type Problem = {
   _id: string;
@@ -16,18 +17,19 @@ type Contest = {
   title: string;
   startTime: string;
   endTime: string;
+  type: string; // "individual" or "team"
   problems: Problem[];
-  createdAt: string;
-  type: string;
   description?: string;
 };
 
 const ContestDetails: React.FC = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+
   const [contest, setContest] = useState<Contest | null>(null);
   const [loading, setLoading] = useState(true);
   const [timeLeft, setTimeLeft] = useState<string>("");
+  const [modalOpen, setModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchContest = async () => {
@@ -86,7 +88,6 @@ const ContestDetails: React.FC = () => {
   }, [contest]);
 
   if (loading) return <LoadingSpinner />;
-
   if (!contest)
     return (
       <p className="text-center mt-10 text-red-500 text-lg">
@@ -94,36 +95,39 @@ const ContestDetails: React.FC = () => {
       </p>
     );
 
-  const getStatus = () => {
-    const now = new Date().getTime();
-    if (now < new Date(contest.startTime).getTime()) return "Upcoming";
-    if (now > new Date(contest.endTime).getTime()) return "Finished";
-    return "Running";
+  const now = new Date().getTime();
+  const start = new Date(contest.startTime).getTime();
+  const end = new Date(contest.endTime).getTime();
+
+  const status: "Upcoming" | "Running" | "Finished" =
+    now < start ? "Upcoming" : now > end ? "Finished" : "Running";
+
+  const handleJoinClick = () => {
+    if (contest.type.toLowerCase() === "individual") {
+      setModalOpen(true); // open modal for individual contests
+    } else {
+      navigate(`/contests/${contest._id}/join`); // team contest → join page
+    }
   };
 
-  const statusColors: Record<string, string> = {
-    Upcoming: "bg-yellow-300 text-yellow-900",
-    Running: "bg-green-300 text-green-900",
-    Finished: "bg-gray-300 text-gray-900",
+  const confirmJoinIndividual = () => {
+    setModalOpen(false);
+    navigate(`/contests/${contest._id}/lobby`);
   };
 
   return (
-    <div className="p-6 max-w-6xl mx-auto">
-      <div
-        className="rounded-3xl p-6 bg-gradient-to-r from-blue-300 via-indigo-300 to-purple-400
-                      shadow-2xl backdrop-blur-lg text-gray-800 relative hover:scale-[1.02] transition-transform duration-300"
-      >
+    <div className="p-6 max-w-6xl mx-auto min-h-screen">
+      <div className="rounded-3xl p-6 bg-gradient-to-r from-blue-300 via-indigo-300 to-purple-400 shadow-2xl backdrop-blur-lg text-gray-800 relative hover:scale-[1.02] transition-transform duration-300">
         {/* Status Badge */}
         <span
-          className={`absolute top-4 right-4 px-4 py-1 rounded-full font-semibold shadow-lg ${statusColors[getStatus()]}`}
+          className={`absolute top-4 right-4 px-4 py-1 rounded-full font-semibold shadow-lg ${status === "Upcoming" ? "bg-yellow-300 text-yellow-900" : status === "Running" ? "bg-green-300 text-green-900" : "bg-gray-300 text-gray-900"}`}
         >
-          {getStatus()}
+          {status}
         </span>
 
         <h1 className="text-3xl sm:text-4xl font-extrabold mb-4 drop-shadow-sm">
           {contest.title}
         </h1>
-
         <p className="text-sm sm:text-base mb-2">
           <strong>Type:</strong> {contest.type} | <strong>Created:</strong>{" "}
           {new Date(contest.createdAt).toLocaleDateString()}
@@ -167,13 +171,62 @@ const ContestDetails: React.FC = () => {
           ))}
         </div>
 
+        {/* ✅ Join Contest Button */}
         <button
-          onClick={() => navigate(`/contest/${contest._id}/join`)}
-          className="px-6 py-3 bg-white text-purple-700 font-bold rounded-full shadow-lg hover:scale-105 transition-transform duration-200"
+          disabled={status === "Finished"}
+          onClick={handleJoinClick}
+          className={`px-6 py-3 rounded-full font-bold shadow-lg transition-transform duration-200 ${
+            status === "Finished"
+              ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+              : "bg-white text-purple-700 hover:scale-105"
+          }`}
         >
-          Join Contest
+          {status === "Finished" ? "Contest Ended" : "Join Contest"}
         </button>
       </div>
+
+      {/* Modal for Individual Contest Confirmation */}
+      {/* Modal for Individual Contest Confirmation */}
+      <Modal
+        isOpen={modalOpen}
+        onRequestClose={() => setModalOpen(false)}
+        overlayClassName="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+        className="bg-gradient-to-tr from-purple-400 via-pink-300 to-indigo-400 rounded-3xl p-8 shadow-2xl max-w-md mx-auto relative animate-fade-in"
+      >
+        {/* Close button */}
+        <button
+          onClick={() => setModalOpen(false)}
+          className="absolute top-4 right-4 text-white font-bold text-xl hover:text-gray-200"
+        >
+          &times;
+        </button>
+
+        <div className="text-center text-gray-200">
+          <h2 className="text-3xl font-extrabold text-white mb-4 drop-shadow-lg">
+            {contest.title}
+          </h2>
+          <p className="text-white/90 mb-6 text-lg">
+            You are about to join this individual contest. Make sure you are
+            ready to compete!
+          </p>
+
+         
+          <div className="flex justify-center gap-4">
+            <button
+              onClick={() => setModalOpen(false)}
+              className="px-5 py-2 rounded-full bg-white/30 text-white font-semibold hover:bg-white/50 transition-all duration-200"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={confirmJoinIndividual}
+              className="px-5 py-2 rounded-full bg-white text-purple-700 font-bold hover:scale-105 hover:shadow-lg transition-all duration-200"
+            >
+              Confirm Join
+            </button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 };
