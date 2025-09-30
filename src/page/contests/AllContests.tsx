@@ -62,7 +62,7 @@ const AllContests: React.FC = () => {
   };
 
   return (
-    <div className="p-4 sm:p-6 max-w-7xl mx-auto mb-0">
+    <div className="p-4 sm:p-6 max-w-7xl mx-auto min-h-screen">
       <h1 className="text-3xl sm:text-4xl font-bold mb-6 text-center text-blue-800">
         All Contests
       </h1>
