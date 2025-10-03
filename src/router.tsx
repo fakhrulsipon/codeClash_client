@@ -17,7 +17,20 @@ import JoinContest from "./page/contests/JoinContest";
 import ContestLobby from "./page/contests/ContestLobby";
 import ContestWorkspace from "./page/contests/ContestWorkspace";
 import CreactePrombels from "./createProblems/createProblems";
+import ProfilePage from "./page/profile/ProfilePage";
 
+
+  const user = {
+    name: "Rifat Hasan",
+    email: "rifat@example.com",
+    avatarUrl: "https://i.pravatar.cc/150?img=12",
+    stats: {
+      problemsSolved: 35,
+      challengesParticipated: 10,
+      teams: 3,
+    },
+
+  };
 const router = createBrowserRouter([
   {
     path: "/",
@@ -58,7 +71,7 @@ const router = createBrowserRouter([
       },
       {
         path: "contests/:contestId/workspace",
-        element: <ContestWorkspace></ContestWorkspace>
+        element: <ContestWorkspace></ContestWorkspace>,
       },
       {
         path: "about",
@@ -94,8 +107,12 @@ const router = createBrowserRouter([
       },
       {
         path: "createProblems",
-        element: <CreactePrombels/>,
-      }
+        element: <CreactePrombels />,
+      },
+      {
+        path: "/dashboard/profile",
+        element: <ProfilePage {...user} />,
+      },
     ],
   },
   {
