@@ -13,7 +13,6 @@ import PrivetRoute from "./route/PrivetRoute";
 import ForgotPasswordPage from "./page/login/ForgotPasswordPage";
 import AllContests from "./page/contests/AllContests";
 import ContestDetails from "./page/contests/ContestDetails";
-import JoinContest from "./page/contests/JoinContest";
 import ContestLobby from "./page/contests/ContestLobby";
 import ContestWorkspace from "./page/contests/ContestWorkspace";
 
@@ -46,10 +45,6 @@ const router = createBrowserRouter([
             <ContestDetails></ContestDetails>
           </PrivetRoute>
         ),
-      },
-      {
-        path: "contests/:contestId/join",
-        element: <JoinContest></JoinContest>,
       },
       {
         path: "contests/:contestId/lobby",

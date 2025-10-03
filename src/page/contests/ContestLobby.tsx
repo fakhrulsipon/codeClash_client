@@ -44,8 +44,7 @@ const ContestLobby: React.FC = () => {
         setContest(res.data);
 
         // For team contests, fetch team members (mock example)
-        if (res.data.type.toLowerCase() === "team") {
-          // Replace with real API if you have team data
+        if (res.data.type?.toLowerCase() === "team") {
           setTeamMembers([
             { name: "Alice", email: "alice@example.com" },
             { name: "Bob", email: "bob@example.com" },
@@ -65,24 +64,46 @@ const ContestLobby: React.FC = () => {
   useEffect(() => {
     if (!contest) return;
 
-    const interval = setInterval(() => {
-      const now = new Date().getTime();
-      const start = new Date(contest.startTime).getTime();
-      const distance = start - now;
+    const contestType = contest.type?.toLowerCase();
 
-      if (distance <= 0) {
-        clearInterval(interval);
-        navigate(`/contests/${contest._id}/workspace`);
-        return;
-      }
+    // Individual contest: 5-second countdown
+    if (contestType === "individual") {
+      let counter = 5;
+      setTimeLeft(`${counter}s`);
 
-      const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-      const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+      const interval = setInterval(() => {
+        counter -= 1;
+        setTimeLeft(`${counter}s`);
+        if (counter <= 0) {
+          clearInterval(interval);
+          navigate(`/contests/${contest._id}/workspace`);
+        }
+      }, 1000);
 
-      setTimeLeft(`${minutes}m ${seconds}s`);
-    }, 1000);
+      return () => clearInterval(interval);
+    }
 
-    return () => clearInterval(interval);
+    // Team contest: countdown until startTime
+    if (contestType === "team") {
+      const interval = setInterval(() => {
+        const now = new Date().getTime();
+        const start = new Date(contest.startTime).getTime();
+        const distance = start - now;
+
+        if (distance <= 0) {
+          clearInterval(interval);
+          navigate(`/contests/${contest._id}/workspace`);
+          return;
+        }
+
+        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+        setTimeLeft(`${minutes}m ${seconds}s`);
+      }, 1000);
+
+      return () => clearInterval(interval);
+    }
   }, [contest, navigate]);
 
   if (loading) return <LoadingSpinner />;
@@ -93,11 +114,13 @@ const ContestLobby: React.FC = () => {
       <div className="bg-gradient-to-r from-indigo-300 via-purple-300 to-pink-300 rounded-3xl p-8 shadow-2xl text-gray-800 text-center">
         <h1 className="text-3xl font-bold mb-4">{contest.title}</h1>
         <p className="text-lg mb-4">
-          Contest starts in:
+          {contest.type?.toLowerCase() === "individual"
+            ? "You will be redirected in:"
+            : "Contest starts in:"}
           <span className="ml-2 font-mono bg-white/30 px-3 py-1 rounded">{timeLeft}</span>
         </p>
 
-        {contest.type.toLowerCase() === "team" && (
+        {contest.type?.toLowerCase() === "team" && (
           <div className="mb-6">
             <h2 className="text-2xl font-semibold mb-2">Team Members</h2>
             {teamMembers.length > 0 ? (
