@@ -1,5 +1,8 @@
 import { useState } from "react";
 import Swal from "sweetalert2"; // SweetAlert2
+import Lottie from "lottie-react";
+import contestAnimation from "../../../assets/lottiFile/coding.json";
+
 
 const AddContest = () => {
   const [title, setTitle] = useState("");
@@ -62,8 +65,18 @@ const AddContest = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
-      <div className="w-full max-w-xl bg-white rounded-2xl shadow-xl border border-gray-200 p-8">
+    <div className="flex flex-col md:flex-row items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 p-6 gap-8">
+      {/* Left side - Lottie Animation */}
+      <div className="w-full md:w-1/2 flex justify-center">
+        <Lottie
+          animationData={contestAnimation}
+          loop={true}
+          className="w-64 h-64 md:w-96 md:h-96"
+        />
+      </div>
+
+      {/* Right side - Contest Form */}
+      <div className="w-full md:w-1/2 max-w-xl bg-white rounded-2xl shadow-xl border border-gray-200 p-8">
         <h2 className="text-3xl font-extrabold text-center text-purple-700 mb-8">
           Add New Contest
         </h2>

@@ -29,6 +29,10 @@ export default function DashboardNavbar() {
     setAnchorElNav(null);
   };
 
+  // user will be added later authContext
+  const user = true;
+
+
   return (
     <AppBar
       position="sticky"
@@ -126,10 +130,24 @@ export default function DashboardNavbar() {
           </Box>
 
           {/* Login button (Desktop) */}
-          <Link to="/login">
-            <button className="ml-4 px-3 py-1 sm:px-4 sm:py-2 md:px-5 md:py-2 bg-yellow-400 text-blue-900 font-semibold rounded-lg hover:bg-yellow-500 transition-colors text-sm sm:text-base">
-              Login
-            </button>
+
+          <Link to="">
+            <div>
+              {user ? (
+                <button
+                  // onClick={logOut}
+                  className="ml-4 px-3 py-1 sm:px-4 sm:py-2 md:px-5 md:py-2 bg-yellow-400 text-blue-900 font-semibold rounded-lg hover:bg-yellow-600 transition-colors text-sm sm:text-base"
+                >
+                  Logout
+                </button>
+              ) : (
+                <Link to="/login">
+                  <button className="ml-4 px-3 py-1 sm:px-4 sm:py-2 md:px-5 md:py-2 bg-yellow-400 text-blue-900 font-semibold rounded-lg hover:bg-yellow-500 transition-colors text-sm sm:text-base">
+                    Login
+                  </button>
+                </Link>
+              )}
+            </div>
           </Link>
         </Toolbar>
       </Container>

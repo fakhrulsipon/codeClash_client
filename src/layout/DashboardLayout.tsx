@@ -40,11 +40,8 @@ export default function DashboardLayout() {
   );
 
   return (
-    <div className="bg-gray-100 min-h-screen">
+    <div className="bg-gray-100 min-h-screen ">
       {/* Navbar for desktop */}
-      <div className="pb-5">
-        <DashboardNavbar />
-      </div>
 
       <div className="flex">
         {/* Desktop Sidebar */}
@@ -102,6 +99,9 @@ export default function DashboardLayout() {
 
           {/* Outlet for nested routes */}
           <main className="flex-1 p-6 overflow-auto">
+            <div className="pb-5">
+              <DashboardNavbar />
+            </div>
             <Outlet />
           </main>
         </div>

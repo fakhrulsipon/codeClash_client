@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router";
 
 interface Stat {
   id: number;
@@ -131,26 +132,30 @@ export const AdminDashboardHome: React.FC = () => {
       time: "2025-09-26 09:40",
     },
   ];
-
+ 
+  // user will be added later authContext
+  const user = "Rifat Hasan";
   return (
-    <div className="min-h-screen bg-gray-50 p-4 md:p-8">
+    <div className="min-h-screen bg-gray-50 p-4 md:p-8 overflow-hidden">
       {/* Header */}
       <header className="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
           <h1 className="text-2xl md:text-3xl font-semibold">
-            Admin Dashboard
+            {`Welcome back, ${user}`}
           </h1>
           <p className="text-sm text-gray-600">
-            Overview — static demo data (responsive cards)
+            Here's what's happening with your platform today.
           </p>
         </div>
         <div className="flex items-center gap-3">
           <button className="px-3 py-2 bg-white border rounded-md text-sm shadow-sm hover:shadow-lg transition-transform">
             Refresh
           </button>
-          <button className="px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-500 text-white rounded-lg font-medium shadow hover:scale-105 transition-transform">
-            Create Problem
-          </button>
+          <Link to="createProblems">
+            <button className="px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-500 text-white rounded-lg font-medium shadow hover:scale-105 transition-transform">
+              Create Problem
+            </button>
+          </Link>
         </div>
       </header>
 

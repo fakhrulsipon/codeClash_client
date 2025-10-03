@@ -16,6 +16,7 @@ import ContestDetails from "./page/contests/ContestDetails";
 import JoinContest from "./page/contests/JoinContest";
 import ContestLobby from "./page/contests/ContestLobby";
 import ContestWorkspace from "./page/contests/ContestWorkspace";
+import CreactePrombels from "./createProblems/createProblems";
 
 const router = createBrowserRouter([
   {
@@ -91,6 +92,10 @@ const router = createBrowserRouter([
         path: "addContest",
         element: <AddContest />,
       },
+      {
+        path: "createProblems",
+        element: <CreactePrombels/>,
+      }
     ],
   },
   {
