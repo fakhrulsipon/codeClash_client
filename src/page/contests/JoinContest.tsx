@@ -39,7 +39,7 @@ const JoinContest: React.FC = () => {
     const fetchContest = async () => {
       try {
         const res = await axios.get<Contest>(
-          `http://localhost:3000/api/contests/${contestId}`
+          `https://code-clash-server-nine.vercel.app/api/contests/${contestId}`
         );
         setContest(res.data);
       } catch (err) {

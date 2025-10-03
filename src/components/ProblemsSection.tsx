@@ -20,7 +20,7 @@ const ProblemsSection: React.FC = () => {
     const fetchProblems = async () => {
       try {
         const res = await axios.get<Problem[]>(
-          "http://localhost:3000/api/problems"
+          "https://code-clash-server-nine.vercel.app/api/problems"
         );
         setProblems(res.data);
       } catch (err) {

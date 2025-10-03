@@ -35,7 +35,7 @@ const ContestDetails: React.FC = () => {
     const fetchContest = async () => {
       try {
         const res = await axios.get<Contest>(
-          `http://localhost:3000/api/contests/${id}`
+          `https://code-clash-server-nine.vercel.app/api/contests/${id}`
         );
         setContest(res.data);
       } catch (err) {

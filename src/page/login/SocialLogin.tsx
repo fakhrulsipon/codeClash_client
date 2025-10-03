@@ -23,7 +23,7 @@ const SocialLogin = () => {
   // database a save korar function
   const saveUserToDB = async (user: UserPayload) => {
     try {
-      const res = await axios.post("http://localhost:3000/api/users", user);
+      const res = await axios.post("https://code-clash-server-nine.vercel.app/api/users", user);
 
       if (res.data?.userId) {
         console.log("User saved to DB:", res.data.userId);
