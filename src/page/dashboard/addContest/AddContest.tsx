@@ -1,145 +1,177 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
-import LoadingSpinner from "../../../components/LoadingSpinner";
+import { useState } from "react";
+import Swal from "sweetalert2"; // SweetAlert2
 
-type Problem = {
-  _id: string;
-  title: string;
-  description: string;
-  difficulty: string;
-  category: string;
-};
-
-type Contest = {
-  _id: string;
-  title: string;
-  startTime: string;
-  endTime: string;
-  problems: Problem[];
-  createdAt: string;
-  type: "individual" | "team";
-};
-
-const AllContests: React.FC = () => {
-  const [contests, setContests] = useState<Contest[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState("");
-
-  useEffect(() => {
-    const fetchContests = async () => {
-      try {
-        const res = await axios.get<Contest[]>(
-          "http://localhost:3000/api/contests"
-        );
-        setContests(res.data);
-      } catch (err) {
-        console.error("Failed to fetch contests:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchContests();
-  }, []);
-
-  if (loading) return <LoadingSpinner />;
-
-  const filtered = contests.filter((c) =>
-    c.title.toLowerCase().includes(search.toLowerCase())
+const AddContest = () => {
+  const [title, setTitle] = useState("");
+  const [startTime, setStartTime] = useState("");
+  const [endTime, setEndTime] = useState("");
+  const [problems, setProblems] = useState<string[]>([]);
+  const [contestType, setContestType] = useState<"individual" | "team">(
+    "individual"
   );
 
-  const getStatus = (start: string, end: string) => {
-    const now = new Date().getTime();
-    if (now < new Date(start).getTime()) return "Upcoming";
-    if (now > new Date(end).getTime()) return "Finished";
-    return "Running";
-  };
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
 
-  const statusColors: Record<string, string> = {
-    Upcoming: "bg-yellow-200 text-yellow-800",
-    Running: "bg-green-200 text-green-800",
-    Finished: "bg-gray-200 text-gray-700",
+    const newContest = {
+      title,
+      startTime,
+      endTime,
+      problems,
+      type: contestType,
+    };
+
+    try {
+      const res = await fetch("https://code-clash-server-eight.vercel.app/api/contests", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newContest),
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        Swal.fire({
+          title: "Success!",
+          text: "Contest created successfully!",
+          icon: "success",
+          confirmButtonColor: "#2563EB",
+        });
+
+        // Reset form
+        setTitle("");
+        setStartTime("");
+        setEndTime("");
+        setProblems([]);
+        setContestType("individual");
+      } else {
+        Swal.fire({
+          title: "Error!",
+          text: data.message || "Something went wrong",
+          icon: "error",
+          confirmButtonColor: "#dc2626",
+        });
+      }
+    } catch (err) {
+      Swal.fire({
+        title: "Server Error!",
+        text: "Try again later.",
+        icon: "warning",
+        confirmButtonColor: "#f59e0b",
+      });
+    }
   };
 
   return (
-    <div className="p-4 sm:p-6 max-w-7xl mx-auto min-h-screen">
-      <h1 className="text-3xl sm:text-4xl font-bold mb-6 text-center text-blue-800">
-        All Contests
-      </h1>
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
+      <div className="w-full max-w-xl bg-white rounded-2xl shadow-xl border border-gray-200 p-8">
+        <h2 className="text-3xl font-extrabold text-center text-purple-700 mb-8">
+          Add New Contest
+        </h2>
 
-      {/* Search */}
-      <input
-        type="text"
-        placeholder="Search contests..."
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        className="w-full sm:w-3/4 md:w-1/2 mx-auto block border rounded-md p-3 mb-8 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
-      />
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Contest Title */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Contest Title
+            </label>
+            <input
+              type="text"
+              placeholder="Enter contest title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-purple-400 focus:outline-none"
+              required
+            />
+          </div>
 
-      {/* Contest grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 auto-rows-fr">
-        {filtered.map((contest) => {
-          const status = getStatus(contest.startTime, contest.endTime);
-          return (
-            <div
-              key={contest._id}
-              className="w-full h-full relative rounded-3xl p-5 sm:p-6 bg-gradient-to-br from-white/80 via-blue-50/80 to-cyan-50/80
-                         backdrop-blur-lg border border-white/30 shadow-lg hover:shadow-2xl transition-transform duration-300 hover:scale-105 flex flex-col justify-between"
-            >
-              {/* Status badge */}
-              <span
-                className={`absolute top-4 right-4 px-3 py-1 rounded-full text-sm font-semibold ${statusColors[status]}`}
-              >
-                {status}
-              </span>
+          {/* Contest Type */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Contest Type
+            </label>
+            <div className="flex items-center gap-6">
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="radio"
+                  name="contestType"
+                  value="individual"
+                  checked={contestType === "individual"}
+                  onChange={() => setContestType("individual")}
+                  className="text-purple-600 focus:ring-purple-500"
+                />
+                <span className="text-gray-700 font-medium">Individual</span>
+              </label>
 
-              <div>
-                <h2 className="text-xl sm:text-2xl font-bold mb-2 text-blue-700 truncate">
-                  {contest.title}
-                </h2>
-
-                <p className="text-sm text-gray-700 mb-1 truncate">
-                  <strong>Start:</strong>{" "}
-                  {new Date(contest.startTime).toLocaleString()}
-                </p>
-                <p className="text-sm text-gray-700 mb-1 truncate">
-                  <strong>End:</strong>{" "}
-                  {new Date(contest.endTime).toLocaleString()}
-                </p>
-
-                {/* Chips */}
-                <div className="flex flex-wrap gap-2 my-2">
-                  <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">
-                    Problems: {contest.problems.length}
-                  </span>
-                  <span className="px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-xs font-medium">
-                    Type: {contest.type}
-                  </span>
-                </div>
-              </div>
-
-              <div className="mt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                <a
-                  href={`/contest/${contest._id}`}
-                  className="inline-block px-5 py-2 bg-blue-500 text-white font-semibold rounded-full shadow-md hover:bg-blue-600 transition duration-200 text-center"
-                >
-                  View Contest
-                </a>
-
-                <p className="text-xs text-gray-500 mt-2 sm:mt-0">
-                  Created: {new Date(contest.createdAt).toLocaleDateString()}
-                </p>
-              </div>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="radio"
+                  name="contestType"
+                  value="team"
+                  checked={contestType === "team"}
+                  onChange={() => setContestType("team")}
+                  className="text-purple-600 focus:ring-purple-500"
+                />
+                <span className="text-gray-700 font-medium">Team</span>
+              </label>
             </div>
-          );
-        })}
-      </div>
+          </div>
 
-      {filtered.length === 0 && (
-        <p className="text-center text-gray-500 mt-6">No contests found.</p>
-      )}
+          {/* Start Time */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Start Time
+            </label>
+            <input
+              type="datetime-local"
+              value={startTime}
+              onChange={(e) => setStartTime(e.target.value)}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-purple-400 focus:outline-none"
+              required
+            />
+          </div>
+
+          {/* End Time */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              End Time
+            </label>
+            <input
+              type="datetime-local"
+              value={endTime}
+              onChange={(e) => setEndTime(e.target.value)}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-purple-400 focus:outline-none"
+              required
+            />
+          </div>
+
+          {/* Problems */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Problem IDs
+            </label>
+            <input
+              type="text"
+              placeholder="Example: 1,2,3"
+              value={problems.join(",")}
+              onChange={(e) => setProblems(e.target.value.split(","))}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-purple-400 focus:outline-none"
+            />
+            <p className="text-xs text-gray-500 mt-1">
+              Enter problem IDs separated by commas.
+            </p>
+          </div>
+
+          {/* Submit Button */}
+          <button
+            type="submit"
+            className="w-full py-3 bg-purple-600 text-white font-semibold rounded-lg shadow-md hover:bg-purple-700 transition duration-200"
+          >
+            Create Contest
+          </button>
+        </form>
+      </div>
     </div>
   );
 };
 
-export default AllContests;
+export default AddContest;

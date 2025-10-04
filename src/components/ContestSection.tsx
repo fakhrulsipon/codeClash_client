@@ -28,7 +28,7 @@ const ContestSection: React.FC = () => {
     const fetchContests = async () => {
       try {
         const res = await axios.get<Contest[]>(
-          "http://localhost:3000/api/contests"
+          "https://code-clash-server-eight.vercel.app/api/contests"
         );
         const sorted = res.data
           .sort(
@@ -89,7 +89,7 @@ const ContestSection: React.FC = () => {
               Created: {new Date(contest.createdAt).toLocaleDateString()}
             </p>
             <a
-              href={`/contest/${contest._id}`}
+              href={`/contests/${contest._id}`}
               className="inline-block mt-4 px-5 py-2 bg-blue-600 text-white font-semibold rounded-full shadow-md hover:bg-blue-700 transition duration-200"
             >
               View Contest
