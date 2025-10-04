@@ -11,6 +11,9 @@ import "@fontsource/roboto/500.css";
 import "@fontsource/roboto/700.css";
 import AuthProvider from "./provider/AuthProvider";
 import { Toaster } from "react-hot-toast";
+import Modal from "react-modal";
+
+Modal.setAppElement("#root");
 
 // Create a QueryClient instance
 const queryClient = new QueryClient();
