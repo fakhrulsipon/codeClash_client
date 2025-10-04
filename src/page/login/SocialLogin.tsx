@@ -1,6 +1,6 @@
-import { use } from "react";
 import { FaGithub } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
+import { useContext } from "react";
 import { AuthContext } from "../../provider/AuthProvider";
 import axios from "axios";
 import { useLocation, useNavigate } from "react-router";
@@ -9,101 +9,84 @@ import toast from "react-hot-toast";
 type UserPayload = {
   userName: string;
   userEmail: string;
-  userImage: string;
+  userImage?: string;
   userRole: string;
 };
 
 const SocialLogin = () => {
-  const { googleSignIn, githubSignIn } = use(AuthContext)!;
+  const { googleSignIn, githubSignIn } = useContext(AuthContext)!;
   const navigate = useNavigate();
   const location = useLocation();
 
-  
-
-  // database a save korar function
+  // Save user to backend
   const saveUserToDB = async (user: UserPayload) => {
     try {
-      const res = await axios.post("http://localhost:3000/api/users", user);
+      const res = await axios.post("https://code-clash-server-eight.vercel.app/api/users/social", user);
 
-      if (res.data?.userId) {
-        console.log("User saved to DB:", res.data.userId);
-      } else {
-        console.log("User already exists or could not be saved.");
+      if (res.data?.token) {
+        localStorage.setItem("access-token", res.data.token); // ✅ store token
       }
     } catch (error) {
-      if (error instanceof Error) {
-        console.error("DB Save Error:", error.message);
-      } else {
-        console.error("Unknown error:", error);
-      }
+      console.error("Error saving user:", error);
     }
   };
 
-  const handleGoogle = () => {
-    googleSignIn()
-      .then((res) => {
-        const user = res.user;
-        console.log("userCredential",user);
+  const handleGoogle = async () => {
+    try {
+      const res = await googleSignIn();
+      const user = res.user;
 
-        const userData: UserPayload = {
-          userName: user.displayName || "Unknown",
-          userEmail: user.providerData[0].email || "",
-          userImage: user.photoURL || "",
-          userRole: "user",
-        };
+      const userData: UserPayload = {
+        userName: user.displayName || "Unknown",
+        userEmail: user.providerData[0].email || "",
+        userImage: user.photoURL || "",
+        userRole: "user",
+      };
 
-        saveUserToDB(userData);
-
-        toast.success("✅ Successfully logged in with Google");
-        navigate(location.state || '/')
-      })
-      .catch((err) => {
-        toast.error("❌ Google login failed: " + err.message);
-      });
+      await saveUserToDB(userData);
+      toast.success("Logged in with Google");
+      navigate((location.state as any)?.from || "/");
+    } catch (err: any) {
+      toast.error("Google login failed: " + err.message);
+    }
   };
 
-  const handleGithub = () => {
-    githubSignIn()
-      .then((res) => {
-        const user = res.user;
-        console.log(user);
+  const handleGithub = async () => {
+    try {
+      const res = await githubSignIn();
+      const user = res.user;
 
-        const userData: UserPayload = {
-          userName: user.displayName || "Unknown",
-          userEmail: user.providerData[0].email || "",
-          userImage: user.photoURL || "",
-          userRole: "user",
-        };
+      const userData: UserPayload = {
+        userName: user.displayName || "Unknown",
+        userEmail: user.providerData[0].email || "",
+        userImage: user.photoURL || "",
+        userRole: "user",
+      };
 
-        saveUserToDB(userData);
-
-        toast.success("✅ Successfully logged in with GitHub");
-        navigate(location.state || '/')
-      })
-      .catch((err) => {
-        console.log(err.message);
-         toast.error("❌ GitHub login failed: " + err.message);
-      });
+      await saveUserToDB(userData);
+      toast.success("Logged in with GitHub");
+      navigate((location.state as any)?.from || "/");
+    } catch (err: any) {
+      toast.error("GitHub login failed: " + err.message);
+    }
   };
 
   return (
     <div className="flex flex-col gap-3 mt-4">
-      {/* Google Login Button */}
       <button
         onClick={handleGoogle}
-        className="flex items-center justify-center gap-2 w-full border border-gray-300 py-2 px-4 rounded-lg cursor-pointer"
+        className="flex items-center justify-center gap-2 w-full border border-gray-300 py-2 px-4 rounded-lg"
       >
         <FcGoogle />
-        <span>Continue with Google</span>
+        Continue with Google
       </button>
 
-      {/* GitHub Login Button */}
       <button
         onClick={handleGithub}
-        className="flex items-center justify-center gap-2 w-full border border-gray-300 py-2 px-4 rounded-lg cursor-pointer"
+        className="flex items-center justify-center gap-2 w-full border border-gray-300 py-2 px-4 rounded-lg"
       >
         <FaGithub />
-        <span>Continue with GitHub</span>
+        Continue with GitHub
       </button>
     </div>
   );

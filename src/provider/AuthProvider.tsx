@@ -15,11 +15,12 @@ import type { ReactNode } from "react";
 import { auth } from "../firebase/firebase.init";
 import type { User as FirebaseUser } from "firebase/auth";
 
+// Providers
 const googleProvider = new GoogleAuthProvider();
 googleProvider.addScope("email");
-const provider = new GithubAuthProvider()
+const githubProvider = new GithubAuthProvider();
 
-// Context টাইপ
+// Context type
 interface AuthContextType {
   user: FirebaseUser | null;
   setUser: (user: FirebaseUser | null) => void;
@@ -36,60 +37,61 @@ interface AuthContextType {
   loading: boolean;
 }
 
-// Context তৈরি
+// Context creation
 export const AuthContext = createContext<AuthContextType | null>(null);
 
-// Props টাইপ
+// Props type
 interface AuthProviderProps {
   children: ReactNode;
 }
 
 const AuthProvider = ({ children }: AuthProviderProps) => {
   const [user, setUser] = useState<FirebaseUser | null>(null);
-  const [loading, setLoading] = useState<boolean>(true)
-  console.log(user);
+  const [loading, setLoading] = useState<boolean>(true);
 
+  // Email/Password registration
   const registerUser = (email: string, password: string) => {
-    setLoading(true)
+    setLoading(true);
     return createUserWithEmailAndPassword(auth, email, password);
   };
 
+  // Email/Password login
   const loginUser = (email: string, password: string) => {
-     setLoading(true)
+    setLoading(true);
     return signInWithEmailAndPassword(auth, email, password);
   };
 
+  // Logout
   const logoutUser = () => {
-     setLoading(true)
+    setLoading(true);
     return signOut(auth);
   };
 
-  const updateProfileInfo = (profile: {
-    displayName?: string;
-    photoURL?: string;
-  }) => {
+  // Update profile info
+  const updateProfileInfo = (profile: { displayName?: string; photoURL?: string }) => {
     const currentUser = auth.currentUser;
-    if (!currentUser) {
-      return Promise.reject(new Error("No user logged in"));
-    }
+    if (!currentUser) return Promise.reject(new Error("No user logged in"));
     return updateProfile(currentUser, profile);
   };
 
+  // Password reset
   const resetPassword = (email: string) => {
-  return sendPasswordResetEmail(auth, email);
-};
+    return sendPasswordResetEmail(auth, email);
+  };
 
-const googleSignIn = () => {
-   setLoading(true)
-        return signInWithPopup(auth, googleProvider);
-    }
+  // Google SignIn
+  const googleSignIn = () => {
+    setLoading(true);
+    return signInWithPopup(auth, googleProvider); // popup prevents COOP issues
+  };
 
-    const githubSignIn = () => {
-       setLoading(true)
-        return signInWithPopup(auth, provider);
-    }
+  // GitHub SignIn
+  const githubSignIn = () => {
+    setLoading(true);
+    return signInWithPopup(auth, githubProvider); // popup prevents COOP issues
+  };
 
-  // Firebase onAuthStateChanged হুক
+  // Listen to auth state changes
   useEffect(() => {
     const unSubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
@@ -114,7 +116,7 @@ const googleSignIn = () => {
     loading,
   };
 
-  return <AuthContext value={authValue}>{children}</AuthContext>;
+  return <AuthContext.Provider value={authValue}>{children}</AuthContext.Provider>;
 };
 
 export default AuthProvider;
