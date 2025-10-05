@@ -22,7 +22,7 @@ const History = () => {
     queryKey: ["submissions", user?.email],
     queryFn: async () => {
       const res = await axios.get(
-        `http://localhost:3000/api/submissions/${user?.email}`
+        `https://code-clash-server-7f46.vercel.app/api/submissions/${user?.email}`
       );
       return res.data;
     },

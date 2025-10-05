@@ -27,8 +27,9 @@ const ContestSection: React.FC = () => {
     AOS.init({ duration: 400, easing: "ease-in-out", once: false });
     const fetchContests = async () => {
       try {
+        
         const res = await axios.get<Contest[]>(
-          "https://code-clash-server-eight.vercel.app/api/contests"
+          "http://code-clash-server-7f46.vercel.app/api/contests"
         );
         const sorted = res.data
           .sort(
