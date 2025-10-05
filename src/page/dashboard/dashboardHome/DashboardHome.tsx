@@ -1,6 +1,14 @@
 import React from "react";
 
-const stats = [
+interface Stat {
+  id: number;
+  title: string;
+  value: string;
+  delta: string;
+  hint: string;
+}
+
+const stats: Stat[] = [
   {
     id: 1,
     title: "Total Users",
@@ -45,14 +53,26 @@ const stats = [
   },
 ];
 
-const sparkData = [6, 9, 8, 12, 11, 14, 13, 15, 12, 16];
+const sparkData: number[] = [6, 9, 8, 12, 11, 14, 13, 15, 12, 16];
 
-function Sparkline({ data = sparkData, width = 120, height = 36, trend }) {
+interface SparklineProps {
+  data?: number[];
+  width?: number;
+  height?: number;
+  trend?: "+" | "-" | "—";
+}
+
+const Sparkline: React.FC<SparklineProps> = ({
+  data = sparkData,
+  width = 120,
+  height = 36,
+  trend,
+}) => {
   const max = Math.max(...data);
   const min = Math.min(...data);
   const len = data.length;
-  const mapX = (i) => (i / (len - 1)) * width;
-  const mapY = (v) => ((max - v) / (max - min || 1)) * height;
+  const mapX = (i: number) => (i / (len - 1)) * width;
+  const mapY = (v: number) => ((max - v) / (max - min || 1)) * height;
   const d = data
     .map((v, i) => `${i === 0 ? "M" : "L"} ${mapX(i)} ${mapY(v)}`)
     .join(" ");
@@ -70,18 +90,51 @@ function Sparkline({ data = sparkData, width = 120, height = 36, trend }) {
         d={d}
         fill="none"
         stroke={strokeColor}
-        strokeWidth="1.5"
+        strokeWidth={1.5}
         strokeLinecap="round"
         strokeLinejoin="round"
-        opacity="0.9"
+        opacity={0.9}
       />
     </svg>
   );
+};
+
+interface Submission {
+  user: string;
+  problem: string;
+  lang: string;
+  result: string;
+  time: string;
 }
 
-export default function AdminDashboardHome() {
+export const AdminDashboardHome: React.FC = () => {
+  const submissions: Submission[] = [
+    {
+      user: "alice",
+      problem: "Two Sum",
+      lang: "Python",
+      result: "Accepted",
+      time: "2025-09-26 10:12",
+    },
+    {
+      user: "bob",
+      problem: "LRU Cache",
+      lang: "Java",
+      result: "Wrong Answer",
+      time: "2025-09-26 09:58",
+    },
+    {
+      user: "chuti",
+      problem: "Graph DFS",
+      lang: "C++",
+      result: "Accepted",
+      time: "2025-09-26 09:40",
+    },
+  ];
+
   return (
     <div className="min-h-screen bg-gray-50 p-4 md:p-8">
+      {/* Header */}
       <header className="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
           <h1 className="text-2xl md:text-3xl font-semibold">
@@ -101,7 +154,7 @@ export default function AdminDashboardHome() {
         </div>
       </header>
 
-      {/* Stats grid */}
+      {/* Stats Grid */}
       <section aria-labelledby="stats-heading" className="mb-6">
         <h2 id="stats-heading" className="sr-only">
           Key statistics
@@ -127,7 +180,7 @@ export default function AdminDashboardHome() {
                     {s.delta}
                   </span>
                   <div className="mt-2 w-28 text-gray-400">
-                    <Sparkline trend={s.delta[0]} />
+                    <Sparkline trend={s.delta[0] as "+" | "-" | "—"} />
                   </div>
                 </div>
               </div>
@@ -136,7 +189,7 @@ export default function AdminDashboardHome() {
         </div>
       </section>
 
-      {/* Larger panels */}
+      {/* Larger Panels */}
       <section className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <div className="lg:col-span-2 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-2xl p-4 shadow-lg border">
           <div className="flex items-center justify-between mb-4">
@@ -176,7 +229,7 @@ export default function AdminDashboardHome() {
         </aside>
       </section>
 
-      {/* Recent submissions table */}
+      {/* Recent Submissions Table */}
       <section className="mt-6">
         <h3 className="text-lg font-medium mb-3">Recent Submissions</h3>
         <div className="overflow-x-auto bg-white rounded-2xl p-4 shadow-lg border">
@@ -191,29 +244,7 @@ export default function AdminDashboardHome() {
               </tr>
             </thead>
             <tbody>
-              {[
-                {
-                  user: "alice",
-                  problem: "Two Sum",
-                  lang: "Python",
-                  result: "Accepted",
-                  time: "2025-09-26 10:12",
-                },
-                {
-                  user: "bob",
-                  problem: "LRU Cache",
-                  lang: "Java",
-                  result: "Wrong Answer",
-                  time: "2025-09-26 09:58",
-                },
-                {
-                  user: "chuti",
-                  problem: "Graph DFS",
-                  lang: "C++",
-                  result: "Accepted",
-                  time: "2025-09-26 09:40",
-                },
-              ].map((r, i) => (
+              {submissions.map((r, i) => (
                 <tr
                   key={i}
                   className={
@@ -243,4 +274,6 @@ export default function AdminDashboardHome() {
       </footer>
     </div>
   );
-}
+};
+
+export default AdminDashboardHome;

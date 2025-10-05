@@ -22,7 +22,10 @@ const pages = [
   { name: "Dashboard", path: "/dashboard" },
   { name: "About", path: "/about" },
 ];
-const settings = ["Profile"];
+const settings = [
+  { name: "Profile", path: "/profile" },
+  { name: "History", path: "/history" },
+];
 
 function Navbar() {
   const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(
@@ -179,12 +182,18 @@ function Navbar() {
                 onClose={handleCloseUserMenu}
               >
                 {settings.map((setting) => (
-                  <MenuItem key={setting} onClick={handleCloseUserMenu}>
+                  <MenuItem
+                    key={setting.name}
+                    onClick={handleCloseUserMenu}
+                    component={Link}
+                    to={setting.path}
+                  >
                     <Typography sx={{ textAlign: "center" }}>
-                      {setting}
+                      {setting.name}
                     </Typography>
                   </MenuItem>
                 ))}
+
               </Menu>
             </Box>
           </div>
