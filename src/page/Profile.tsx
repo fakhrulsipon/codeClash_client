@@ -39,7 +39,7 @@ const Profile: React.FC = () => {
     queryKey: ["userPoints", user?.email],
     queryFn: async () => {
       const res = await axios.get(
-        `https://code-clash-server-nine.vercel.app/api/points/${user?.email}`
+        `https://code-clash-server-7f46.vercel.app/api/points/${user?.email}`
       );
       return res.data;
     },

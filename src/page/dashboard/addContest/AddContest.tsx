@@ -22,7 +22,7 @@ const AddContest = () => {
     };
 
     try {
-      const res = await fetch("https://code-clash-server-nine.vercel.app/api/contests", {
+      const res = await fetch("https://code-clash-server-7f46.vercel.app/api/contests", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(newContest),
