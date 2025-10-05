@@ -12,6 +12,7 @@ import "@fontsource/roboto/700.css";
 import AuthProvider from "./provider/AuthProvider";
 import { Toaster } from "react-hot-toast";
 
+// Create a QueryClient instance
 const queryClient = new QueryClient();
 
 createRoot(document.getElementById("root")!).render(
