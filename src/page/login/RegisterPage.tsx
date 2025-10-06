@@ -75,7 +75,7 @@ const RegisterPage: React.FC = () => {
 
             try {
               const response = await axios.post(
-                "http://code-clash-server-7f46.vercel.app/api/users",
+                "http://localhost:3000/api/users",
                 userData
               );
 

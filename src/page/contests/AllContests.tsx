@@ -29,7 +29,7 @@ const AllContests: React.FC = () => {
     const fetchContests = async () => {
       try {
         const res = await axios.get<Contest[]>(
-          "https://code-clash-server-7f46.vercel.app/api/contests"
+          "http://localhost:3000/api/contests"
         );
         setContests(res.data);
       } catch (err) {

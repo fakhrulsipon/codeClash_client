@@ -34,17 +34,19 @@ const COLORS = ["#4CAF50", "#F44336"]; // success=green, failure=red
 
 const Profile: React.FC = () => {
   const { user } = use(AuthContext)!;
+  const email = user?.email || user?.providerData[0].email;
 
   const { data, isLoading, error } = useQuery<UserPoints>({
-    queryKey: ["userPoints", user?.email],
+    queryKey: ["userPoints", email],
     queryFn: async () => {
       const res = await axios.get(
-        `https://code-clash-server-7f46.vercel.app/api/points/${user?.email}`
+        `http://localhost:3000/api/users/profile/${email}`
       );
       return res.data;
     },
-    enabled: !!user?.email,
+    enabled: !!email,
   });
+  console.log(data)
 
   if (isLoading) return <p className="text-center mt-10 text-lg">Loading...</p>;
   if (error) return <p className="text-center mt-10 text-red-500 text-lg">Failed to load data</p>;
