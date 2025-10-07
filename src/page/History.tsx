@@ -17,12 +17,14 @@ interface Submission {
 
 const History = () => {
   const {user} = use(AuthContext)!
+  const email = user?.email || user?.providerData[0].email;
+
 
   const { data, isLoading, isError } = useQuery<Submission[]>({
-    queryKey: ["submissions", user?.email],
+    queryKey: ["submissions", email],
     queryFn: async () => {
       const res = await axios.get(
-        `https://code-clash-server-7f46.vercel.app/api/submissions/${user?.email}`
+        `http://localhost:3000/api/users/submissions/${email}`
       );
       return res.data;
     },

@@ -33,7 +33,7 @@ const Problems = () => {
   useEffect(() => {
     const fetchProblems = async () => {
       try {
-        const res = await fetch("http://code-clash-server-7f46.vercel.app/api/problems");
+        const res = await fetch("http://localhost:3000/api/problems");
         const data = await res.json();
         setProblems(data);
       } catch (error) {

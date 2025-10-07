@@ -5,6 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { AuthContext } from "../provider/AuthProvider";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 interface StarterCode {
   javascript: string;
@@ -49,7 +50,7 @@ export default function SolveProblem() {
   const { data: problem, isLoading, error } = useQuery<Problem>({
     queryKey: ["problem", id],
     queryFn: async () => {
-      const res = await axios.get(`https://code-clash-server-7f46.vercel.app/api/problems/${id}`);
+      const res = await axios.get(`http://localhost:3000/api/problems/${id}`);
       return res.data;
     },
     enabled: !!id,
@@ -83,7 +84,7 @@ export default function SolveProblem() {
     try {
       const tc = problem.testCases[0]; // only first test case for output
       const payload = { code, language: selectedLang, input: tc.input };
-      const res = await axios.post("https://code-clash-server-7f46.vercel.app/run-code", payload);
+      const res = await axios.post("http://localhost:3000/api/problems/run-code", payload);
       const result = res.data;
 
       const userOutput =
@@ -115,7 +116,7 @@ export default function SolveProblem() {
         input: problem.testCases[0].input,
       };
 
-      const res = await axios.post("https://code-clash-server-7f46.vercel.app/run-code", payload);
+      const res = await axios.post("http://localhost:3000/api/problems/run-code", payload);
       const result = res.data;
 
       const userOutput =
@@ -144,7 +145,7 @@ export default function SolveProblem() {
       };
 
       await axios.post(
-        "https://code-clash-server-7f46.vercel.app/api/submissions",
+        "http://localhost:3000/api/problems/submissions",
         submissionData
       );
 
@@ -159,7 +160,7 @@ export default function SolveProblem() {
     }
   };
 
-  if (isLoading) return <p>Loading problem...</p>;
+  if (isLoading) return <LoadingSpinner/>;
   if (error) return <p>Failed to load problem</p>;
   if (!problem) return <p>Problem not found</p>;
 
