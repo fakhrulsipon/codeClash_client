@@ -18,6 +18,7 @@ import {
   Legend,
 } from "recharts";
 import { FaStar, FaCheckCircle, FaTimesCircle, FaClipboardList } from "react-icons/fa";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 type Growth = { date: string; count: number };
 
@@ -40,7 +41,7 @@ const Profile: React.FC = () => {
     queryKey: ["userPoints", email],
     queryFn: async () => {
       const res = await axios.get(
-        `http://localhost:3000/api/users/profile/${email}`
+        `https://code-clash-server-rust.vercel.app/api/users/profile/${email}`
       );
       return res.data;
     },
@@ -48,7 +49,7 @@ const Profile: React.FC = () => {
   });
   console.log(data)
 
-  if (isLoading) return <p className="text-center mt-10 text-lg">Loading...</p>;
+  if (isLoading) return <LoadingSpinner/>;
   if (error) return <p className="text-center mt-10 text-red-500 text-lg">Failed to load data</p>;
 
   return (
