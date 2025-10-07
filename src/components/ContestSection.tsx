@@ -29,7 +29,7 @@ const ContestSection: React.FC = () => {
       try {
         
         const res = await axios.get<Contest[]>(
-          "http://localhost:3000/api/contests"
+          "https://code-clash-server-rust.vercel.app/api/contests"
         );
         const sorted = res.data
           .sort(

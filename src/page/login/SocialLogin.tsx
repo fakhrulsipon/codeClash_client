@@ -21,7 +21,7 @@ const SocialLogin = () => {
   // Save user to backend
   const saveUserToDB = async (user: UserPayload) => {
     try {
-      const res = await axios.post("http://localhost:3000/api/users", user);
+      const res = await axios.post("https://code-clash-server-rust.vercel.app/api/users", user);
 
       if (res.data?.token) {
         localStorage.setItem("access-token", res.data.token); // ✅ store token

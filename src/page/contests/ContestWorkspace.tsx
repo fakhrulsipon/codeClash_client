@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import { useParams, useNavigate } from "react-router";
+import { useParams } from "react-router";
 import axios from "axios";
 import LoadingSpinner from "../../components/LoadingSpinner";
 import Editor from "@monaco-editor/react";
@@ -35,7 +35,7 @@ type Submission = {
 
 const ContestWorkspace: React.FC = () => {
   const { contestId } = useParams<{ contestId: string }>();
-  const navigate = useNavigate();
+ 
 
   const [contest, setContest] = useState<Contest | null>(null);
   const [loading, setLoading] = useState(true);
@@ -58,7 +58,7 @@ const ContestWorkspace: React.FC = () => {
     const fetchContest = async () => {
       try {
         const res = await axios.get<Contest>(
-          `http://localhost:3000/api/contests/${contestId}`
+          `https://code-clash-server-rust.vercel.app/api/contests/${contestId}`
         );
         setContest(res.data);
       } catch (err) {
@@ -113,7 +113,7 @@ const ContestWorkspace: React.FC = () => {
     let output = "";
     try {
       const consoleLog = console.log;
-      console.log = (...args: any[]) => {
+      console.log = (...args: unknown[]) => {
         output += args.join(" ") + "\n";
       };
 
@@ -243,7 +243,7 @@ const ContestWorkspace: React.FC = () => {
                     text: "Please choose a programming language above to start coding.",
                     confirmButtonColor: "#7c3aed",
                   });
-                  editor.blur();
+                  (editor as any).blur();
                 }
               });
             }}

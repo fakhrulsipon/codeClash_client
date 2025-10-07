@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { use } from "react";
 import { AuthContext } from "../provider/AuthProvider";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 interface Submission {
   _id: string;
@@ -24,17 +25,17 @@ const History = () => {
     queryKey: ["submissions", email],
     queryFn: async () => {
       const res = await axios.get(
-        `http://localhost:3000/api/users/submissions/${email}`
+        `https://code-clash-server-rust.vercel.app/api/users/submissions/${email}`
       );
       return res.data;
     },
   });
 
-  if (isLoading) return <p className="text-center py-4">Loading...</p>;
+  if (isLoading) return <LoadingSpinner/>;
   if (isError) return <p className="text-center py-4 text-red-500">Error loading submissions</p>;
 
   return (
-    <div className="p-4 md:p-6 lg:p-8">
+    <div className="p-4 md:p-6 lg:p-8 min-h-screen">
       <h1 className="text-2xl font-bold mb-6 text-center">Submission History</h1>
 
       <div className="overflow-x-auto">
@@ -63,10 +64,10 @@ const History = () => {
                   {new Date(submission.submittedAt).toLocaleString()}
                 </td>
                 <td
-                  className={`px-4 py-2 font-semibold ${
+                  className={`px-4 py-2 font-bold ${
                     submission.status === "Success"
-                      ? "text-green-600"
-                      : "text-red-600"
+                      ? "text-green-800"
+                      : "text-red-800"
                   }`}
                 >
                   {submission.status}

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext } from "react";
 import Editor from "@monaco-editor/react";
 import { useParams } from "react-router";
 import { useQuery } from "@tanstack/react-query";
@@ -50,7 +50,7 @@ export default function SolveProblem() {
   const { data: problem, isLoading, error } = useQuery<Problem>({
     queryKey: ["problem", id],
     queryFn: async () => {
-      const res = await axios.get(`http://localhost:3000/api/problems/${id}`);
+      const res = await axios.get(`https://code-clash-server-rust.vercel.app/api/problems/${id}`);
       return res.data;
     },
     enabled: !!id,
@@ -84,7 +84,7 @@ export default function SolveProblem() {
     try {
       const tc = problem.testCases[0]; // only first test case for output
       const payload = { code, language: selectedLang, input: tc.input };
-      const res = await axios.post("http://localhost:3000/api/problems/run-code", payload);
+      const res = await axios.post("https://code-clash-server-rust.vercel.app/api/problems/run-code", payload);
       const result = res.data;
 
       const userOutput =
@@ -116,7 +116,7 @@ export default function SolveProblem() {
         input: problem.testCases[0].input,
       };
 
-      const res = await axios.post("http://localhost:3000/api/problems/run-code", payload);
+      const res = await axios.post("https://code-clash-server-rust.vercel.app/api/problems/run-code", payload);
       const result = res.data;
 
       const userOutput =
@@ -145,7 +145,7 @@ export default function SolveProblem() {
       };
 
       await axios.post(
-        "http://localhost:3000/api/problems/submissions",
+        "https://code-clash-server-rust.vercel.app/api/problems/submissions",
         submissionData
       );
 

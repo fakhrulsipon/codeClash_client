@@ -1,6 +1,12 @@
-import React, { useState } from "react";
 
-const faqs = [
+import { useState, type ReactNode } from "react";
+
+type FAQItem = {
+  question: string;
+  answer: ReactNode;
+};
+
+const faqs: FAQItem[] = [
   {
     question: "What is codeClash?",
     answer: (
@@ -70,20 +76,20 @@ const faqs = [
 ];
 
 const FAQ = () => {
-  const [openIndex, setOpenIndex] = useState(null);
+  const [openIndex, setOpenIndex] = useState<number | null>(null);
 
-  const toggleAccordion = (index) => {
-    // only one open at a time
+  const toggleAccordion = (index: number) => {
     setOpenIndex(openIndex === index ? null : index);
   };
 
-  // Split FAQs into 2 columns
-  const leftColumn = faqs.filter((_, i) => i % 2 === 0);
-  const rightColumn = faqs.filter((_, i) => i % 2 !== 0);
+  const leftColumn: FAQItem[] = faqs.filter((_, i) => i % 2 === 0);
+  const rightColumn: FAQItem[] = faqs.filter((_, i) => i % 2 !== 0);
 
-  const renderAccordion = (faqArray, startIndex = 0) =>
-    faqArray.map((faq, i) => {
-      const index = startIndex + i; // unique index for each FAQ
+  const renderAccordion = (faqArray: FAQItem[], startIndex = 0) =>
+    faqArray.map((faq: FAQItem, i: number) => {
+      const index = startIndex + i;
+      const isOpen = openIndex === index;
+
       return (
         <div key={index} className="border-b border-gray-300 last:border-b-0">
           <button
@@ -91,15 +97,22 @@ const FAQ = () => {
             className="w-full flex justify-between items-center p-4 text-left focus:outline-none"
           >
             <span className="text-lg font-medium">{faq.question}</span>
-            <span className="text-xl font-bold">
-              {openIndex === index ? "−" : "+"}
+            <span
+              className={`text-xl font-bold transition-transform duration-300 ${
+                isOpen ? "rotate-180" : "rotate-0"
+              }`}
+            >
+              ▼
             </span>
           </button>
-          {openIndex === index && (
-            <div className="p-4 text-gray-700 transition-all duration-300">
-              {faq.answer}
-            </div>
-          )}
+
+          <div
+            className={`overflow-hidden transition-all duration-300 ${
+              isOpen ? "max-h-96 p-4" : "max-h-0 p-0"
+            } text-gray-700`}
+          >
+            {faq.answer}
+          </div>
         </div>
       );
     });
