@@ -116,7 +116,7 @@ const ContestDetails: React.FC = () => {
   // -------------------
 
   const handleJoinClick = () => {
-    if (contest.type.toLowerCase() === "individual") {
+    if ((contest.type || "individual").toLowerCase() === "individual") {
       setModalIndividual(true);
     } else {
       setModalTeam(true);

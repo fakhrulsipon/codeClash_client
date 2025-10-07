@@ -19,6 +19,12 @@ export default function DashboardLayout() {
         Add Contest
       </a>
       <a
+        href="/dashboard/manageContests"
+        className="px-4 py-2 rounded hover:bg-blue-100"
+      >
+        Manage Contests
+      </a>
+      <a
         href="/dashboard/profile"
         className="px-4 py-2 rounded hover:bg-blue-100"
       >

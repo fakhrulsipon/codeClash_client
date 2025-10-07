@@ -24,6 +24,9 @@ const AllContests: React.FC = () => {
   const [contests, setContests] = useState<Contest[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [sortOption, setSortOption] = useState<
+    "status" | "difficulty" | "none"
+  >("none");
 
   useEffect(() => {
     const fetchContests = async () => {
@@ -38,21 +41,24 @@ const AllContests: React.FC = () => {
         setLoading(false);
       }
     };
-
     fetchContests();
   }, []);
 
   if (loading) return <LoadingSpinner />;
 
-  const filtered = contests.filter((c) =>
-    c.title.toLowerCase().includes(search.toLowerCase())
-  );
-
+  // ---------- Utility functions ----------
   const getStatus = (start: string, end: string) => {
     const now = new Date().getTime();
     if (now < new Date(start).getTime()) return "Upcoming";
     if (now > new Date(end).getTime()) return "Finished";
     return "Running";
+  };
+
+  const getUniqueDifficulties = (problems: Problem[]) => {
+    const unique = Array.from(
+      new Set(problems.map((p) => p.difficulty.toLowerCase()))
+    );
+    return unique.join(", ");
   };
 
   const statusColors: Record<string, string> = {
@@ -61,24 +67,74 @@ const AllContests: React.FC = () => {
     Finished: "bg-gray-200 text-gray-700",
   };
 
+  // ---------- Filtered + Sorted Contests ----------
+  const filtered = contests.filter((c) =>
+    c.title.toLowerCase().includes(search.toLowerCase())
+  );
+
+  const sortedContests = [...filtered].sort((a, b) => {
+    if (sortOption === "status") {
+      const statusOrder: Record<string, number> = {
+        Running: 0,
+        Upcoming: 1,
+        Finished: 2,
+      };
+      const statusA = getStatus(a.startTime, a.endTime);
+      const statusB = getStatus(b.startTime, b.endTime);
+      return statusOrder[statusA] - statusOrder[statusB];
+    } else if (sortOption === "difficulty") {
+      const difficultyRank: Record<string, number> = {
+        easy: 1,
+        medium: 2,
+        hard: 3,
+      };
+      const maxDifficultyA = Math.max(
+        ...a.problems.map(
+          (p) => difficultyRank[p.difficulty.toLowerCase()] || 0
+        )
+      );
+      const maxDifficultyB = Math.max(
+        ...b.problems.map(
+          (p) => difficultyRank[p.difficulty.toLowerCase()] || 0
+        )
+      );
+      return maxDifficultyB - maxDifficultyA; // Hardest first
+    }
+    return 0;
+  });
+
   return (
     <div className="p-4 sm:p-6 max-w-7xl mx-auto min-h-screen">
       <h1 className="text-3xl sm:text-4xl font-bold mb-6 text-center text-blue-800">
         All Contests
       </h1>
 
-      {/* Search */}
-      <input
-        type="text"
-        placeholder="Search contests..."
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        className="w-full sm:w-3/4 md:w-1/2 mx-auto block border rounded-md p-3 mb-8 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
-      />
+      {/* Search + Sort */}
+      <div className="flex flex-col sm:flex-row gap-4 mb-8 justify-center items-center">
+        <input
+          type="text"
+          placeholder="Search contests..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="w-full sm:w-1/2 md:w-1/3 border rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+        />
+        <div className="flex items-center gap-2">
+          <label className="font-semibold">Sort by:</label>
+          <select
+            value={sortOption}
+            onChange={(e) => setSortOption(e.target.value as any)}
+            className="border rounded-md px-3 py-2 focus:outline-none"
+          >
+            <option value="none">None</option>
+            <option value="status">Status</option>
+            <option value="difficulty">Difficulty</option>
+          </select>
+        </div>
+      </div>
 
       {/* Contest grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 justify-items-center">
-        {filtered.map((contest) => {
+        {sortedContests.map((contest) => {
           const status = getStatus(contest.startTime, contest.endTime);
           return (
             <div
@@ -88,7 +144,7 @@ const AllContests: React.FC = () => {
             >
               {/* Status badge */}
               <span
-                className={`absolute top-4 right-4 px-3 py-1 rounded-full text-sm mt-0 md:mt-16 font-semibold ${statusColors[status]}`}
+                className={`absolute top-4 right-4 px-3 py-1 rounded-full text-sm mt-12 font-semibold ${statusColors[status]}`}
               >
                 {status}
               </span>
@@ -113,7 +169,10 @@ const AllContests: React.FC = () => {
                     Problems: {contest.problems.length}
                   </span>
                   <span className="px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-xs font-medium">
-                    Type: {contest.type}
+                    Type: {contest.type || "individual"}
+                  </span>
+                  <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">
+                    Difficulty: {getUniqueDifficulties(contest.problems)}
                   </span>
                 </div>
               </div>
@@ -135,7 +194,7 @@ const AllContests: React.FC = () => {
         })}
       </div>
 
-      {filtered.length === 0 && (
+      {sortedContests.length === 0 && (
         <p className="text-center text-gray-500 mt-6">No contests found.</p>
       )}
     </div>
