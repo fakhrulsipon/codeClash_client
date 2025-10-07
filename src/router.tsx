@@ -15,6 +15,7 @@ import AllContests from "./page/contests/AllContests";
 import ContestDetails from "./page/contests/ContestDetails";
 import ContestLobby from "./page/contests/ContestLobby";
 import ContestWorkspace from "./page/contests/ContestWorkspace";
+import ManageContests from "./page/dashboard/manageContests/ManageContests";
 
 const router = createBrowserRouter([
   {
@@ -52,7 +53,7 @@ const router = createBrowserRouter([
       },
       {
         path: "contests/:contestId/workspace",
-        element: <ContestWorkspace></ContestWorkspace>
+        element: <ContestWorkspace></ContestWorkspace>,
       },
       {
         path: "about",
@@ -85,6 +86,10 @@ const router = createBrowserRouter([
       {
         path: "addContest",
         element: <AddContest />,
+      },
+      {
+        path: "/dashboard/manageContests",
+        element: <ManageContests />,
       },
     ],
   },
