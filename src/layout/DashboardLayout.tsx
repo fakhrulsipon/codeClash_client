@@ -46,23 +46,24 @@ export default function DashboardLayout() {
   );
 
   return (
-    <div className=" bg-gray-100">
+    <div className="bg-gray-100 min-h-screen">
       {/* Navbar for desktop */}
       <div className="pb-5">
         <DashboardNavbar />
       </div>
+
       <div className="flex">
-        {/* Sidebar for desktop only (lg↑) */}
+        {/* Desktop Sidebar */}
         <aside className="hidden lg:flex flex-col w-64 h-screen bg-white fixed top-0 left-0 shadow-md">
           <div className="p-6 text-2xl font-bold text-blue-600">Dashboard</div>
           <nav className="flex flex-col gap-2 p-4">{links}</nav>
         </aside>
 
-        {/* Mobile & Tablet drawer sidebar with animation */}
+        {/* Mobile & Tablet Drawer Sidebar */}
         <AnimatePresence>
           {isOpen && (
             <>
-              {/* backdrop */}
+              {/* Backdrop */}
               <motion.div
                 className="fixed inset-0 bg-black/50 z-40 lg:hidden"
                 initial={{ opacity: 0 }}
@@ -71,7 +72,7 @@ export default function DashboardLayout() {
                 onClick={() => setIsOpen(false)}
               />
 
-              {/* sliding aside */}
+              {/* Sliding aside */}
               <motion.aside
                 className="fixed left-0 top-0 w-64 h-full bg-white shadow-md p-6 z-50 lg:hidden"
                 initial={{ x: -300 }}
@@ -83,7 +84,6 @@ export default function DashboardLayout() {
                   <span className="text-2xl font-bold text-blue-600">
                     Dashboard
                   </span>
-                  {/* Close button always visible */}
                   <button
                     className="text-gray-600 text-2xl font-bold hover:text-red-500"
                     onClick={() => setIsOpen(false)}
@@ -98,16 +98,15 @@ export default function DashboardLayout() {
         </AnimatePresence>
 
         {/* Main content */}
-        <div className="flex-1 flex flex-col">
-          {/* Navbar with hamburger (mobile & tablet) */}
+        <div className="flex-1 flex flex-col lg:ml-64">
+          {/* Mobile Navbar with Hamburger */}
           <div className="flex items-center justify-between lg:hidden p-4">
             <button className="text-2xl" onClick={() => setIsOpen(true)}>
               <FiMenu />
             </button>
-            {/* <span className="font-bold text-xl">Dashboard</span> */}
           </div>
 
-          {/* Content */}
+          {/* Outlet for nested routes */}
           <main className="flex-1 p-6 overflow-auto">
             <Outlet />
           </main>

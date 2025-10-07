@@ -40,7 +40,7 @@ const ContestLobby: React.FC = () => {
 
     const fetchContest = async () => {
       try {
-        const res = await axios.get<Contest>(`https://code-clash-server-eight.vercel.app/api/contests/${contestId}`);
+        const res = await axios.get<Contest>(`http://localhost:3000/api/contests/${contestId}`);
         setContest(res.data);
 
         // For team contests, fetch team members (mock example)

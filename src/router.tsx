@@ -15,6 +15,9 @@ import AllContests from "./page/contests/AllContests";
 import ContestDetails from "./page/contests/ContestDetails";
 import ContestLobby from "./page/contests/ContestLobby";
 import ContestWorkspace from "./page/contests/ContestWorkspace";
+import SolveProblem from "./page/SolveProblem";
+import Profile from "./page/Profile";
+import History from "./page/History";
 import ManageContests from "./page/dashboard/manageContests/ManageContests";
 
 const router = createBrowserRouter([
@@ -71,6 +74,22 @@ const router = createBrowserRouter([
         path: "forgot-password",
         element: <ForgotPasswordPage />,
       },
+      {
+        path: "problems/:id",
+        element: (
+          <PrivetRoute>
+            <SolveProblem />
+          </PrivetRoute>
+        ),
+      },
+      {
+        path: 'profile',
+        element: <PrivetRoute><Profile/></PrivetRoute>
+      },
+      {
+        path: 'history',
+        element: <PrivetRoute><History/></PrivetRoute>
+      }
     ],
   },
 

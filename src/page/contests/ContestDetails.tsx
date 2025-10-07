@@ -44,7 +44,7 @@ const ContestDetails: React.FC = () => {
     const fetchContest = async () => {
       try {
         const res = await axios.get<Contest>(
-          `https://code-clash-server-eight.vercel.app/api/contests/${id}`
+          `http://localhost:3000/api/contests/${id}`
         );
         setContest(res.data);
       } catch (err) {
@@ -116,7 +116,7 @@ const ContestDetails: React.FC = () => {
   // -------------------
 
   const handleJoinClick = () => {
-    if (contest.type.toLowerCase() === "individual") {
+    if ((contest.type || "individual").toLowerCase() === "individual") {
       setModalIndividual(true);
     } else {
       setModalTeam(true);
