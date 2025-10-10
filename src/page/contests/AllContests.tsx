@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import LoadingSpinner from "../../components/LoadingSpinner";
+import useAxiosSecure from "../../hook/useAxiosSecure";
 
 type Problem = {
   _id: string;
@@ -27,13 +27,12 @@ const AllContests: React.FC = () => {
   const [sortOption, setSortOption] = useState<
     "status" | "difficulty" | "none"
   >("none");
+  const axiosSecure = useAxiosSecure();
 
   useEffect(() => {
     const fetchContests = async () => {
       try {
-        const res = await axios.get<Contest[]>(
-          "https://code-clash-server-rust.vercel.app/api/contests"
-        );
+        const res = await axiosSecure.get<Contest[]>("/api/contests");
         setContests(res.data);
       } catch (err) {
         console.error("Failed to fetch contests:", err);
@@ -122,7 +121,9 @@ const AllContests: React.FC = () => {
           <label className="font-semibold">Sort by:</label>
           <select
             value={sortOption}
-            onChange={(e) => setSortOption(e.target.value as any)}
+            onChange={(e) =>
+              setSortOption(e.target.value as "status" | "difficulty" | "none")
+            }
             className="border rounded-md px-3 py-2 focus:outline-none"
           >
             <option value="none">None</option>

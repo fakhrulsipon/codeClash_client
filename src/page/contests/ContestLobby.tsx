@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router";
-import axios from "axios";
 import LoadingSpinner from "../../components/LoadingSpinner";
+import useAxiosSecure from "../../hook/useAxiosSecure";
 
 type Problem = {
   _id: string;
@@ -34,13 +34,14 @@ const ContestLobby: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [timeLeft, setTimeLeft] = useState<string>("");
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
+  const axiosSecure = useAxiosSecure();
 
   useEffect(() => {
     if (!contestId) return;
 
     const fetchContest = async () => {
       try {
-        const res = await axios.get<Contest>(`https://code-clash-server-rust.vercel.app/api/contests/${contestId}`);
+        const res = await axiosSecure.get<Contest>(`/api/contests/${contestId}`);
         setContest(res.data);
 
         // For team contests, fetch team members (mock example)
@@ -58,7 +59,7 @@ const ContestLobby: React.FC = () => {
     };
 
     fetchContest();
-  }, [contestId]);
+  }, [axiosSecure, contestId]);
 
   // Countdown timer + auto redirect
   useEffect(() => {

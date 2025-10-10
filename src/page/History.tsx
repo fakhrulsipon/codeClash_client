@@ -1,8 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
-import axios from "axios";
 import { use } from "react";
 import { AuthContext } from "../provider/AuthProvider";
 import LoadingSpinner from "../components/LoadingSpinner";
+import useAxiosSecure from "../hook/useAxiosSecure";
 
 interface Submission {
   _id: string;
@@ -19,13 +19,14 @@ interface Submission {
 const History = () => {
   const {user} = use(AuthContext)!
   const email = user?.email || user?.providerData[0].email;
+  const axiosSecure = useAxiosSecure();
 
 
   const { data, isLoading, isError } = useQuery<Submission[]>({
     queryKey: ["submissions", email],
     queryFn: async () => {
-      const res = await axios.get(
-        `https://code-clash-server-rust.vercel.app/api/users/submissions/${email}`
+      const res = await axiosSecure.get(
+        `/api/users/submissions/${email}`
       );
       return res.data;
     },
@@ -33,7 +34,6 @@ const History = () => {
 
   if (isLoading) return <LoadingSpinner/>;
   if (isError) return <p className="text-center py-4 text-red-500">Error loading submissions</p>;
-
   return (
     <div className="p-4 md:p-6 lg:p-8 min-h-screen">
       <h1 className="text-2xl font-bold mb-6 text-center">Submission History</h1>

@@ -1,6 +1,5 @@
 import React, { use } from "react";
 import { useQuery } from "@tanstack/react-query";
-import axios from "axios";
 
 import { AuthContext } from "../provider/AuthProvider";
 import CountUp from "react-countup";
@@ -19,6 +18,7 @@ import {
 } from "recharts";
 import { FaStar, FaCheckCircle, FaTimesCircle, FaClipboardList } from "react-icons/fa";
 import LoadingSpinner from "../components/LoadingSpinner";
+import useAxiosSecure from "../hook/useAxiosSecure";
 
 type Growth = { date: string; count: number };
 
@@ -31,17 +31,18 @@ type UserPoints = {
   growth: Growth[];
 };
 
-const COLORS = ["#4CAF50", "#F44336"]; // success=green, failure=red
+const COLORS = ["#4CAF50", "#F44336"];
 
 const Profile: React.FC = () => {
   const { user } = use(AuthContext)!;
   const email = user?.email || user?.providerData[0].email;
+  const axiosSecure = useAxiosSecure();
 
   const { data, isLoading, error } = useQuery<UserPoints>({
     queryKey: ["userPoints", email],
     queryFn: async () => {
-      const res = await axios.get(
-        `https://code-clash-server-rust.vercel.app/api/users/profile/${email}`
+      const res = await axiosSecure.get(
+        `/api/users/profile/${email}`
       );
       return res.data;
     },

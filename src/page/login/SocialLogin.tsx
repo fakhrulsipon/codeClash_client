@@ -1,73 +1,108 @@
 import { FaGithub } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
-import { useContext } from "react";
 import { AuthContext } from "../../provider/AuthProvider";
-import axios from "axios";
 import { useLocation, useNavigate } from "react-router";
 import toast from "react-hot-toast";
+import { use } from "react";
+import type { ReactElement } from "react";
+import useAxiosPublic from "../../hook/useAxiosPublic";
 
-type UserPayload = {
+// 🧩 Type definitions
+interface ProviderData {
+  email?: string | null;
+}
+
+interface User {
+  displayName?: string | null;
+  email?: string | null;
+  photoURL?: string | null;
+  providerData: ProviderData[];
+}
+
+interface SignInResult {
+  user: User;
+}
+
+interface AuthContextType {
+  googleSignIn: () => Promise<SignInResult>;
+  githubSignIn: () => Promise<SignInResult>;
+}
+
+interface LocationState {
+  from?: string;
+}
+
+interface UserPayload {
   userName: string;
   userEmail: string;
   userImage?: string;
   userRole: string;
-};
+}
 
-const SocialLogin = () => {
-  const { googleSignIn, githubSignIn } = useContext(AuthContext)!;
+const SocialLogin = (): ReactElement => {
+  const { googleSignIn, githubSignIn } = use(AuthContext)! as AuthContextType;
   const navigate = useNavigate();
   const location = useLocation();
+  const axiosPublic = useAxiosPublic();
 
-  // Save user to backend
-  const saveUserToDB = async (user: UserPayload) => {
+  // ✅ Save user to backend
+  const saveUserToDB = async (user: UserPayload): Promise<void> => {
     try {
-      const res = await axios.post("https://code-clash-server-rust.vercel.app/api/users", user);
-
-      if (res.data?.token) {
-        localStorage.setItem("access-token", res.data.token); // ✅ store token
-      }
+      await axiosPublic.post("/api/users", user);
     } catch (error) {
       console.error("Error saving user:", error);
     }
   };
 
-  const handleGoogle = async () => {
+  const handleGoogle = async (): Promise<void> => {
     try {
-      const res = await googleSignIn();
+      const res: SignInResult = await googleSignIn();
       const user = res.user;
 
       const userData: UserPayload = {
         userName: user.displayName || "Unknown",
-        userEmail: user.providerData[0].email || "",
+        userEmail: user.providerData?.[0]?.email || user.email || "",
         userImage: user.photoURL || "",
         userRole: "user",
       };
 
       await saveUserToDB(userData);
       toast.success("Logged in with Google");
-      navigate((location.state as any)?.from || "/");
-    } catch (err: any) {
-      toast.error("Google login failed: " + err.message);
+
+      const from = (location.state as LocationState)?.from || "/";
+      navigate(from);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        toast.error("Google login failed: " + err.message);
+      } else {
+        toast.error("Google login failed");
+      }
     }
   };
 
-  const handleGithub = async () => {
+  const handleGithub = async (): Promise<void> => {
     try {
-      const res = await githubSignIn();
+      const res: SignInResult = await githubSignIn();
       const user = res.user;
 
       const userData: UserPayload = {
         userName: user.displayName || "Unknown",
-        userEmail: user.providerData[0].email || "",
+        userEmail: user.providerData?.[0]?.email || user.email || "",
         userImage: user.photoURL || "",
         userRole: "user",
       };
 
       await saveUserToDB(userData);
       toast.success("Logged in with GitHub");
-      navigate((location.state as any)?.from || "/");
-    } catch (err: any) {
-      toast.error("GitHub login failed: " + err.message);
+
+      const from = (location.state as LocationState)?.from || "/";
+      navigate(from);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        toast.error("GitHub login failed: " + err.message);
+      } else {
+        toast.error("GitHub login failed");
+      }
     }
   };
 

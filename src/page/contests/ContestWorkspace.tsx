@@ -1,10 +1,10 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useParams } from "react-router";
-import axios from "axios";
 import LoadingSpinner from "../../components/LoadingSpinner";
 import Editor from "@monaco-editor/react";
 import Swal from "sweetalert2";
 import "sweetalert2/dist/sweetalert2.min.css";
+import useAxiosSecure from "../../hook/useAxiosSecure";
 
 type Problem = {
   _id: string;
@@ -45,6 +45,8 @@ const ContestWorkspace: React.FC = () => {
   const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [timeLeft, setTimeLeft] = useState<string>("");
 
+  const axiosSecure = useAxiosSecure();
+
   // Ref to store latest selectedLanguage for editor focus check
   const selectedLanguageRef = useRef<string | null>(selectedLanguage);
 
@@ -57,8 +59,8 @@ const ContestWorkspace: React.FC = () => {
 
     const fetchContest = async () => {
       try {
-        const res = await axios.get<Contest>(
-          `https://code-clash-server-rust.vercel.app/api/contests/${contestId}`
+        const res = await axiosSecure.get<Contest>(
+          `/api/contests/${contestId}`
         );
         setContest(res.data);
       } catch (err) {
@@ -69,7 +71,7 @@ const ContestWorkspace: React.FC = () => {
     };
 
     fetchContest();
-  }, [contestId]);
+  }, [contestId, axiosSecure]);
 
   // Countdown timer
   useEffect(() => {
