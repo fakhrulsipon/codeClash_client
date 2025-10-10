@@ -227,6 +227,7 @@ const ContestWorkspace: React.FC = () => {
         </div>
 
         {/* Monaco Editor */}
+        
         <div className="rounded-xl overflow-hidden shadow-lg">
           <Editor
             height="350px"
