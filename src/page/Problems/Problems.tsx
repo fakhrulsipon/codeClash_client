@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import LoadingSpinner from "../../components/LoadingSpinner";
 import { Link } from "react-router";
+import useAxiosSecure from "../../hook/useAxiosSecure";
+
 
 interface StarterCode {
   javascript: string;
@@ -29,13 +31,13 @@ interface Problem {
 const Problems = () => {
   const [problems, setProblems] = useState<Problem[]>([]);
   const [loading, setLoading] = useState(true);
+  const axiosSecure = useAxiosSecure();
 
   useEffect(() => {
     const fetchProblems = async () => {
       try {
-        const res = await fetch("https://code-clash-server-rust.vercel.app/api/problems");
-        const data = await res.json();
-        setProblems(data);
+        const res = await axiosSecure("/api/problems");
+        setProblems(res.data);
       } catch (error) {
         console.error("Error fetching problems:", error);
       } finally {
@@ -43,7 +45,7 @@ const Problems = () => {
       }
     };
     fetchProblems();
-  }, []);
+  }, [axiosSecure]);
 
   if (loading) {
     return <LoadingSpinner />;

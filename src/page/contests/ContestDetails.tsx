@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router";
-import axios from "axios";
 import LoadingSpinner from "../../components/LoadingSpinner";
 import Modal from "react-modal";
+import useAxiosSecure from "../../hook/useAxiosSecure";
 
 type Problem = {
   _id: string;
@@ -39,12 +39,13 @@ const ContestDetails: React.FC = () => {
   const [teamName, setTeamName] = useState("");
   const [teamCode, setTeamCode] = useState("");
   const [teamJoined, setTeamJoined] = useState(false);
+  const axiosSecure = useAxiosSecure();
 
   useEffect(() => {
     const fetchContest = async () => {
       try {
-        const res = await axios.get<Contest>(
-          `https://code-clash-server-rust.vercel.app/api/contests/${id}`
+        const res = await axiosSecure.get<Contest>(
+          `/api/contests/${id}`
         );
         setContest(res.data);
       } catch (err) {
