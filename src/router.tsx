@@ -19,6 +19,8 @@ import SolveProblem from "./page/SolveProblem";
 import Profile from "./page/Profile";
 import History from "./page/History";
 import ManageContests from "./page/dashboard/manageContests/ManageContests";
+import  AdminRoute from "./route/AdminRoute";
+import ForbiddenPage from "./page/ForbiddenPage";
 
 const router = createBrowserRouter([
   {
@@ -71,6 +73,10 @@ const router = createBrowserRouter([
         element: <RegisterPage />,
       },
       {
+        path: '/forbidden',
+        element: <ForbiddenPage/>
+      },
+      {
         path: "forgot-password",
         element: <ForgotPasswordPage />,
       },
@@ -104,11 +110,11 @@ const router = createBrowserRouter([
       },
       {
         path: "addContest",
-        element: <AddContest />,
+        element: <AdminRoute><AddContest /></AdminRoute>,
       },
       {
         path: "/dashboard/manageContests",
-        element: <ManageContests />,
+        element:<ManageContests />,
       },
     ],
   },
