@@ -2,6 +2,7 @@ import axios from "axios";
 import type { AxiosInstance, InternalAxiosRequestConfig } from "axios";
 import { use} from "react";
 import { AuthContext } from "../provider/AuthProvider";
+import { useNavigate } from "react-router";
 
 type CustomUser = {
   email: string;
@@ -13,6 +14,7 @@ interface AuthContextType {
   user: CustomUser | null;
   loading: boolean;
   setUser: React.Dispatch<React.SetStateAction<CustomUser | null>>;
+  logoutUser: () => Promise<void>;
 }
 
 const axiosSecure: AxiosInstance = axios.create({
@@ -20,7 +22,8 @@ const axiosSecure: AxiosInstance = axios.create({
 });
 
 const useAxiosSecure = (): AxiosInstance => {
-  const { user } = use(AuthContext) as AuthContextType;
+  const { user, logoutUser } = use(AuthContext) as AuthContextType;
+  const navigate = useNavigate();
 
   axiosSecure.interceptors.request.use(
     (config: InternalAxiosRequestConfig) => {
@@ -29,8 +32,24 @@ const useAxiosSecure = (): AxiosInstance => {
       
       return config;
     },
-    (error) => Promise.reject(error)
+    (error) => {
+      return Promise.reject(error);
+    }
   );
+  axiosSecure.interceptors.response.use(res => {
+    return res;
+  }, error => {
+    const status = error.status;
+    if(status === 403) {
+      navigate('/forbidden')
+    } else if(status === 401){
+      logoutUser()
+      .then(() => {
+        navigate('/login')
+      })
+      .catch(() => {})
+    }
+  })
 
   return axiosSecure;
 };

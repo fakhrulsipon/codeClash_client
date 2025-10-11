@@ -41,7 +41,7 @@ const AllContests: React.FC = () => {
       }
     };
     fetchContests();
-  }, []);
+  }, [axiosSecure]);
 
   if (loading) return <LoadingSpinner />;
 
