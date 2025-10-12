@@ -10,8 +10,8 @@ import { Home } from "lucide-react";
 export default function DashboardLayout() {
   const [isOpen, setIsOpen] = useState(false);
   const { user } = use(AuthContext)!;
-  const email = user?.email ?? undefined;
-  const { userRole, roleLoading } = useUserRole(email);
+  const email = user?.email ?? user?.providerData?.[0]?.email;
+  const { userRole, roleLoading } = useUserRole(email!);
 
   if (roleLoading) {
     return <LoadingSpinner />;
@@ -60,6 +60,13 @@ export default function DashboardLayout() {
             className="px-4 py-2 rounded hover:bg-blue-100"
           >
             Add Contest
+          </a>
+
+          <a
+            href="/dashboard/manage-users"
+            className="px-4 py-2 rounded hover:bg-blue-100"
+          >
+            Manage Users
           </a>
         </>
       )}

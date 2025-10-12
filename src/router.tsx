@@ -19,8 +19,8 @@ import SolveProblem from "./page/SolveProblem";
 import Profile from "./page/Profile";
 import History from "./page/History";
 import ManageContests from "./page/dashboard/manageContests/ManageContests";
-import  AdminRoute from "./route/AdminRoute";
-import ForbiddenPage from "./page/ForbiddenPage";
+import AdminRoute from "./route/AdminRoute";
+import ManageUsers from "./page/dashboard/manageUsers/ManageUsers";
 
 const router = createBrowserRouter([
   {
@@ -42,7 +42,7 @@ const router = createBrowserRouter([
       },
       {
         path: "all-contests",
-        element: <AllContests></AllContests>,
+        element: <PrivetRoute><AllContests/></PrivetRoute>,
       },
       {
         path: "/contests/:id",
@@ -54,11 +54,11 @@ const router = createBrowserRouter([
       },
       {
         path: "contests/:contestId/lobby",
-        element: <ContestLobby></ContestLobby>,
+        element: <PrivetRoute><ContestLobby/></PrivetRoute>,
       },
       {
         path: "contests/:contestId/workspace",
-        element: <ContestWorkspace></ContestWorkspace>,
+        element: <PrivetRoute><ContestWorkspace/></PrivetRoute>,
       },
       {
         path: "about",
@@ -73,10 +73,6 @@ const router = createBrowserRouter([
         element: <RegisterPage />,
       },
       {
-        path: '/forbidden',
-        element: <ForbiddenPage/>
-      },
-      {
         path: "forgot-password",
         element: <ForgotPasswordPage />,
       },
@@ -89,13 +85,21 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: 'profile',
-        element: <PrivetRoute><Profile/></PrivetRoute>
+        path: "profile",
+        element: (
+          <PrivetRoute>
+            <Profile />
+          </PrivetRoute>
+        ),
       },
       {
-        path: 'history',
-        element: <PrivetRoute><History/></PrivetRoute>
-      }
+        path: "history",
+        element: (
+          <PrivetRoute>
+            <History />
+          </PrivetRoute>
+        ),
+      },
     ],
   },
 
@@ -110,11 +114,27 @@ const router = createBrowserRouter([
       },
       {
         path: "addContest",
-        element: <AdminRoute><AddContest /></AdminRoute>,
+        element: (
+          <AdminRoute>
+            <AddContest />
+          </AdminRoute>
+        ),
       },
       {
-        path: "/dashboard/manageContests",
-        element:<ManageContests />,
+        path: "manage-users",
+        element: (
+          <AdminRoute>
+            <ManageUsers />
+          </AdminRoute>
+        ),
+      },
+      {
+        path: "manageContests",
+        element: (
+          <PrivetRoute>
+            <ManageContests />
+          </PrivetRoute>
+        ),
       },
     ],
   },
