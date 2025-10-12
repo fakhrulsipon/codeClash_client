@@ -84,6 +84,19 @@ const router = createBrowserRouter([
           </PrivetRoute>
         ),
       },
+      
+    ],
+  },
+
+  // ========= admin dashboard ===========
+  {
+    path: "/dashboard",
+    element: <DashboardLayout />,
+    children: [
+      {
+        index: true,
+        element: <DashboardHome />,
+      },
       {
         path: "profile",
         element: (
@@ -99,18 +112,6 @@ const router = createBrowserRouter([
             <History />
           </PrivetRoute>
         ),
-      },
-    ],
-  },
-
-  // ========= admin dashboard ===========
-  {
-    path: "/dashboard",
-    element: <DashboardLayout />,
-    children: [
-      {
-        index: true,
-        element: <DashboardHome />,
       },
       {
         path: "addContest",
