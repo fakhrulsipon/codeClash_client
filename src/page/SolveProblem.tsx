@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect, use } from "react";
 import Editor from "@monaco-editor/react";
 import { useParams } from "react-router";
 import { useQuery } from "@tanstack/react-query";
@@ -40,7 +40,7 @@ interface SubmissionData {
 
 export default function SolveProblem() {
   const { id } = useParams<{ id: string }>();
-  const { user } = useContext(AuthContext)!;
+  const { user } = use(AuthContext)!;
   const [code, setCode] = useState<string>("// এখানে কোড লিখুন");
   const [selectedLang, setSelectedLang] = useState<string>("javascript");
   const [output, setOutput] = useState<string>("");

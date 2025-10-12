@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import AOS from "aos";
 import "aos/dist/aos.css";
 import LoadingSpinner from "./LoadingSpinner";
+import useAxiosSecure from "../hook/useAxiosSecure";
 
 type Problem = {
   _id: string;
@@ -22,14 +22,15 @@ type Contest = {
 const ContestSection: React.FC = () => {
   const [contests, setContests] = useState<Contest[]>([]);
   const [loading, setLoading] = useState(true);
+  const axiosSecure = useAxiosSecure();
 
   useEffect(() => {
     AOS.init({ duration: 400, easing: "ease-in-out", once: false });
     const fetchContests = async () => {
       try {
         
-        const res = await axios.get<Contest[]>(
-          "http://localhost:3000/api/contests"
+        const res = await axiosSecure.get<Contest[]>(
+          "/api/contests"
         );
         const sorted = res.data
           .sort(
@@ -45,7 +46,7 @@ const ContestSection: React.FC = () => {
       }
     };
     fetchContests();
-  }, []);
+  }, [axiosSecure]);
 
   if (loading) return <LoadingSpinner />;
 
