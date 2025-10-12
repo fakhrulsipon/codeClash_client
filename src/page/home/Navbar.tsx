@@ -3,29 +3,17 @@ import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import Toolbar from "@mui/material/Toolbar";
 import IconButton from "@mui/material/IconButton";
-import Typography from "@mui/material/Typography";
 import Menu from "@mui/material/Menu";
 import MenuIcon from "@mui/icons-material/Menu";
 import Container from "@mui/material/Container";
 import Button from "@mui/material/Button";
-import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
 import { Link } from "react-router";
 import Logo from "../../components/Logo";
 import { AuthContext } from "../../provider/AuthProvider";
 import toast from "react-hot-toast";
 
-const pages = [
-  { name: "Home", path: "/" },
-  { name: "Problem set", path: "/problems" },
-  { name: "All Contests", path: "/all-contests" },
-  { name: "Dashboard", path: "/dashboard" },
-  { name: "About", path: "/about" },
-];
-const settings = [
-  { name: "Profile", path: "/profile" },
-  { name: "History", path: "/history" },
-];
+
 
 function Navbar() {
   const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(
@@ -39,9 +27,23 @@ function Navbar() {
   const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorElNav(event.currentTarget);
   };
-  const handleOpenUserMenu = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorElUser(event.currentTarget);
-  };
+
+  const basePages = [
+    { name: "Home", path: "/" },
+    { name: "Problem set", path: "/problems" },
+    { name: "All Contests", path: "/all-contests" },
+    { name: "About", path: "/about" },
+  ];
+
+  const pages = user
+    ? [
+        { name: "Home", path: "/" },
+        { name: "Problem set", path: "/problems" },
+        { name: "All Contests", path: "/all-contests" },
+        { name: "Dashboard", path: "/dashboard" },
+        { name: "About", path: "/about" },
+      ]
+    : basePages;
 
   const handleCloseNavMenu = () => {
     setAnchorElNav(null);
@@ -155,16 +157,16 @@ function Navbar() {
           {/*  User Menu */}
           <div className="">
             <Box sx={{ flexGrow: 0 }}>
-              <Tooltip title="Open settings">
-                <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
+              
+                <IconButton sx={{ p: 0 }}>
                   {user && (
                     <img
-                      className="w-8 h-8 md:w-12 md:h-12 rounded-full"
+                      className="w-8 h-8 md:w-12 md:h-12 rounded-full cursor-auto"
                       src={user?.photoURL || "/default-img.jpg"}
                     />
                   )}
                 </IconButton>
-              </Tooltip>
+              
               <Menu
                 sx={{ mt: "45px" }}
                 id="menu-appbar"
@@ -181,18 +183,7 @@ function Navbar() {
                 open={Boolean(anchorElUser)}
                 onClose={handleCloseUserMenu}
               >
-                {settings.map((setting) => (
-                  <MenuItem
-                    key={setting.name}
-                    onClick={handleCloseUserMenu}
-                    component={Link}
-                    to={setting.path}
-                  >
-                    <Typography sx={{ textAlign: "center" }}>
-                      {setting.name}
-                    </Typography>
-                  </MenuItem>
-                ))}
+                
 
               </Menu>
             </Box>

@@ -38,10 +38,10 @@ export default function DashboardLayout() {
             Profile
           </a>
           <a
-            href="/dashboard/settings"
+            href="/dashboard/history"
             className="px-4 py-2 rounded hover:bg-blue-100"
           >
-            Settings
+            History
           </a>
           <a
             href="/dashboard/logout"
