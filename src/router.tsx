@@ -142,6 +142,14 @@ const router = createBrowserRouter([
         path: "/dashboard/addProblem",
         element: <AddProblem />
       },
+      {
+        path: "manageContests",
+        element: (
+          <PrivetRoute>
+            <ManageContests />
+          </PrivetRoute>
+        ),
+      },
     ],
   },
   {
