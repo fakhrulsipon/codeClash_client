@@ -1,152 +1,488 @@
-import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router";
+import React, { useEffect, useState, useContext } from "react";
+import { useParams, useNavigate, useSearchParams } from "react-router";
 import axios from "axios";
+import { AuthContext } from "../../provider/AuthProvider";
 import LoadingSpinner from "../../components/LoadingSpinner";
+import toast from "react-hot-toast";
 
-type Problem = {
+interface Contest {
   _id: string;
   title: string;
-  description: string;
-  difficulty: string;
-  category: string;
-};
-
-type Contest = {
-  _id: string;
-  title: string;
+  type: "individual" | "team";
+  description?: string;
   startTime: string;
   endTime: string;
-  type: string; // "individual" or "team"
-  problems: Problem[];
-  description?: string;
-};
+  problems: any[];
+}
 
-type TeamMember = {
+interface TeamMember {
+  userId: string;
+  userName: string;
+  userImage?: string;
+  role: "leader" | "member";
+  ready: boolean;
+  joinedAt: string;
+}
+
+interface Team {
+  _id: string;
+  code: string;
   name: string;
-  email: string;
-};
+  createdBy: string;
+  members: TeamMember[];
+  status: "waiting" | "ready" | "started";
+  contestId: string;
+}
 
 const ContestLobby: React.FC = () => {
   const { contestId } = useParams<{ contestId: string }>();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const teamCodeFromUrl = searchParams.get("teamCode");
+  const { user } = useContext(AuthContext);
 
   const [contest, setContest] = useState<Contest | null>(null);
+  const [team, setTeam] = useState<Team | null>(null);
+  const [timeLeft, setTimeLeft] = useState<number>(5);
   const [loading, setLoading] = useState(true);
-  const [timeLeft, setTimeLeft] = useState<string>("");
-  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
+  const [teamLoading, setTeamLoading] = useState(false);
+  const [teamNotFound, setTeamNotFound] = useState(false);
 
+  // Fetch contest info
   useEffect(() => {
-    if (!contestId) return;
-
     const fetchContest = async () => {
       try {
-        const res = await axios.get<Contest>(`https://code-clash-server-rust.vercel.app/api/contests/${contestId}`);
-        setContest(res.data);
-
-        // For team contests, fetch team members (mock example)
-        if (res.data.type?.toLowerCase() === "team") {
-          setTeamMembers([
-            { name: "Alice", email: "alice@example.com" },
-            { name: "Bob", email: "bob@example.com" },
-          ]);
-        }
-      } catch (err) {
-        console.error(err);
+        const { data } = await axios.get(
+          `https://code-clash-server-rust.vercel.app/api/contests/${contestId}`
+        );
+        setContest(data);
+      } catch (error) {
+        console.error("Error fetching contest:", error);
+        toast.error("Failed to load contest");
       } finally {
         setLoading(false);
       }
     };
-
     fetchContest();
   }, [contestId]);
 
-  // Countdown timer + auto redirect
+  // Fetch team info - UPDATED TO USE TEAM CODE
   useEffect(() => {
-    if (!contest) return;
+    if (contest?.type === "team" && user?.uid) {
+      const fetchTeam = async () => {
+        try {
+          setTeamLoading(true);
+          setTeamNotFound(false);
 
-    const contestType = contest.type?.toLowerCase();
+          let url;
+          if (teamCodeFromUrl) {
+            // If we have a team code from URL, fetch by team code
+            url = `http://localhost:3000/api/teams/code/${teamCodeFromUrl}`;
+          } else {
+            // Otherwise, fetch by user ID (fallback)
+            url = `http://localhost:3000/api/teams/user/${user.uid}?contestId=${contestId}`;
+          }
 
-    // Individual contest: 5-second countdown
-    if (contestType === "individual") {
-      let counter = 5;
-      setTimeLeft(`${counter}s`);
+          const { data } = await axios.get(url);
 
-      const interval = setInterval(() => {
-        counter -= 1;
-        setTimeLeft(`${counter}s`);
-        if (counter <= 0) {
-          clearInterval(interval);
-          navigate(`/contests/${contest._id}/workspace`);
+          setTeam(data);
+
+          if (data.status === "started") {
+            toast.success("Contest started! Redirecting...");
+            navigate(`/contests/${contestId}/workspace`);
+          }
+        } catch (error: any) {
+          if (error.response?.status === 404) {
+            setTeamNotFound(true);
+          } else {
+            console.error("Error fetching team:", error);
+            toast.error("Failed to load team information");
+          }
+        } finally {
+          setTeamLoading(false);
         }
-      }, 1000);
+      };
 
+      fetchTeam();
+      const interval = setInterval(fetchTeam, 2000);
       return () => clearInterval(interval);
     }
+  }, [contest, contestId, user, navigate, teamCodeFromUrl]);
 
-    // Team contest: countdown until startTime
-    if (contestType === "team") {
-      const interval = setInterval(() => {
-        const now = new Date().getTime();
-        const start = new Date(contest.startTime).getTime();
-        const distance = start - now;
-
-        if (distance <= 0) {
-          clearInterval(interval);
-          navigate(`/contests/${contest._id}/workspace`);
-          return;
-        }
-
-        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-        setTimeLeft(`${minutes}m ${seconds}s`);
-      }, 1000);
-
-      return () => clearInterval(interval);
+  // Countdown for individual contests
+  useEffect(() => {
+    if (contest?.type === "individual") {
+      if (timeLeft === 0) {
+        navigate(`/contests/${contestId}/workspace`);
+        return;
+      }
+      const timer = setTimeout(() => setTimeLeft(timeLeft - 1), 1000);
+      return () => clearTimeout(timer);
     }
-  }, [contest, navigate]);
+  }, [timeLeft, contest, contestId, navigate]);
 
-  if (loading) return <LoadingSpinner />;
-  if (!contest) return <p className="text-center mt-10 text-red-500 text-lg">Contest not found.</p>;
+  const handleReadyToggle = async () => {
+    if (!team || !user?.uid) return;
+
+    try {
+      const member = team.members.find((m) => m.userId === user.uid);
+      if (!member) return;
+
+      const { data } = await axios.patch(
+        `http://localhost:3000/api/teams/${team.code}/ready`,
+        {
+          userId: user.uid,
+          ready: !member.ready,
+        }
+      );
+      setTeam(data);
+
+      toast.success(!member.ready ? "You are ready!" : "You are not ready");
+    } catch (error: any) {
+      console.error("Error updating ready status:", error);
+      toast.error(
+        error.response?.data?.message || "Failed to update ready status"
+      );
+    }
+  };
+
+  const handleStartContest = async () => {
+    if (!team || !user?.uid) return;
+
+    try {
+      const { data } = await axios.patch(
+        `http://localhost:3000/api/teams/${team.code}/start`,
+        { userId: user.uid }
+      );
+      setTeam(data.team);
+      toast.success("Contest started! Redirecting...");
+
+      // Redirect to workspace
+      setTimeout(() => {
+        navigate(`/contests/${contestId}/workspace`);
+      }, 1000);
+    } catch (error: any) {
+      console.error("Error starting contest:", error);
+      toast.error(error.response?.data?.message || "Failed to start contest");
+    }
+  };
+
+  const handleCopyTeamCode = () => {
+    if (team?.code) {
+      navigator.clipboard.writeText(team.code);
+      toast.success("Team code copied to clipboard!");
+    }
+  };
+
+  // ENHANCED LEADER DETECTION - PRIORITIZE ROLE AND CREATEDBY
+  const currentUserMember = team?.members?.find((m) => m.userId === user?.uid);
+  const isLeader =
+    currentUserMember?.role === "leader" || team?.createdBy === user?.uid;
+  const allReady = team?.members?.every((m) => m.ready) ?? false;
+
+  // Debug info
+  useEffect(() => {
+    if (team && user?.uid) {
+      console.log("🔍 Enhanced Leader Detection Debug:", {
+        currentUserId: user.uid,
+        teamCreatedBy: team.createdBy,
+        currentUserRole: currentUserMember?.role,
+        isLeaderByCreatedBy: team.createdBy === user.uid,
+        isLeaderByRole: currentUserMember?.role === "leader",
+        finalIsLeader: isLeader,
+        allMembers: team.members,
+      });
+    }
+  }, [team, user, currentUserMember, isLeader]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <LoadingSpinner />
+      </div>
+    );
+  }
+
+  if (!contest) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-red-600 mb-4">
+            Contest Not Found
+          </h2>
+          <button
+            onClick={() => navigate("/contests")}
+            className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
+          >
+            Back to Contests
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="p-6 max-w-4xl mx-auto min-h-screen">
-      <div className="bg-gradient-to-r from-indigo-300 via-purple-300 to-pink-300 rounded-3xl p-8 shadow-2xl text-gray-800 text-center">
-        <h1 className="text-3xl font-bold mb-4">{contest.title}</h1>
-        <p className="text-lg mb-4">
-          {contest.type?.toLowerCase() === "individual"
-            ? "You will be redirected in:"
-            : "Contest starts in:"}
-          <span className="ml-2 font-mono bg-white/30 px-3 py-1 rounded">{timeLeft}</span>
-        </p>
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-indigo-100 dark:from-gray-900 dark:to-purple-900 p-4">
+      <div className="max-w-4xl mx-auto">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">
+            {contest.title}
+          </h1>
+          <div className="flex justify-center items-center gap-4 text-lg text-gray-600 dark:text-gray-300">
+            <span className="px-3 py-1 bg-white dark:bg-gray-800 rounded-full shadow-sm">
+              {contest.type === "individual"
+                ? "Individual Contest"
+                : "Team Contest"}
+            </span>
+            <span className="px-3 py-1 bg-white dark:bg-gray-800 rounded-full shadow-sm">
+              Starts: {new Date(contest.startTime).toLocaleString()}
+            </span>
+          </div>
+        </div>
 
-        {contest.type?.toLowerCase() === "team" && (
-          <div className="mb-6">
-            <h2 className="text-2xl font-semibold mb-2">Team Members</h2>
-            {teamMembers.length > 0 ? (
-              <ul className="space-y-1">
-                {teamMembers.map((member, idx) => (
-                  <li key={idx} className="bg-white/30 rounded px-3 py-1 shadow-inner">
-                    {member.name} ({member.email})
-                  </li>
-                ))}
-              </ul>
+        {/* Main Content */}
+        <div className="bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 rounded-3xl p-8 shadow-2xl text-white">
+          {/* Countdown/Room Status */}
+          <div className="text-center mb-8">
+            <h2 className="text-2xl font-bold mb-4">
+              {contest.type === "individual"
+                ? "Get Ready! Starting in..."
+                : "Team Lobby"}
+            </h2>
+
+            {contest.type === "individual" ? (
+              <div className="text-6xl font-mono font-bold bg-white/20 rounded-2xl p-6 inline-block">
+                {timeLeft}s
+              </div>
             ) : (
-              <p className="italic text-gray-700">Waiting for team members...</p>
+              <div className="flex flex-col items-center gap-4">
+                <div className="text-3xl font-mono font-bold bg-white/20 rounded-xl px-6 py-3">
+                  Status:{" "}
+                  {team?.status ? team.status.toUpperCase() : "LOADING..."}
+                </div>
+                {isLeader && team && (
+                  <div className="flex flex-col items-center gap-3">
+                    <div className="flex items-center gap-2 bg-white/20 rounded-lg p-3">
+                      <span>Team Code: </span>
+                      <code className="font-mono text-2xl font-bold bg-white/30 px-3 py-1 rounded">
+                        {team.code}
+                      </code>
+                      <button
+                        onClick={handleCopyTeamCode}
+                        className="ml-2 px-3 py-1 bg-white/30 hover:bg-white/40 rounded text-sm transition-colors"
+                      >
+                        Copy
+                      </button>
+                    </div>
+                    <div className="bg-yellow-400/30 text-yellow-100 px-4 py-2 rounded-lg">
+                      👑 You are the Team Leader
+                    </div>
+                  </div>
+                )}
+              </div>
             )}
           </div>
-        )}
 
-        {contest.description && (
-          <div className="bg-white/20 p-4 rounded-xl mb-6 shadow-inner text-left">
-            <h2 className="font-semibold mb-2">Rules / Notes</h2>
-            <p className="text-sm">{contest.description}</p>
+          {/* Team Management Section */}
+          {contest.type === "team" && (
+            <div className="space-y-6">
+              {/* Team Members */}
+              {teamLoading ? (
+                <div className="flex justify-center">
+                  <LoadingSpinner />
+                </div>
+              ) : team ? (
+                <div className="bg-white/20 rounded-2xl p-6 backdrop-blur-sm">
+                  <h3 className="text-xl font-bold mb-4 text-center">
+                    Team Members ({team.members?.length || 0})
+                  </h3>
+
+                  {/* Debug Info - Remove in production */}
+                  {team && user?.uid && (
+                    <div className="mb-4 p-3 bg-black/20 rounded-lg text-xs">
+                      <p>
+                        <strong>Debug:</strong> Your ID: {user.uid} | Team
+                        Created By: {team.createdBy} | Your Role:{" "}
+                        {currentUserMember?.role} | You are{" "}
+                        {isLeader ? "LEADER 🎯" : "MEMBER"}
+                      </p>
+                    </div>
+                  )}
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {team.members?.map((member, index) => (
+                      <div
+                        key={member.userId}
+                        className={`p-4 rounded-xl border-2 transition-all ${
+                          member.ready
+                            ? "bg-green-500/30 border-green-400"
+                            : "bg-white/10 border-white/20"
+                        } ${
+                          member.userId === user?.uid
+                            ? "ring-2 ring-yellow-400"
+                            : ""
+                        } ${member.role === "leader" ? "border-yellow-400 shadow-lg" : ""}`}
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <div
+                              className={`w-10 h-10 rounded-full flex items-center justify-center font-bold ${
+                                member.role === "leader"
+                                  ? "bg-yellow-400 text-black"
+                                  : "bg-white/20"
+                              }`}
+                            >
+                              {member.role === "leader" ? "👑" : index + 1}
+                            </div>
+                            <div>
+                              <p className="font-semibold flex items-center gap-2">
+                                {member.userName}
+                                {member.userId === user?.uid && (
+                                  <span className="text-yellow-300">(You)</span>
+                                )}
+                              </p>
+                              <p className="text-sm opacity-80 capitalize">
+                                {member.role} •{" "}
+                                {member.ready ? "Ready ✅" : "Not Ready ❌"}
+                              </p>
+                            </div>
+                          </div>
+                          <div
+                            className={`w-3 h-3 rounded-full ${
+                              member.ready ? "bg-green-400" : "bg-red-400"
+                            }`}
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : teamNotFound ? (
+                <div className="text-center bg-white/20 rounded-2xl p-8">
+                  <p className="text-xl mb-4">You haven't joined a team yet!</p>
+                  <button
+                    onClick={() => navigate(`/contests/${contestId}`)}
+                    className="px-6 py-3 bg-white text-purple-600 rounded-lg font-bold hover:scale-105 transition-transform"
+                  >
+                    Join a Team
+                  </button>
+                </div>
+              ) : (
+                <div className="text-center bg-white/20 rounded-2xl p-8">
+                  <LoadingSpinner />
+                  <p className="mt-2">Loading team information...</p>
+                </div>
+              )}
+
+              {/* Action Buttons */}
+              {team && (
+                <div className="flex flex-col items-center gap-4">
+                  {!isLeader && currentUserMember && (
+                    <button
+                      onClick={handleReadyToggle}
+                      className={`px-8 py-3 rounded-xl font-bold text-lg transition-all ${
+                        currentUserMember.ready
+                          ? "bg-yellow-500 hover:bg-yellow-600 text-white"
+                          : "bg-green-500 hover:bg-green-600 text-white"
+                      } hover:scale-105 shadow-lg`}
+                    >
+                      {currentUserMember.ready
+                        ? "Mark as Not Ready"
+                        : "I'm Ready!"}
+                    </button>
+                  )}
+
+                  {isLeader && (
+                    <div className="flex flex-col items-center gap-3">
+                      <button
+                        onClick={handleStartContest}
+                        disabled={!allReady}
+                        className={`px-8 py-3 rounded-xl font-bold text-lg transition-all ${
+                          allReady
+                            ? "bg-green-500 hover:bg-green-600 text-white hover:scale-105 shadow-lg"
+                            : "bg-gray-400 text-gray-200 cursor-not-allowed"
+                        }`}
+                      >
+                        {allReady
+                          ? "🎯 Start Contest Now!"
+                          : "Waiting for members to be ready..."}
+                      </button>
+                      {!allReady && team.members && (
+                        <p className="text-sm opacity-80">
+                          {team.members.filter((m) => m.ready).length} of{" "}
+                          {team.members.length} members ready
+                        </p>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Contest Description */}
+          {contest.description && (
+            <div className="mt-8 bg-white/20 rounded-2xl p-6 backdrop-blur-sm">
+              <h3 className="text-xl font-bold mb-3">Contest Rules & Notes</h3>
+              <p className="leading-relaxed">{contest.description}</p>
+            </div>
+          )}
+
+          {/* Individual Contest Info */}
+          {contest.type === "individual" && (
+            <div className="text-center mt-6">
+              <p className="text-lg opacity-90">
+                You will be automatically redirected to the workspace when the
+                countdown ends.
+              </p>
+              <p className="text-sm opacity-70 mt-2">
+                Make sure you have a stable internet connection and are ready to
+                code!
+              </p>
+            </div>
+          )}
+        </div>
+
+        {/* Problems Preview */}
+        {contest.problems && contest.problems.length > 0 && (
+          <div className="mt-8 bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg">
+            <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+              Problems Preview ({contest.problems.length})
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {contest.problems.slice(0, 4).map((problem, index) => (
+                <div
+                  key={problem._id}
+                  className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:shadow-md transition-shadow"
+                >
+                  <h4 className="font-semibold text-gray-900 dark:text-white">
+                    Problem {index + 1}: {problem.title}
+                  </h4>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-1 line-clamp-2">
+                    {problem.description}
+                  </p>
+                  <div className="flex gap-2 mt-2">
+                    <span
+                      className={`px-2 py-1 rounded-full text-xs font-medium ${
+                        problem.difficulty === "Easy"
+                          ? "bg-green-100 text-green-800"
+                          : problem.difficulty === "Medium"
+                            ? "bg-yellow-100 text-yellow-800"
+                            : "bg-red-100 text-red-800"
+                      }`}
+                    >
+                      {problem.difficulty}
+                    </span>
+                    <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">
+                      {problem.category}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         )}
-
-        <p className="text-sm text-gray-700 italic">
-          You will be automatically redirected to the workspace when the contest starts.
-        </p>
       </div>
     </div>
   );

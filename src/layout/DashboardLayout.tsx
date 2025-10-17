@@ -13,6 +13,12 @@ export default function DashboardLayout() {
         Home
       </a>
       <a
+        href="/dashboard/addProblem"
+        className="px-4 py-2 rounded hover:bg-blue-100"
+      >
+        Add Problem
+      </a>
+      <a
         href="/dashboard/addContest"
         className="px-4 py-2 rounded hover:bg-blue-100"
       >

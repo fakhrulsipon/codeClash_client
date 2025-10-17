@@ -19,6 +19,7 @@ import SolveProblem from "./page/SolveProblem";
 import Profile from "./page/Profile";
 import History from "./page/History";
 import ManageContests from "./page/dashboard/manageContests/ManageContests";
+import AddProblem from "./page/dashboard/addProblem/AddProblem";
 
 const router = createBrowserRouter([
   {
@@ -109,6 +110,10 @@ const router = createBrowserRouter([
       {
         path: "/dashboard/manageContests",
         element: <ManageContests />,
+      },
+      {
+        path: "/dashboard/addProblem",
+        element: <AddProblem />
       },
     ],
   },

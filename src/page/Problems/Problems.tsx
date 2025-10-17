@@ -33,7 +33,9 @@ const Problems = () => {
   useEffect(() => {
     const fetchProblems = async () => {
       try {
-        const res = await fetch("https://code-clash-server-rust.vercel.app/api/problems");
+        const res = await fetch(
+          "https://code-clash-server-rust.vercel.app/api/problems"
+        );
         const data = await res.json();
         setProblems(data);
       } catch (error) {
@@ -71,29 +73,34 @@ const Problems = () => {
 
               <p className="text-gray-600 mt-2">{problem.description}</p>
 
-              <div className="flex flex-wrap gap-3 mt-4">
-                <span
-                  className={`px-3 py-1 rounded-full text-sm font-semibold ${
-                    problem.difficulty.trim().toLowerCase() === "easy"
-                      ? "bg-green-100 text-green-600"
-                      : problem.difficulty.trim().toLowerCase() === "medium"
-                        ? "bg-yellow-100 text-yellow-600"
-                        : "bg-red-100 text-red-600"
-                  }`}
-                >
-                  {problem.difficulty}
-                </span>
+              <div className="flex justify-between items-center mt-4 flex-wrap gap-3">
+                <div className="flex flex-wrap gap-3">
+                  <span
+                    className={`px-3 py-1 rounded-full text-sm font-semibold ${
+                      problem.difficulty.trim().toLowerCase() === "easy"
+                        ? "bg-green-100 text-green-600"
+                        : problem.difficulty.trim().toLowerCase() === "medium"
+                          ? "bg-yellow-100 text-yellow-600"
+                          : "bg-red-100 text-red-600"
+                    }`}
+                  >
+                    {problem.difficulty}
+                  </span>
 
-                <span className="px-3 py-1 rounded-full bg-blue-100 text-blue-600 text-sm font-medium">
-                  {problem.category}
-                </span>
-                
+                  <span className="px-3 py-1 rounded-full bg-blue-100 text-blue-600 text-sm font-medium">
+                    {problem.category}
+                  </span>
+                </div>
+
+                <Link to={`/problems/${problem._id}`}>
+                  <button className="bg-emerald-500 px-5 py-3 text-white hover:bg-emerald-700 cursor-pointer rounded-2xl">
+                    Solve Problem
+                  </button>
+                </Link>
               </div>
-              <Link to={`/problems/${problem._id}`}><button className="bg-emerald-500 px-5 py-3 mt-6 text-white hover:bg-emerald-700 cursor-pointer rounded-2xl">Solve Problem</button></Link>
             </li>
           ))}
         </ul>
-        
       </div>
     </div>
   );

@@ -180,7 +180,7 @@ const AllContests: React.FC = () => {
               <div className="mt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                 <a
                   href={`/contests/${contest._id}`}
-                  className="inline-block px-5 py-2 bg-blue-500 text-white font-semibold rounded-full shadow-md hover:bg-blue-600 transition duration-200 text-center"
+                  className="inline-block px-5 py-2 bg-blue-500 text-white font-semibold rounded-full shadow-md transition duration-200 text-center"
                 >
                   View Contest
                 </a>
