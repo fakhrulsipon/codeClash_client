@@ -19,6 +19,7 @@ import SolveProblem from "./page/SolveProblem";
 import Profile from "./page/Profile";
 import History from "./page/History";
 import ManageContests from "./page/dashboard/manageContests/ManageContests";
+import AddProblem from "./page/dashboard/addProblem/AddProblem";
 import AdminRoute from "./route/AdminRoute";
 import ManageUsers from "./page/dashboard/manageUsers/ManageUsers";
 
@@ -128,6 +129,18 @@ const router = createBrowserRouter([
             <ManageUsers />
           </AdminRoute>
         ),
+      },
+      {
+        path: "manageContests",
+        element: (
+          <PrivetRoute>
+            <ManageContests />
+          </PrivetRoute>
+        ),
+      },
+      {
+        path: "/dashboard/addProblem",
+        element: <AddProblem />
       },
       {
         path: "manageContests",
