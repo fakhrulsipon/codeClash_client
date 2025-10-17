@@ -47,6 +47,9 @@ const ContestWorkspace: React.FC = () => {
   const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [timeLeft, setTimeLeft] = useState<string>("");
 
+  const axiosSecure = useAxiosSecure();
+
+  // Ref to store latest selectedLanguage for editor focus check
   const selectedLanguageRef = useRef<string | null>(selectedLanguage);
   useEffect(() => {
     selectedLanguageRef.current = selectedLanguage;
@@ -287,7 +290,7 @@ const ContestWorkspace: React.FC = () => {
         </div>
 
         {/* Monaco Editor */}
-
+        
         <div className="rounded-xl overflow-hidden shadow-lg">
           <Editor
             height="350px"
