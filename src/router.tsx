@@ -22,6 +22,7 @@ import ManageContests from "./page/dashboard/manageContests/ManageContests";
 import AddProblem from "./page/dashboard/addProblem/AddProblem";
 import AdminRoute from "./route/AdminRoute";
 import ManageUsers from "./page/dashboard/manageUsers/ManageUsers";
+import ManageTeams from "./page/dashboard/manageTeams/ManageTeams";
 
 const router = createBrowserRouter([
   {
@@ -147,6 +148,14 @@ const router = createBrowserRouter([
         element: (
           <PrivetRoute>
             <ManageContests />
+          </PrivetRoute>
+        ),
+      },
+      {
+        path: "manageTeams",
+        element: (
+          <PrivetRoute>
+            <ManageTeams />
           </PrivetRoute>
         ),
       },
