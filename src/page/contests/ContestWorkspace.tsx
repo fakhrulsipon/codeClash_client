@@ -46,9 +46,6 @@ const ContestWorkspace: React.FC = () => {
   const [code, setCode] = useState<string>("");
   const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [timeLeft, setTimeLeft] = useState<string>("");
-
-  const axiosSecure = useAxiosSecure();
-
   // Ref to store latest selectedLanguage for editor focus check
   const selectedLanguageRef = useRef<string | null>(selectedLanguage);
   useEffect(() => {
