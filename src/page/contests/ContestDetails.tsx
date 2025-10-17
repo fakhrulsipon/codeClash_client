@@ -65,9 +65,7 @@ const ContestDetails: React.FC = () => {
   useEffect(() => {
     const fetchContest = async () => {
       try {
-        const res = await axiosSecure.get<Contest>(
-          `/api/contests/${id}`
-        );
+        const res = await axiosSecure.get<Contest>(`/api/contests/${id}`);
         setContest(res.data);
       } catch (err) {
         console.error(err);
@@ -78,7 +76,9 @@ const ContestDetails: React.FC = () => {
 
     const fetchLeaderboard = async () => {
       try {
-        const res = await axiosSecure.get(`/api/contestSubmissions/leaderboard/${id}`);
+        const res = await axiosSecure.get(
+          `/api/contestSubmissions/leaderboard/${id}`
+        );
         setLeaderboard(res.data);
       } catch (err) {
         console.error(err);
@@ -215,7 +215,7 @@ const ContestDetails: React.FC = () => {
     }
 
     try {
-      await axiosSecure.post("/api/teams", {
+      const res = await axiosSecure.post("/api/teams", {
         name: teamName,
         contestId: contest._id,
         userId: user.uid,
@@ -263,7 +263,7 @@ const ContestDetails: React.FC = () => {
     try {
       await axiosSecure.post("/api/teams/join", {
         code: teamCode.trim(),
-        userId: user.uid, 
+        userId: user.uid,
         userName: user.displayName || "Unknown User",
         userImage: user.photoURL || "",
       });
