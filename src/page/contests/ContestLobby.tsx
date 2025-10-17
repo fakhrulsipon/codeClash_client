@@ -53,7 +53,7 @@ const ContestLobby: React.FC = () => {
   useEffect(() => {
     const fetchContest = async () => {
       try {
-        const { data } = await axiosSecure.get(`/contests/${contestId}`);
+        const { data } = await axiosSecure.get(`/api/contests/${contestId}`);
         setContest(data);
       } catch (error) {
         console.error("Error fetching contest:", error);
@@ -75,9 +75,9 @@ const ContestLobby: React.FC = () => {
 
           let url;
           if (teamCodeFromUrl) {
-            url = `/teams/code/${teamCodeFromUrl}`;
+            url = `/api/teams/code/${teamCodeFromUrl}`;
           } else {
-            url = `/teams/user/${user.uid}?contestId=${contestId}`;
+            url = `/api/teams/user/${user.uid}?contestId=${contestId}`;
           }
 
           const { data } = await axiosSecure.get(url);
