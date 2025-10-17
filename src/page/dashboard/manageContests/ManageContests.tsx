@@ -1,44 +1,63 @@
 import { useQuery } from "@tanstack/react-query";
-import axios from "axios";
 import toast from "react-hot-toast";
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { FiEdit, FiPause, FiPlay, FiTrash2, FiSearch } from "react-icons/fi";
+import useAxiosSecure from "../../../hook/useAxiosSecure";
+
+// ✅ Contest type
+interface Problem {
+  _id: string;
+  title: string;
+  difficulty: "easy" | "medium" | "hard" | string;
+}
+
+interface Contest {
+  _id: string;
+  title: string;
+  paused: boolean;
+  problems?: Problem[];
+}
 
 const ManageContests = () => {
   const [search, setSearch] = useState("");
+  const axiosSecure = useAxiosSecure();
 
   const {
     data: contests = [],
     refetch,
     isLoading,
-  } = useQuery({
+  } = useQuery<Contest[]>({
     queryKey: ["contests"],
     queryFn: async () => {
-      const res = await axios.get("http://localhost:3000/api/contests");
+      const res = await axiosSecure.get<Contest[]>(
+        "/api/contests"
+      );
       return res.data;
     },
   });
 
   const handleDelete = async (id: string) => {
     if (confirm("Are you sure you want to delete this contest?")) {
-      await axios.delete(`http://localhost:3000/api/contests/${id}`);
+      await axiosSecure.delete(
+        `/api/contests/${id}`
+      );
       toast.success("Contest deleted!");
       refetch();
     }
   };
 
-  const togglePause = async (contest: any) => {
+  const togglePause = async (contest: Contest) => {
     const updated = { paused: !contest.paused };
-    await axios.put(
-      `http://localhost:3000/api/contests/${contest._id}`,
+    await axiosSecure.put(
+      `/api/contests/${contest._id}`,
       updated
     );
     toast.success(`Contest ${contest.paused ? "unpaused" : "paused"}!`);
     refetch();
   };
 
-  const filtered = contests.filter((c: any) =>
+  const filtered = contests.filter((c: Contest) =>
     c.title.toLowerCase().includes(search.toLowerCase())
   );
 
@@ -83,7 +102,7 @@ const ManageContests = () => {
             </tr>
           </thead>
           <tbody>
-            {filtered.map((contest: any, idx: number) => (
+            {filtered.map((contest: Contest, idx: number) => (
               <motion.tr
                 key={contest._id}
                 initial={{ opacity: 0, y: 10 }}
@@ -99,7 +118,7 @@ const ManageContests = () => {
                     <span>
                       {[
                         ...new Set(
-                          contest.problems.map((p: any) => p.difficulty)
+                          contest.problems.map((p: Problem) => p.difficulty)
                         ),
                       ].join(", ")}
                     </span>

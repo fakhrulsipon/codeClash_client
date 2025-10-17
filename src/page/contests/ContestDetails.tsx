@@ -9,6 +9,7 @@ import LoadingSpinner from "../../components/LoadingSpinner";
 import createIcon from "../../assets/create_icon.png";
 import groupIcon from "../../assets/group_icon.png";
 import Swal from "sweetalert2";
+import useAxiosSecure from "../../hook/useAxiosSecure";
 
 type Problem = {
   _id: string;
@@ -58,13 +59,14 @@ const ContestDetails: React.FC = () => {
   const [teamName, setTeamName] = useState("");
   const [teamCode, setTeamCode] = useState("");
   const [teamJoined, setTeamJoined] = useState(false);
+  const axiosSecure = useAxiosSecure();
 
   // Fetch contest data
   useEffect(() => {
     const fetchContest = async () => {
       try {
-        const res = await axios.get<Contest>(
-          `https://code-clash-server-rust.vercel.app/api/contests/${id}`
+        const res = await axiosSecure.get<Contest>(
+          `/api/contests/${id}`
         );
         setContest(res.data);
       } catch (err) {
@@ -76,9 +78,7 @@ const ContestDetails: React.FC = () => {
 
     const fetchLeaderboard = async () => {
       try {
-        const res = await axios.get<LeaderboardUser[]>(
-          `http://localhost:3000/api/contestSubmissions/leaderboard/${id}`
-        );
+        const res = await axiosSecure.get(`/api/contestSubmissions/leaderboard/${id}`);
         setLeaderboard(res.data);
       } catch (err) {
         console.error(err);
@@ -170,7 +170,7 @@ const ContestDetails: React.FC = () => {
     }
 
     try {
-      await axios.post("http://localhost:3000/api/contestParticipants", {
+      await axiosSecure.post("/api/contestParticipants", {
         contestId: contest._id,
         userId: user.uid,
         userName: user.displayName,
@@ -215,7 +215,7 @@ const ContestDetails: React.FC = () => {
     }
 
     try {
-      const res = await axios.post("http://localhost:3000/api/teams", {
+      await axiosSecure.post("/api/teams", {
         name: teamName,
         contestId: contest._id,
         userId: user.uid,
@@ -261,7 +261,7 @@ const ContestDetails: React.FC = () => {
     }
 
     try {
-      const res = await axios.post("http://localhost:3000/api/teams/join", {
+      await axiosSecure.post("/api/teams/join", {
         code: teamCode.trim(),
         userId: user.uid, 
         userName: user.displayName || "Unknown User",

@@ -6,6 +6,7 @@ import { AuthContext } from "../../provider/AuthProvider";
 import SocialLogin from "./SocialLogin";
 import { Link, useLocation, useNavigate } from "react-router";
 import toast from "react-hot-toast";
+import useAxiosPublic from "../../hook/useAxiosPublic";
 
 type RegisterFormData = {
   fullName: string;
@@ -30,6 +31,7 @@ const RegisterPage: React.FC = () => {
   const [profileImage, setProfileImage] = useState<string>("");
   const navigate = useNavigate();
   const location = useLocation();
+  const axiosPublic = useAxiosPublic();
 
   const {
     register,
@@ -74,8 +76,8 @@ const RegisterPage: React.FC = () => {
             };
 
             try {
-              const response = await axios.post(
-                "http://localhost:3000/api/users",
+              const response = await axiosPublic.post(
+                "/api/users",
                 userData
               );
 

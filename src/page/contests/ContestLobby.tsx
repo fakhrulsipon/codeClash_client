@@ -1,9 +1,9 @@
 import React, { useEffect, useState, useContext } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router";
-import axios from "axios";
 import { AuthContext } from "../../provider/AuthProvider";
 import LoadingSpinner from "../../components/LoadingSpinner";
 import toast from "react-hot-toast";
+import useAxiosSecure from "../../hook/useAxiosSecure";
 
 interface Contest {
   _id: string;
@@ -40,6 +40,7 @@ const ContestLobby: React.FC = () => {
   const [searchParams] = useSearchParams();
   const teamCodeFromUrl = searchParams.get("teamCode");
   const { user } = useContext(AuthContext);
+  const axiosSecure = useAxiosSecure();
 
   const [contest, setContest] = useState<Contest | null>(null);
   const [team, setTeam] = useState<Team | null>(null);
@@ -52,9 +53,7 @@ const ContestLobby: React.FC = () => {
   useEffect(() => {
     const fetchContest = async () => {
       try {
-        const { data } = await axios.get(
-          `https://code-clash-server-rust.vercel.app/api/contests/${contestId}`
-        );
+        const { data } = await axiosSecure.get(`/contests/${contestId}`);
         setContest(data);
       } catch (error) {
         console.error("Error fetching contest:", error);
@@ -64,9 +63,9 @@ const ContestLobby: React.FC = () => {
       }
     };
     fetchContest();
-  }, [contestId]);
+  }, [axiosSecure, contestId]);
 
-  // Fetch team info - UPDATED TO USE TEAM CODE
+  // Fetch team info
   useEffect(() => {
     if (contest?.type === "team" && user?.uid) {
       const fetchTeam = async () => {
@@ -76,15 +75,12 @@ const ContestLobby: React.FC = () => {
 
           let url;
           if (teamCodeFromUrl) {
-            // If we have a team code from URL, fetch by team code
-            url = `http://localhost:3000/api/teams/code/${teamCodeFromUrl}`;
+            url = `/teams/code/${teamCodeFromUrl}`;
           } else {
-            // Otherwise, fetch by user ID (fallback)
-            url = `http://localhost:3000/api/teams/user/${user.uid}?contestId=${contestId}`;
+            url = `/teams/user/${user.uid}?contestId=${contestId}`;
           }
 
-          const { data } = await axios.get(url);
-
+          const { data } = await axiosSecure.get(url);
           setTeam(data);
 
           if (data.status === "started") {
@@ -107,7 +103,7 @@ const ContestLobby: React.FC = () => {
       const interval = setInterval(fetchTeam, 2000);
       return () => clearInterval(interval);
     }
-  }, [contest, contestId, user, navigate, teamCodeFromUrl]);
+  }, [contest, contestId, user, navigate, teamCodeFromUrl, axiosSecure]);
 
   // Countdown for individual contests
   useEffect(() => {
@@ -128,15 +124,11 @@ const ContestLobby: React.FC = () => {
       const member = team.members.find((m) => m.userId === user.uid);
       if (!member) return;
 
-      const { data } = await axios.patch(
-        `http://localhost:3000/api/teams/${team.code}/ready`,
-        {
-          userId: user.uid,
-          ready: !member.ready,
-        }
-      );
+      const { data } = await axiosSecure.patch(`/teams/${team.code}/ready`, {
+        userId: user.uid,
+        ready: !member.ready,
+      });
       setTeam(data);
-
       toast.success(!member.ready ? "You are ready!" : "You are not ready");
     } catch (error: any) {
       console.error("Error updating ready status:", error);
@@ -150,17 +142,12 @@ const ContestLobby: React.FC = () => {
     if (!team || !user?.uid) return;
 
     try {
-      const { data } = await axios.patch(
-        `http://localhost:3000/api/teams/${team.code}/start`,
-        { userId: user.uid }
-      );
+      const { data } = await axiosSecure.patch(`/teams/${team.code}/start`, {
+        userId: user.uid,
+      });
       setTeam(data.team);
       toast.success("Contest started! Redirecting...");
-
-      // Redirect to workspace
-      setTimeout(() => {
-        navigate(`/contests/${contestId}/workspace`);
-      }, 1000);
+      setTimeout(() => navigate(`/contests/${contestId}/workspace`), 1000);
     } catch (error: any) {
       console.error("Error starting contest:", error);
       toast.error(error.response?.data?.message || "Failed to start contest");

@@ -1,11 +1,11 @@
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect, use } from "react";
 import Editor from "@monaco-editor/react";
 import { useParams } from "react-router";
 import { useQuery } from "@tanstack/react-query";
-import axios from "axios";
 import toast from "react-hot-toast";
 import { AuthContext } from "../provider/AuthProvider";
 import LoadingSpinner from "../components/LoadingSpinner";
+import useAxiosSecure from "../hook/useAxiosSecure";
 
 interface StarterCode {
   javascript: string;
@@ -40,17 +40,18 @@ interface SubmissionData {
 
 export default function SolveProblem() {
   const { id } = useParams<{ id: string }>();
-  const { user } = useContext(AuthContext)!;
+  const { user } = use(AuthContext)!;
   const [code, setCode] = useState<string>("// এখানে কোড লিখুন");
   const [selectedLang, setSelectedLang] = useState<string>("javascript");
   const [output, setOutput] = useState<string>("");
   const [isError, setIsError] = useState<boolean>(false);
   const [isRunning, setIsRunning] = useState<boolean>(false);
+  const axiosSecure = useAxiosSecure();
 
   const { data: problem, isLoading, error } = useQuery<Problem>({
     queryKey: ["problem", id],
     queryFn: async () => {
-      const res = await axios.get(`https://code-clash-server-rust.vercel.app/api/problems/${id}`);
+      const res = await axiosSecure.get(`/api/problems/${id}`);
       return res.data;
     },
     enabled: !!id,
@@ -84,7 +85,7 @@ export default function SolveProblem() {
     try {
       const tc = problem.testCases[0]; // only first test case for output
       const payload = { code, language: selectedLang, input: tc.input };
-      const res = await axios.post("https://code-clash-server-rust.vercel.app/api/problems/run-code", payload);
+      const res = await axiosSecure.post("/api/problems/run-code", payload);
       const result = res.data;
 
       const userOutput =
@@ -116,7 +117,7 @@ export default function SolveProblem() {
         input: problem.testCases[0].input,
       };
 
-      const res = await axios.post("https://code-clash-server-rust.vercel.app/api/problems/run-code", payload);
+      const res = await axiosSecure.post("/api/problems/run-code", payload);
       const result = res.data;
 
       const userOutput =
@@ -144,8 +145,8 @@ export default function SolveProblem() {
         point: status === "Success" ? 20 : -20,
       };
 
-      await axios.post(
-        "https://code-clash-server-rust.vercel.app/api/problems/submissions",
+      await axiosSecure.post(
+        "/api/problems/submissions",
         submissionData
       );
 

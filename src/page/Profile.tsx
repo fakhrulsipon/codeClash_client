@@ -1,7 +1,5 @@
 import React, { use } from "react";
 import { useQuery } from "@tanstack/react-query";
-import axios from "axios";
-
 import { AuthContext } from "../provider/AuthProvider";
 import CountUp from "react-countup";
 import {
@@ -19,6 +17,7 @@ import {
 } from "recharts";
 import { FaStar, FaCheckCircle, FaTimesCircle, FaClipboardList } from "react-icons/fa";
 import LoadingSpinner from "../components/LoadingSpinner";
+import useAxiosSecure from "../hook/useAxiosSecure";
 
 type Growth = { date: string; count: number };
 
@@ -31,26 +30,64 @@ type UserPoints = {
   growth: Growth[];
 };
 
-const COLORS = ["#4CAF50", "#F44336"]; // success=green, failure=red
+const COLORS = ["#4CAF50", "#F44336"];
 
 const Profile: React.FC = () => {
   const { user } = use(AuthContext)!;
   const email = user?.email || user?.providerData[0].email;
+  const axiosSecure = useAxiosSecure();
 
   const { data, isLoading, error } = useQuery<UserPoints>({
     queryKey: ["userPoints", email],
     queryFn: async () => {
-      const res = await axios.get(
-        `http://localhost:3000/api/users/profile/${email}`
-      );
+      const res = await axiosSecure.get(`/api/users/profile/${email}`);
       return res.data;
     },
     enabled: !!email,
   });
-  console.log(data)
 
-  if (isLoading) return <LoadingSpinner/>;
-  if (error) return <p className="text-center mt-10 text-red-500 text-lg">Failed to load data</p>;
+  if (isLoading) return <LoadingSpinner />;
+
+
+  if (error)
+    return (
+      <p className="text-center mt-10 text-red-500 text-lg">
+        Failed to load data. Please try again later.
+      </p>
+    );
+
+
+  if (
+    !data ||
+    (data.totalPoints === 0 &&
+      data.totalSubmissions === 0 &&
+      data.successCount === 0 &&
+      data.failureCount === 0)
+  ) {
+    return (
+      <div className="min-h-screen flex flex-col justify-center items-center text-center p-6 bg-gray-50">
+        <img
+          src="https://i.ibb.co/5Y3zM9F/empty-state.png"
+          alt="No data"
+          className="w-48 h-48 mb-6 opacity-80"
+        />
+        <h2 className="text-2xl font-bold text-gray-800 mb-2">
+          No Activity Yet
+        </h2>
+        <p className="text-gray-600 mb-6 max-w-md">
+          You haven’t solved any problems yet. Start solving to see your progress
+          and earn points!
+        </p>
+        <a
+          href="/problems"
+          className="bg-gradient-to-r from-indigo-500 to-purple-500 text-white font-semibold px-6 py-3 rounded-full shadow-md hover:scale-105 transition-transform"
+        >
+          Solve Your First Problem 🚀
+        </a>
+      </div>
+    );
+  }
+
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
@@ -61,7 +98,9 @@ const Profile: React.FC = () => {
           alt="Profile"
           className="w-32 h-32 rounded-full border-4 border-gray-300 shadow-md mb-4 object-cover"
         />
-        <h1 className="text-4xl font-extrabold text-gray-800">{user?.displayName || "Anonymous User"}</h1>
+        <h1 className="text-4xl font-extrabold text-gray-800">
+          {user?.displayName || "Anonymous User"}
+        </h1>
         <p className="text-gray-600 text-lg mb-4">{user?.email}</p>
         <p className="text-gray-700 text-center max-w-xl text-sm md:text-base">
           Welcome to your profile! Track your progress, view your stats, and stay motivated to solve more problems every day.
@@ -104,7 +143,9 @@ const Profile: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 mb-12">
         {/* Pie Chart */}
         <div className="bg-white rounded-2xl p-6 shadow-lg">
-          <h2 className="text-xl font-semibold mb-4 text-center text-gray-800">Success vs Failure</h2>
+          <h2 className="text-xl font-semibold mb-4 text-center text-gray-800">
+            Success vs Failure
+          </h2>
           <div className="w-full h-80">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
@@ -131,7 +172,9 @@ const Profile: React.FC = () => {
 
         {/* Line Chart */}
         <div className="bg-white rounded-2xl p-6 shadow-lg">
-          <h2 className="text-xl font-semibold mb-4 text-center text-gray-800">Problem Solving Growth</h2>
+          <h2 className="text-xl font-semibold mb-4 text-center text-gray-800">
+            Problem Solving Growth
+          </h2>
           <div className="w-full h-80">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={data?.growth || []}>
@@ -140,7 +183,12 @@ const Profile: React.FC = () => {
                 <YAxis />
                 <Tooltip />
                 <Legend />
-                <Line type="monotone" dataKey="count" stroke="#8884d8" strokeWidth={2} />
+                <Line
+                  type="monotone"
+                  dataKey="count"
+                  stroke="#8884d8"
+                  strokeWidth={2}
+                />
               </LineChart>
             </ResponsiveContainer>
           </div>
@@ -149,7 +197,9 @@ const Profile: React.FC = () => {
 
       {/* Static Motivational Text */}
       <div className="text-center max-w-3xl mx-auto mb-12">
-        <h2 className="text-2xl font-bold mb-4 text-gray-800">Tips to Improve Your Score</h2>
+        <h2 className="text-2xl font-bold mb-4 text-gray-800">
+          Tips to Improve Your Score
+        </h2>
         <ul className="list-disc list-inside text-gray-700 text-base md:text-lg space-y-1">
           <li>Try solving at least one problem every day.</li>
           <li>Review failed submissions to learn from mistakes.</li>

@@ -1,11 +1,11 @@
 import React, { useEffect, useState, useRef, useContext } from "react";
 import { useParams } from "react-router";
-import axios from "axios";
 import LoadingSpinner from "../../components/LoadingSpinner";
 import Editor from "@monaco-editor/react";
 import Swal from "sweetalert2";
 import "sweetalert2/dist/sweetalert2.min.css";
 import { AuthContext } from "../../provider/AuthProvider";
+import useAxiosSecure from "../../hook/useAxiosSecure";
 
 type Problem = {
   _id: string;
@@ -37,6 +37,7 @@ type Submission = {
 const ContestWorkspace: React.FC = () => {
   const { contestId } = useParams<{ contestId: string }>();
   const { user } = useContext(AuthContext);
+  const axiosSecure = useAxiosSecure();
 
   const [contest, setContest] = useState<Contest | null>(null);
   const [loading, setLoading] = useState(true);
@@ -56,8 +57,8 @@ const ContestWorkspace: React.FC = () => {
     if (!contestId) return;
     const fetchContest = async () => {
       try {
-        const res = await axios.get<Contest>(
-          `https://code-clash-server-rust.vercel.app/api/contests/${contestId}`
+        const res = await axiosSecure.get<Contest>(
+          `/api/contests/${contestId}`
         );
         setContest(res.data);
       } catch (err) {
@@ -67,7 +68,7 @@ const ContestWorkspace: React.FC = () => {
       }
     };
     fetchContest();
-  }, [contestId]);
+  }, [contestId, axiosSecure]);
 
   // Timer: 3 minutes per problem
   useEffect(() => {
@@ -150,7 +151,7 @@ const ContestWorkspace: React.FC = () => {
     setSubmissions((prev) => [...prev, newSubmission]);
 
     // Optional: send run attempts to backend (for contest analytics)
-    await axios.post("http://localhost:3000/api/submissions/contest-run", {
+    await axiosSecure.post("/api/submissions/contest-run", {
       userEmail: user.email,
       userName: user.displayName,
       contestId: contestId,
@@ -189,10 +190,7 @@ const ContestWorkspace: React.FC = () => {
     };
 
     try {
-      await axios.post(
-        "http://localhost:3000/api/contestSubmissions",
-        submissionData
-      );
+      await axiosSecure.post("/api/contestSubmissions", submissionData);
 
       setSubmissions((prev) => [
         ...prev,
@@ -289,6 +287,7 @@ const ContestWorkspace: React.FC = () => {
         </div>
 
         {/* Monaco Editor */}
+
         <div className="rounded-xl overflow-hidden shadow-lg">
           <Editor
             height="350px"

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import { motion } from "framer-motion";
 import LoadingSpinner from "./LoadingSpinner";
+import useAxiosSecure from "../hook/useAxiosSecure";
 
 interface Problem {
   _id: string;
@@ -14,13 +14,14 @@ interface Problem {
 const ProblemsSection: React.FC = () => {
   const [problems, setProblems] = useState<Problem[]>([]);
   const [loading, setLoading] = useState(true);
+  const axiosSecure = useAxiosSecure();
 
   useEffect(() => {
     // We use an async function inside useEffect for cleaner async/await syntax.
     const fetchProblems = async () => {
       try {
-        const res = await axios.get<Problem[]>(
-          "https://code-clash-server-rust.vercel.app/api/problems"
+        const res = await axiosSecure.get<Problem[]>(
+          "/api/problems"
         );
         setProblems(res.data);
       } catch (err) {

@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useState, useContext } from "react";
-import axios from "axios";
 import { AuthContext } from "../../provider/AuthProvider";
+import useAxiosSecure from "../../hook/useAxiosSecure";
 
 interface Submission {
   problemId: string;
@@ -23,19 +23,21 @@ interface Props {
 
 export default function ContestLeaderboard({ contestId }: Props) {
   const { user } = useContext(AuthContext);
+  const axiosSecure = useAxiosSecure();
   const [selectedUser, setSelectedUser] = useState<string | null>(null);
 
   const { data: leaderboard = [], isLoading } = useQuery<LeaderboardUser[]>({
     queryKey: ["contestLeaderboard", contestId],
     queryFn: async () => {
-      const res = await axios.get(
-        `http://localhost:3000/api/contestSubmissions/leaderboard/${contestId}`
+      const res = await axiosSecure.get(
+        `/api/contestSubmissions/leaderboard/${contestId}`
       );
       return res.data;
     },
   });
 
-  if (isLoading) return <p className="text-center text-black">Loading leaderboard...</p>;
+  if (isLoading)
+    return <p className="text-center text-black">Loading leaderboard...</p>;
 
   return (
     <div className="mt-8 p-6 rounded-3xl shadow-2xl bg-gradient-to-r from-blue-300 via-indigo-300 to-purple-400 max-w-6xl mx-auto">
@@ -64,9 +66,13 @@ export default function ContestLeaderboard({ contestId }: Props) {
                     selectedUser === u._id ? "bg-white/10" : ""
                   }`}
                 >
-                  <td className="py-2 px-3 font-semibold text-black">#{index + 1}</td>
+                  <td className="py-2 px-3 font-semibold text-black">
+                    #{index + 1}
+                  </td>
                   <td className="py-2 px-3 text-black">{u.userName}</td>
-                  <td className="py-2 px-3 font-medium text-black">{u.totalPoints}</td>
+                  <td className="py-2 px-3 font-medium text-black">
+                    {u.totalPoints}
+                  </td>
                   <td className="py-2 px-3">
                     {user?.email === u._id && (
                       <button
@@ -75,7 +81,9 @@ export default function ContestLeaderboard({ contestId }: Props) {
                         }
                         className="text-sm bg-white/30 text-black px-3 py-1 rounded-md hover:bg-white/50 transition"
                       >
-                        {selectedUser === u._id ? "Hide Details" : "View Details"}
+                        {selectedUser === u._id
+                          ? "Hide Details"
+                          : "View Details"}
                       </button>
                     )}
                   </td>
@@ -89,7 +97,8 @@ export default function ContestLeaderboard({ contestId }: Props) {
       {selectedUser && (
         <div className="mt-6 border-t border-white/40 pt-4">
           <h3 className="text-lg font-semibold mb-3 text-black">
-            {leaderboard.find((u) => u._id === selectedUser)?.userName}'s Submissions
+            {leaderboard.find((u) => u._id === selectedUser)?.userName}'s
+            Submissions
           </h3>
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse bg-white/20 rounded-lg">
@@ -105,11 +114,16 @@ export default function ContestLeaderboard({ contestId }: Props) {
                 {leaderboard
                   .find((u) => u._id === selectedUser)
                   ?.submissions.map((sub, idx) => (
-                    <tr key={idx} className="border-b border-white/30 hover:bg-white/10">
+                    <tr
+                      key={idx}
+                      className="border-b border-white/30 hover:bg-white/10"
+                    >
                       <td className="py-2 px-3 text-black">{sub.problemId}</td>
                       <td
                         className={`py-2 px-3 font-semibold ${
-                          sub.status === "Success" ? "text-green-600" : "text-red-600"
+                          sub.status === "Success"
+                            ? "text-green-600"
+                            : "text-red-600"
                         }`}
                       >
                         {sub.status}

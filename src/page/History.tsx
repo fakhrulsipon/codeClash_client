@@ -1,8 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
-import axios from "axios";
 import { use } from "react";
 import { AuthContext } from "../provider/AuthProvider";
 import LoadingSpinner from "../components/LoadingSpinner";
+import useAxiosSecure from "../hook/useAxiosSecure";
 
 interface Submission {
   _id: string;
@@ -17,22 +17,53 @@ interface Submission {
 }
 
 const History = () => {
-  const {user} = use(AuthContext)!
+  const { user } = use(AuthContext)!;
   const email = user?.email || user?.providerData[0].email;
-
+  const axiosSecure = useAxiosSecure();
 
   const { data, isLoading, isError } = useQuery<Submission[]>({
     queryKey: ["submissions", email],
     queryFn: async () => {
-      const res = await axios.get(
-        `https://code-clash-server-rust.vercel.app/api/users/submissions/${email}`
-      );
+      const res = await axiosSecure.get(`/api/users/submissions/${email}`);
       return res.data;
     },
+    enabled: !!email,
   });
 
-  if (isLoading) return <LoadingSpinner/>;
-  if (isError) return <p className="text-center py-4 text-red-500">Error loading submissions</p>;
+  if (isLoading) return <LoadingSpinner />;
+
+  // যদি ডাটা ফাঁকা হয় বা কিছু না আসে
+  if (!data || data.length === 0) {
+    return (
+      <div className="min-h-screen flex flex-col justify-center items-center text-center p-6 bg-gray-50">
+        <img
+          src="https://cdn-icons-png.flaticon.com/512/4076/4076505.png"
+          alt="no submissions"
+          className="w-40 h-40 mb-6 opacity-80"
+        />
+        <h2 className="text-2xl font-bold text-gray-800 mb-2">
+          No Submissions Yet
+        </h2>
+        <p className="text-gray-600 mb-6 max-w-md">
+          You haven’t submitted any problem solutions yet.  
+          Start solving problems and your history will appear here!
+        </p>
+        <a
+          href="/problems"
+          className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold px-6 py-3 rounded-full shadow-md hover:scale-105 transition-transform"
+        >
+          Solve Your First Problem 🚀
+        </a>
+      </div>
+    );
+  }
+
+  if (isError)
+    return (
+      <p className="text-center py-4 text-red-500">
+        Error loading submissions
+      </p>
+    );
 
   return (
     <div className="p-4 md:p-6 lg:p-8 min-h-screen">
@@ -51,7 +82,7 @@ const History = () => {
             </tr>
           </thead>
           <tbody>
-            {data?.map((submission, idx) => (
+            {data.map((submission, idx) => (
               <tr
                 key={submission._id}
                 className="border-b hover:bg-gray-100 transition"

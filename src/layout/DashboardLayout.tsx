@@ -1,11 +1,21 @@
-import { useState } from "react";
-import { Outlet } from "react-router";
+import { use, useState } from "react";
+import { Link, Outlet } from "react-router";
 import { FiMenu } from "react-icons/fi";
 import { motion, AnimatePresence } from "framer-motion";
-import DashboardNavbar from "../page/dashboard/dashboardNavbar/DashboardNavbar";
+import { AuthContext } from "../provider/AuthProvider";
+import useUserRole from "../hook/useUserRole";
+import LoadingSpinner from "../components/LoadingSpinner";
+import { Home } from "lucide-react";
 
 export default function DashboardLayout() {
   const [isOpen, setIsOpen] = useState(false);
+  const { user } = use(AuthContext)!;
+  const email = user?.email ?? user?.providerData?.[0]?.email;
+  const { userRole, roleLoading } = useUserRole(email!);
+
+  if (roleLoading) {
+    return <LoadingSpinner />;
+  }
 
   const links = (
     <>
@@ -48,20 +58,75 @@ export default function DashboardLayout() {
       >
         Logout
       </a>
+      {userRole === "user" && (
+        <>
+          <a href="/dashboard" className="px-4 py-2 rounded hover:bg-blue-100">
+            Home
+          </a>
+          <a
+            href="/dashboard/manageContests"
+            className="px-4 py-2 rounded hover:bg-blue-100"
+          >
+            Manage Contests
+          </a>
+
+          <a
+            href="/dashboard/profile"
+            className="px-4 py-2 rounded hover:bg-blue-100"
+          >
+            Profile
+          </a>
+          <a
+            href="/dashboard/history"
+            className="px-4 py-2 rounded hover:bg-blue-100"
+          >
+            History
+          </a>
+          <a
+            href="/dashboard/logout"
+            className="px-4 py-2 rounded hover:bg-red-100 text-red-600"
+          >
+            Logout
+          </a>
+        </>
+      )}
+
+      {/* admin route */}
+      {userRole === "admin" && (
+        <>
+          <a
+            href="/dashboard/addContest"
+            className="px-4 py-2 rounded hover:bg-blue-100"
+          >
+            Add Contest
+          </a>
+
+          <a
+            href="/dashboard/manage-users"
+            className="px-4 py-2 rounded hover:bg-blue-100"
+          >
+            Manage Users
+          </a>
+        </>
+      )}
     </>
   );
 
   return (
     <div className="bg-gray-100 min-h-screen">
-      {/* Navbar for desktop */}
-      <div className="pb-5">
-        <DashboardNavbar />
-      </div>
+    
 
       <div className="flex">
         {/* Desktop Sidebar */}
         <aside className="hidden lg:flex flex-col w-64 h-screen bg-white fixed top-0 left-0 shadow-md">
-          <div className="p-6 text-2xl font-bold text-blue-600">Dashboard</div>
+          {/* 🔹 Go To Home Button */}
+          <Link
+            to="/"
+            className="m-6 inline-flex items-center justify-center gap-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold text-lg px-5 py-3 rounded-2xl shadow-lg hover:from-indigo-600 hover:to-blue-500 hover:scale-105 transition-all duration-300"
+          >
+            <Home className="w-5 h-5" />
+            Go To Home
+          </Link>
           <nav className="flex flex-col gap-2 p-4">{links}</nav>
         </aside>
 
