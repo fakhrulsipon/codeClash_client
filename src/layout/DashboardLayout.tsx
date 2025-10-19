@@ -2,7 +2,6 @@ import { use, useState } from "react";
 import { Link, Outlet, useLocation } from "react-router";
 import {
   FiMenu,
-  FiHome,
   FiUser,
   FiSettings,
   FiLogOut,
@@ -16,6 +15,7 @@ import {
   FaTachometerAlt,
   FaUserShield,
   FaUserFriends,
+  FaUserCheck,
 } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
 import { AuthContext } from "../provider/AuthProvider";
@@ -89,6 +89,11 @@ export default function DashboardLayout() {
       label: "Manage Teams",
       icon: <FaUserFriends className="w-5 h-5" />,
     },
+    {
+      path: "/dashboard/manageParticipants",
+      label: "Manage Participants",
+      icon: <FaUserCheck className="w-5 h-5" />,
+    },
   ];
 
   const allLinks = [
@@ -151,9 +156,21 @@ export default function DashboardLayout() {
   const UserInfo = () => (
     <div className="p-4 border-b border-gray-200">
       <div className="flex items-center gap-3">
-        <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full flex items-center justify-center text-white font-semibold">
-          {user?.displayName?.[0] || user?.email?.[0]?.toUpperCase() || "U"}
-        </div>
+        {/* User Photo */}
+        {user?.photoURL ? (
+          <img
+            src={user.photoURL}
+            alt="Profile"
+            className="w-10 h-10 rounded-full object-cover"
+            referrerPolicy="no-referrer" // Important for Google/Facebook images
+          />
+        ) : (
+          <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full flex items-center justify-center text-white font-semibold">
+            {user?.displayName?.[0] || user?.email?.[0]?.toUpperCase() || "U"}
+          </div>
+        )}
+
+        {/* User Details */}
         <div className="flex-1 min-w-0">
           <p className="text-sm font-semibold text-gray-900 truncate">
             {user?.displayName || "User"}
@@ -181,13 +198,6 @@ export default function DashboardLayout() {
       <div className="flex">
         {/* Desktop Sidebar */}
         <aside className="hidden lg:flex flex-col w-64 h-screen bg-white fixed top-0 left-0 shadow-lg border-r border-gray-200">
-          {/* Header */}
-          <div className="shrink-0 p-6 border-b border-gray-200">
-            <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-              Dashboard
-            </h1>
-          </div>
-
           {/* User Info */}
           <div className="shrink-0">
             <UserInfo />
