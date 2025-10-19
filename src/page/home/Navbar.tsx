@@ -22,7 +22,8 @@ import {
   Info,
   History as HistoryIcon,
 } from "@mui/icons-material";
-import { Badge, Typography } from "@mui/material";
+import { Badge, Typography, useMediaQuery, useTheme } from "@mui/material";
+import LogoutIcon from '@mui/icons-material/Logout';
 import { useUserSubmissions } from "../../hook/useUserSubmissions";
 
 function Navbar() {
@@ -36,6 +37,9 @@ function Navbar() {
   const location = useLocation();
   const { totalSubmissions, successfulSubmissions, failedSubmissions } =
     useUserSubmissions();
+  
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
   const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorElNav(event.currentTarget);
@@ -245,31 +249,6 @@ function Navbar() {
                     },
                   }}
                 >
-                  <MenuItem
-                    onClick={handleCloseUserMenu}
-                    component={Link}
-                    to="/profile"
-                    sx={{
-                      color: "white",
-                      "&:hover": { backgroundColor: "rgba(255,255,255,0.1)" },
-                    }}
-                  >
-                    <AccountCircle sx={{ mr: 2 }} />
-                    Profile
-                  </MenuItem>
-                  <MenuItem
-                    onClick={handleCloseUserMenu}
-                    component={Link}
-                    to="/dashboard"
-                    sx={{
-                      color: "white",
-                      "&:hover": { backgroundColor: "rgba(255,255,255,0.1)" },
-                    }}
-                  >
-                    <Dashboard sx={{ mr: 2 }} />
-                    Dashboard
-                  </MenuItem>
-
                   {/* History MenuItem with Submission Stats */}
                   <MenuItem
                     onClick={handleCloseUserMenu}
@@ -308,30 +287,69 @@ function Navbar() {
                         <Typography variant="body1" fontWeight="medium">
                           History
                         </Typography>
-                        <Typography
-                          variant="caption"
-                          sx={{ color: "rgba(255,255,255,0.8)" }}
-                        ></Typography>
                       </Box>
                     </Box>
                   </MenuItem>
+
                   <MenuItem
-                    onClick={handleLogout}
+                    onClick={handleCloseUserMenu}
+                    component={Link}
+                    to="/dashboard"
                     sx={{
                       color: "white",
                       "&:hover": { backgroundColor: "rgba(255,255,255,0.1)" },
+                      py: 2,
                     }}
                   >
-                    🚪 Logout
+                    <Box
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        width: "100%",
+                      }}
+                    >
+                      <Dashboard sx={{ mr: 2 }} />
+                      <Typography variant="body1" fontWeight="medium">
+                        Dashboard
+                      </Typography>
+                    </Box>
                   </MenuItem>
+
+                  {/* Logout MenuItem - Only show on mobile */}
+                  {isMobile && (
+                    <MenuItem
+                      onClick={handleLogout}
+                      sx={{
+                        color: "white",
+                        "&:hover": { backgroundColor: "rgba(255,255,255,0.1)" },
+                        py: 2,
+                      }}
+                    >
+                      <Box
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          width: "100%",
+                        }}
+                      >
+                        <LogoutIcon sx={{ mr: 2 }} />
+                        <Typography variant="body1" fontWeight="medium">
+                          Logout
+                        </Typography>
+                      </Box>
+                    </MenuItem>
+                  )}
                 </Menu>
 
-                <button
-                  onClick={handleLogout}
-                  className="hidden sm:block px-4 py-2 bg-yellow-400 text-blue-900 font-semibold rounded-lg hover:bg-yellow-500 transition-all duration-300 hover:scale-105 hover:shadow-lg cursor-pointer"
-                >
-                  Logout
-                </button>
+                {/* Logout Button - Only show on desktop */}
+                {!isMobile && (
+                  <button
+                    onClick={handleLogout}
+                    className="hidden sm:block px-4 py-2 bg-yellow-400 text-blue-900 font-semibold rounded-lg hover:bg-yellow-500 transition-all duration-300 hover:scale-105 hover:shadow-lg cursor-pointer"
+                  >
+                    Logout
+                  </button>
+                )}
               </>
             ) : (
               <Link to="/login">
@@ -380,12 +398,36 @@ function Navbar() {
                     ? "rgba(255,255,255,0.2)"
                     : "transparent",
                   "&:hover": { backgroundColor: "rgba(255,255,255,0.1)" },
+                  py: 2,
                 }}
               >
-                <Box sx={{ mr: 2 }}>{page.icon}</Box>
-                {page.name}
+                <Box sx={{ display: "flex", alignItems: "center", width: "100%" }}>
+                  <Box sx={{ mr: 2 }}>{page.icon}</Box>
+                  <Typography variant="body1" fontWeight="medium">
+                    {page.name}
+                  </Typography>
+                </Box>
               </MenuItem>
             ))}
+            
+            {/* Logout in mobile nav menu */}
+            {user && isMobile && (
+              <MenuItem
+                onClick={handleLogout}
+                sx={{
+                  color: "white",
+                  "&:hover": { backgroundColor: "rgba(255,255,255,0.1)" },
+                  py: 2,
+                }}
+              >
+                <Box sx={{ display: "flex", alignItems: "center", width: "100%" }}>
+                  <LogoutIcon sx={{ mr: 2 }} />
+                  <Typography variant="body1" fontWeight="medium">
+                    Logout
+                  </Typography>
+                </Box>
+              </MenuItem>
+            )}
           </Menu>
         </Toolbar>
       </Container>
