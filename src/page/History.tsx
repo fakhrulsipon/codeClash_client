@@ -31,7 +31,7 @@ interface Submission {
 
 const History = () => {
   const { user } = use(AuthContext)!;
-  const email = user?.email;
+  const email = user?.email || user?.providerData[0]?.email;
   const axiosSecure = useAxiosSecure();
 
   const { data, isLoading, isError, error, refetch } = useQuery<Submission[]>({

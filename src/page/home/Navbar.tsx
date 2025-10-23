@@ -35,7 +35,7 @@ function Navbar() {
   );
   const { user, logoutUser } = React.use(AuthContext)!;
   const location = useLocation();
-  const { totalSubmissions, successfulSubmissions, failedSubmissions } =
+  const { totalSubmissions } =
     useUserSubmissions();
   
   const theme = useTheme();
@@ -45,9 +45,7 @@ function Navbar() {
     setAnchorElNav(event.currentTarget);
   };
 
-  const handleOpenUserMenu = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorElUser(event.currentTarget);
-  };
+  
 
   const handleCloseNavMenu = () => {
     setAnchorElNav(null);
@@ -200,18 +198,7 @@ function Navbar() {
             {/* User Avatar & Menu */}
             {user ? (
               <>
-                <IconButton
-                  onClick={handleOpenUserMenu}
-                  sx={{
-                    p: 0.5,
-                    border: "2px solid rgba(255,255,255,0.3)",
-                    "&:hover": {
-                      border: "2px solid rgba(255,255,255,0.5)",
-                      transform: "scale(1.05)",
-                    },
-                    transition: "all 0.3s ease",
-                  }}
-                >
+                
                   {user?.photoURL ? (
                     <img
                       className="w-8 h-8 rounded-full"
@@ -222,7 +209,7 @@ function Navbar() {
                   ) : (
                     <AccountCircle sx={{ color: "white", fontSize: 32 }} />
                   )}
-                </IconButton>
+               
 
                 <Menu
                   sx={{ mt: "45px" }}

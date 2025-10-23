@@ -3,7 +3,6 @@ import { Link, Outlet, useLocation } from "react-router";
 import {
   FiMenu,
   FiUser,
-  FiSettings,
   FiLogOut,
   FiChevronRight,
 } from "react-icons/fi";
@@ -12,7 +11,6 @@ import {
   FaPlus,
   FaList,
   FaHistory,
-  FaTachometerAlt,
   FaUserShield,
   FaUserFriends,
   FaUserCheck,
@@ -34,32 +32,19 @@ export default function DashboardLayout() {
     return <LoadingSpinner />;
   }
 
-  // Common links for all users
-  const commonLinks = [
-    {
-      path: "/dashboard",
-      label: "Dashboard",
-      icon: <FaTachometerAlt className="w-5 h-5" />,
-    },
+  // User-specific links
+  const userLinks = [
     {
       path: "/dashboard/profile",
       label: "Profile",
       icon: <FiUser className="w-5 h-5" />,
     },
     {
-      path: "/dashboard/settings",
-      label: "Settings",
-      icon: <FiSettings className="w-5 h-5" />,
-    },
-  ];
-
-  // User-specific links
-  const userLinks = [
-    {
       path: "/dashboard/history",
       label: "History",
       icon: <FaHistory className="w-5 h-5" />,
     },
+    
   ];
 
   // Admin-specific links
@@ -97,7 +82,6 @@ export default function DashboardLayout() {
   ];
 
   const allLinks = [
-    ...commonLinks,
     ...(userRole === "admin" ? adminLinks : []),
     ...(userRole === "user" ? userLinks : []),
   ];

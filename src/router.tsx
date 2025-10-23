@@ -99,14 +99,7 @@ const router = createBrowserRouter([
           </PrivetRoute>
         ),
       },
-      {
-        path: "history",
-        element: (
-          <PrivetRoute>
-            <History />
-          </PrivetRoute>
-        ),
-      },
+      
     ],
   },
 
@@ -124,6 +117,14 @@ const router = createBrowserRouter([
         element: (
           <PrivetRoute>
             <Profile />
+          </PrivetRoute>
+        ),
+      },
+      {
+        path: "history",
+        element: (
+          <PrivetRoute>
+            <History />
           </PrivetRoute>
         ),
       },
