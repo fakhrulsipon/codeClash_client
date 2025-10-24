@@ -17,8 +17,13 @@ import ContestLobby from "./page/contests/ContestLobby";
 import ContestWorkspace from "./page/contests/ContestWorkspace";
 import SolveProblem from "./page/SolveProblem";
 import Profile from "./page/Profile";
-import History from "./page/History";
 import ManageContests from "./page/dashboard/manageContests/ManageContests";
+import AddProblem from "./page/dashboard/addProblem/AddProblem";
+import AdminRoute from "./route/AdminRoute";
+import ManageUsers from "./page/dashboard/manageUsers/ManageUsers";
+import ManageTeams from "./page/dashboard/manageTeams/ManageTeams";
+import ManageParticipants from "./page/dashboard/manageParticipants/ManageParticipants";
+import History from "./page/History";
 
 const router = createBrowserRouter([
   {
@@ -40,7 +45,11 @@ const router = createBrowserRouter([
       },
       {
         path: "all-contests",
-        element: <AllContests></AllContests>,
+        element: (
+          <PrivetRoute>
+            <AllContests />
+          </PrivetRoute>
+        ),
       },
       {
         path: "/contests/:id",
@@ -52,11 +61,19 @@ const router = createBrowserRouter([
       },
       {
         path: "contests/:contestId/lobby",
-        element: <ContestLobby></ContestLobby>,
+        element: (
+          <PrivetRoute>
+            <ContestLobby />
+          </PrivetRoute>
+        ),
       },
       {
         path: "contests/:contestId/workspace",
-        element: <ContestWorkspace></ContestWorkspace>,
+        element: (
+          <PrivetRoute>
+            <ContestWorkspace />
+          </PrivetRoute>
+        ),
       },
       {
         path: "about",
@@ -82,14 +99,7 @@ const router = createBrowserRouter([
           </PrivetRoute>
         ),
       },
-      {
-        path: 'profile',
-        element: <PrivetRoute><Profile/></PrivetRoute>
-      },
-      {
-        path: 'history',
-        element: <PrivetRoute><History/></PrivetRoute>
-      }
+      
     ],
   },
 
@@ -103,12 +113,72 @@ const router = createBrowserRouter([
         element: <DashboardHome />,
       },
       {
-        path: "addContest",
-        element: <AddContest />,
+        path: "profile",
+        element: (
+          <PrivetRoute>
+            <Profile />
+          </PrivetRoute>
+        ),
       },
       {
-        path: "/dashboard/manageContests",
-        element: <ManageContests />,
+        path: "history",
+        element: (
+          <PrivetRoute>
+            <History />
+          </PrivetRoute>
+        ),
+      },
+      {
+        path: "addContest",
+        element: (
+          <AdminRoute>
+            <AddContest />
+          </AdminRoute>
+        ),
+      },
+      {
+        path: "manage-users",
+        element: (
+          <AdminRoute>
+            <ManageUsers />
+          </AdminRoute>
+        ),
+      },
+      {
+        path: "manageContests",
+        element: (
+          <PrivetRoute>
+            <ManageContests />
+          </PrivetRoute>
+        ),
+      },
+      {
+        path: "/dashboard/addProblem",
+        element: <AddProblem />,
+      },
+      {
+        path: "manageContests",
+        element: (
+          <PrivetRoute>
+            <ManageContests />
+          </PrivetRoute>
+        ),
+      },
+      {
+        path: "manageTeams",
+        element: (
+          <PrivetRoute>
+            <ManageTeams />
+          </PrivetRoute>
+        ),
+      },
+      {
+        path: "manageParticipants",
+        element: (
+          <PrivetRoute>
+            <ManageParticipants />
+          </PrivetRoute>
+        ),
       },
     ],
   },
