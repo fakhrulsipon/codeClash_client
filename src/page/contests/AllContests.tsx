@@ -1,19 +1,14 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState,} from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Container, Typography } from "@mui/material";
 import {
-  Search,
-  FilterList,
   EmojiEvents,
   Schedule,
   People,
-  TrendingUp,
   Code,
-  CalendarToday,
 } from "@mui/icons-material";
 import {
   FaSearch,
-  FaFilter,
   FaUsers,
   FaUser,
   FaRocket,
@@ -113,7 +108,7 @@ const AllContests: React.FC = () => {
         } catch (countsError) {
           console.error("Failed to fetch participant counts:", countsError);
           // Create fallback counts
-          const fallbackCounts = {};
+          const fallbackCounts: { [key: string]: number } = {};
           contestsData.forEach((contest) => {
             fallbackCounts[contest._id] = contest.participants || 0;
           });

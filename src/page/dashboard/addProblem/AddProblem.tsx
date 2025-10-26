@@ -51,7 +51,7 @@ export default function AddProblem() {
         createdAt: new Date(),
       };
   
-      await axios.post("http://localhost:3000/api/problems", payload);
+      await axios.post("https://code-clash-server-rust.vercel.app/api/problems", payload);
   
       Swal.fire({
         icon: 'success',
@@ -149,7 +149,8 @@ export default function AddProblem() {
             <div key={lang} className="mb-2">
               <label className="text-sm font-medium">{lang}</label>
               <textarea
-                {...register(`starterCode.${lang}` as const)}
+                {...register(`starterCode.${lang}` as any)}
+
                 rows={2}
                 placeholder={`Starter code for ${lang}`}
                 className="w-full border border-gray-300 rounded-md px-3 py-2"

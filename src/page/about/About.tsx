@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Users, Target, Award, Cpu, Code2, Shield, Zap, Brain, BookOpen, GitBranch, Star, Rocket, Globe, Code, Terminal } from "lucide-react";
+
+import { Users, Target, Award, Cpu, Code2, Shield, Zap, Brain, BookOpen, GitBranch, Star, Globe, Code, Terminal } from "lucide-react";
 import { motion } from "framer-motion";
 import { useInView } from "react-intersection-observer";
 
@@ -54,7 +54,6 @@ const FeatureCard: React.FC<{
 };
 
 const About: React.FC = () => {
-  const [activeFeature, setActiveFeature] = useState(0);
 
   const features = [
     {

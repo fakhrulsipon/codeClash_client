@@ -3,14 +3,12 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Container, Typography } from "@mui/material";
 import { 
   ExpandMore,
-  Code,
-  School,
   Language,
   Edit,
   Groups,
   TrendingUp
 } from "@mui/icons-material";
-import { FaCode, FaUsers, FaGraduationCap, FaLaptopCode, FaTrophy, FaQuestionCircle } from "react-icons/fa";
+import { FaCode, FaUsers, FaGraduationCap, FaQuestionCircle } from "react-icons/fa";
 
 type FAQItem = {
   question: string;
@@ -249,7 +247,7 @@ const FAQ = () => {
           transition={{ duration: 0.6, delay: 0.2 }}
           className="flex flex-wrap justify-center gap-3 mb-12"
         >
-          {categories.map((category, index) => (
+          {categories.map((category) => (
             <motion.button
               key={category}
               whileHover={{ scale: 1.05 }}

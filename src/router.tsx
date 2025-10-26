@@ -99,7 +99,6 @@ const router = createBrowserRouter([
           </PrivetRoute>
         ),
       },
-      
     ],
   },
 
@@ -147,37 +146,41 @@ const router = createBrowserRouter([
       {
         path: "manageContests",
         element: (
-          <PrivetRoute>
+          <AdminRoute>
             <ManageContests />
-          </PrivetRoute>
+          </AdminRoute>
         ),
       },
       {
-        path: "/dashboard/addProblem",
-        element: <AddProblem />,
+        path: "addProblem",
+        element: (
+          <AdminRoute>
+            <AddProblem />
+          </AdminRoute>
+        ),
       },
       {
         path: "manageContests",
         element: (
-          <PrivetRoute>
+          <AdminRoute>
             <ManageContests />
-          </PrivetRoute>
+          </AdminRoute>
         ),
       },
       {
         path: "manageTeams",
         element: (
-          <PrivetRoute>
+          <AdminRoute>
             <ManageTeams />
-          </PrivetRoute>
+          </AdminRoute>
         ),
       },
       {
         path: "manageParticipants",
         element: (
-          <PrivetRoute>
+          <AdminRoute>
             <ManageParticipants />
-          </PrivetRoute>
+          </AdminRoute>
         ),
       },
     ],

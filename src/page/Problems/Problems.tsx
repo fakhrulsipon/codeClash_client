@@ -2,16 +2,13 @@ import { useEffect, useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Container, Typography } from "@mui/material";
 import { 
-  Search, 
-  FilterList, 
-  Code, 
   TrendingUp,
   EmojiEvents,
   Schedule,
   Star,
   Clear
 } from "@mui/icons-material";
-import { FaCode, FaSearch, FaFilter, FaFire, FaSeedling, FaChartLine, FaRocket } from "react-icons/fa";
+import { FaCode, FaSearch, FaFire, FaSeedling, FaChartLine, FaRocket } from "react-icons/fa";
 import LoadingSpinner from "../../components/LoadingSpinner";
 import { useNavigate } from "react-router";
 import useAxiosSecure from "../../hook/useAxiosSecure";
@@ -49,7 +46,7 @@ interface Problem {
   _id: string;
   title: string;
   description: string;
-  difficulty: string;
+  difficulty: "easy" | "medium" | "hard";
   category: string;
   languages: string[];
   starterCode: StarterCode;
@@ -58,6 +55,7 @@ interface Problem {
   solvedCount?: number;
   acceptanceRate?: number;
 }
+
 
 const Problems = () => {
   const [problems, setProblems] = useState<Problem[]>([]);
@@ -84,7 +82,7 @@ const Problems = () => {
       if (category !== "all") params.append("category", category);
 
       const res = await axiosSecure(`/api/problems?${params.toString()}`);
-      let sortedProblems = res.data;
+      const sortedProblems = res.data;
 
       // Sort problems
       switch (sortBy) {
