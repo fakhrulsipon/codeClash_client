@@ -19,7 +19,8 @@ import {
   FaCalendarAlt,
 } from "react-icons/fa";
 import LoadingSpinner from "../../components/LoadingSpinner";
-import useAxiosSecure from "../../hook/useAxiosSecure";
+import useAxiosPublic from "../../hook/useAxiosPublic";
+
 
 type Problem = {
   _id: string;
@@ -75,7 +76,7 @@ const AllContests: React.FC = () => {
   >("all");
   const [isTyping, setIsTyping] = useState(false);
 
-  const axiosSecure = useAxiosSecure();
+  const axiosPublic = useAxiosPublic();
   const debouncedSearch = useDebounce(search, 500);
 
   useEffect(() => {
@@ -84,7 +85,7 @@ const AllContests: React.FC = () => {
         setLoading(true);
 
         // Fetch contests
-        const contestsRes = await axiosSecure.get<Contest[]>("/api/contests");
+        const contestsRes = await axiosPublic.get<Contest[]>("/api/contests");
         const contestsData = contestsRes.data;
         setContests(contestsData);
 
@@ -95,7 +96,7 @@ const AllContests: React.FC = () => {
           const contestIds = contestsData.map((c) => c._id).join(",");
           console.log("Requesting counts for contest IDs:", contestIds);
 
-          const countsRes = await axiosSecure.get(
+          const countsRes = await axiosPublic.get(
             `/api/contestParticipants/counts?contestIds=${contestIds}`
           );
           console.log("Counts response:", countsRes.data);
@@ -122,7 +123,7 @@ const AllContests: React.FC = () => {
       }
     };
     fetchData();
-  }, [axiosSecure]);
+  }, [axiosPublic]);
 
   // ---------- Utility functions ----------
   const getStatus = (start: string, end: string) => {

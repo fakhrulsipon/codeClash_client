@@ -37,27 +37,15 @@ const router = createBrowserRouter([
       },
       {
         path: "problems",
-        element: (
-          <PrivetRoute>
-            <Problems />
-          </PrivetRoute>
-        ),
+        element: <Problems />,
       },
       {
         path: "all-contests",
-        element: (
-          <PrivetRoute>
-            <AllContests />
-          </PrivetRoute>
-        ),
+        element: <AllContests />,
       },
       {
         path: "/contests/:id",
-        element: (
-          <PrivetRoute>
-            <ContestDetails></ContestDetails>
-          </PrivetRoute>
-        ),
+        element: <ContestDetails></ContestDetails>,
       },
       {
         path: "contests/:contestId/lobby",

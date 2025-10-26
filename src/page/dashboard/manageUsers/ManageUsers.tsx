@@ -6,6 +6,7 @@ import {
 } from "@tanstack/react-query";
 import useAxiosSecure from "../../../hook/useAxiosSecure";
 import LoadingSpinner from "../../../components/LoadingSpinner";
+import useAxiosPublic from "../../../hook/useAxiosPublic";
 
 interface User {
   _id: string;
@@ -23,6 +24,7 @@ interface UsersResponse {
 const ManageUsers: React.FC = () => {
   const axiosSecure = useAxiosSecure();
   const queryClient = useQueryClient();
+  const axiosPublic = useAxiosPublic();
 
   const [search, setSearch] = useState<string>("");
   const [page, setPage] = useState<number>(1);
@@ -31,7 +33,7 @@ const ManageUsers: React.FC = () => {
   const { data, isLoading } = useQuery<UsersResponse>({
     queryKey: ["users", search, page],
     queryFn: async (): Promise<UsersResponse> => {
-      const res = await axiosSecure.get(
+      const res = await axiosPublic.get(
         `/api/users?search=${search}&page=${page}&limit=${limit}`
       );
       return res.data as UsersResponse;

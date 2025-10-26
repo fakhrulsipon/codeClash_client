@@ -24,6 +24,7 @@ import {
   Shield,
   Medal
 } from "lucide-react";
+import useAxiosPublic from "../../hook/useAxiosPublic";
 
 type Problem = {
   _id: string;
@@ -74,12 +75,13 @@ const ContestDetails: React.FC = () => {
   const [teamCode, setTeamCode] = useState("");
   const [, setTeamJoined] = useState(false);
   const axiosSecure = useAxiosSecure();
+  const axiosPublic = useAxiosPublic();
 
   // Fetch contest data
   useEffect(() => {
     const fetchContest = async () => {
       try {
-        const res = await axiosSecure.get<Contest>(`/api/contests/${id}`);
+        const res = await axiosPublic.get<Contest>(`/api/contests/${id}`);
         setContest(res.data);
       } catch (err) {
         console.error(err);
