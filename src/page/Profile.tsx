@@ -15,80 +15,142 @@ import {
   YAxis,
   Legend,
 } from "recharts";
-import { FaStar, FaCheckCircle, FaTimesCircle, FaClipboardList } from "react-icons/fa";
+import {
+  FaStar,
+  FaCheckCircle,
+  FaTimesCircle,
+  FaClipboardList,
+  FaAward,
+  FaRocket,
+} from "react-icons/fa";
+import { motion } from "framer-motion";
 import LoadingSpinner from "../components/LoadingSpinner";
 import useAxiosSecure from "../hook/useAxiosSecure";
 
 type Growth = { date: string; count: number };
 
 type UserPoints = {
-  email: string;
-  totalPoints: number;
-  totalSubmissions: number;
-  successCount: number;
-  failureCount: number;
-  growth: Growth[];
+  email?: string;
+  totalPoints?: number;
+  totalSubmissions?: number;
+  successCount?: number;
+  failureCount?: number;
+  growth?: Growth[];
+  message?: string;
 };
 
 const COLORS = ["#4CAF50", "#F44336"];
 
 const Profile: React.FC = () => {
   const { user } = use(AuthContext)!;
-  const email = user?.email || user?.providerData[0].email;
+  const email = user?.email || user?.providerData[0]?.email;
   const axiosSecure = useAxiosSecure();
 
-  const { data, isLoading, error } = useQuery<UserPoints>({
+  const { data, isLoading, isError, error, refetch } = useQuery<UserPoints>({
     queryKey: ["userPoints", email],
     queryFn: async () => {
-      const res = await axiosSecure.get(`/api/users/profile/${email}`);
-      return res.data;
+      try {
+        const res = await axiosSecure.get(`/api/users/profile/${email}`);
+        return res.data;
+      } catch (err: any) {
+        // If backend sends 404 or similar
+        if (err.response?.data?.message === "User not found or no submissions") {
+          return { message: "User not found or no submissions" };
+        }
+        throw err;
+      }
     },
     enabled: !!email,
+    retry: false, // prevent infinite retry loops
   });
 
   if (isLoading) return <LoadingSpinner />;
 
-
-  if (error)
+  // API error (not handled by our message)
+  if (isError && !data?.message) {
     return (
-      <p className="text-center mt-10 text-red-500 text-lg">
-        Failed to load data. Please try again later.
-      </p>
-    );
-
-
-  if (
-    !data ||
-    (data.totalPoints === 0 &&
-      data.totalSubmissions === 0 &&
-      data.successCount === 0 &&
-      data.failureCount === 0)
-  ) {
-    return (
-      <div className="min-h-screen flex flex-col justify-center items-center text-center p-6 bg-gray-50">
-        <img
-          src="https://i.ibb.co/5Y3zM9F/empty-state.png"
-          alt="No data"
-          className="w-48 h-48 mb-6 opacity-80"
-        />
-        <h2 className="text-2xl font-bold text-gray-800 mb-2">
-          No Activity Yet
-        </h2>
-        <p className="text-gray-600 mb-6 max-w-md">
-          You haven’t solved any problems yet. Start solving to see your progress
-          and earn points!
-        </p>
-        <a
-          href="/problems"
-          className="bg-gradient-to-r from-indigo-500 to-purple-500 text-white font-semibold px-6 py-3 rounded-full shadow-md hover:scale-105 transition-transform"
-        >
-          Solve Your First Problem 🚀
-        </a>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center p-8 bg-red-500/10 border border-red-500/30 rounded-2xl backdrop-blur-xl max-w-md">
+          <FaTimesCircle className="w-16 h-16 text-red-400 mx-auto mb-4" />
+          <h2 className="text-2xl font-bold text-white mb-2">
+            Error Loading Profile
+          </h2>
+          <p className="text-gray-300 mb-4">
+            {error instanceof Error
+              ? error.message
+              : "Failed to load your profile data"}
+          </p>
+          <button
+            onClick={() => refetch()}
+            className="flex items-center gap-2 mx-auto px-4 py-2 bg-cyan-500/20 border border-cyan-500/30 rounded-xl text-cyan-300 hover:bg-cyan-500/30 transition-all duration-300"
+          >
+            Try Again
+          </button>
+        </div>
       </div>
     );
   }
 
+  // Handle case when backend returns: { "message": "User not found or no submissions" }
+  if (data?.message === "User not found or no submissions") {
+    return (
+      <div className="min-h-screen flex flex-col justify-center items-center text-center p-6 relative">
+        {/* Animated Background */}
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute top-0 left-0 w-72 h-72 bg-purple-500/10 rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute bottom-0 right-0 w-72 h-72 bg-cyan-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        </div>
 
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="relative z-10"
+        >
+          {/* User Info */}
+          <img
+            src={user?.photoURL || "https://i.ibb.co/2y7QbZk/user.png"}
+            alt="Profile"
+            className="w-32 h-32 rounded-full border-4 border-gray-300 shadow-md mb-4 object-cover mx-auto"
+          />
+          <h1 className="text-3xl font-bold text-white mb-1">
+            {user?.displayName || "Anonymous User"}
+          </h1>
+          <p className="text-gray-300 mb-8">{user?.email}</p>
+
+          {/* Message */}
+          <div className="w-32 h-32 mx-auto mb-6 bg-gradient-to-br from-purple-500/20 to-cyan-500/20 rounded-full flex items-center justify-center border border-purple-500/30">
+            <FaAward className="w-16 h-16 text-purple-400" />
+          </div>
+
+          <h2 className="text-3xl font-bold text-white mb-4">
+            No Activity Yet
+          </h2>
+          <p className="text-gray-300 mb-6 max-w-md text-lg leading-relaxed">
+            You haven’t solved any problems yet. Start your coding journey and
+            track your progress here!
+          </p>
+
+          <p className="text-cyan-300 mb-8 text-sm">
+            🚀 Begin your adventure in problem solving
+          </p>
+
+          <motion.a
+            href="/problems"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="inline-flex items-center gap-3 bg-gradient-to-r from-purple-600 to-cyan-600 text-white font-semibold px-8 py-4 rounded-2xl shadow-2xl hover:shadow-purple-500/25 transition-all duration-300 border border-cyan-400/30"
+          >
+            <FaAward className="w-5 h-5" />
+            Solve Your First Problem
+            <FaRocket className="w-5 h-5" />
+          </motion.a>
+        </motion.div>
+      </div>
+    );
+  }
+
+  // Normal profile with valid data
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       {/* Header */}
@@ -103,7 +165,8 @@ const Profile: React.FC = () => {
         </h1>
         <p className="text-gray-600 text-lg mb-4">{user?.email}</p>
         <p className="text-gray-700 text-center max-w-xl text-sm md:text-base">
-          Welcome to your profile! Track your progress, view your stats, and stay motivated to solve more problems every day.
+          Welcome to your profile! Track your progress, view your stats, and
+          stay motivated to solve more problems every day.
         </p>
       </div>
 
@@ -195,7 +258,7 @@ const Profile: React.FC = () => {
         </div>
       </div>
 
-      {/* Static Motivational Text */}
+      {/* Motivational Section */}
       <div className="text-center max-w-3xl mx-auto mb-12">
         <h2 className="text-2xl font-bold mb-4 text-gray-800">
           Tips to Improve Your Score

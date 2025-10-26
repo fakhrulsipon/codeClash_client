@@ -37,27 +37,15 @@ const router = createBrowserRouter([
       },
       {
         path: "problems",
-        element: (
-          <PrivetRoute>
-            <Problems />
-          </PrivetRoute>
-        ),
+        element: <Problems />,
       },
       {
         path: "all-contests",
-        element: (
-          <PrivetRoute>
-            <AllContests />
-          </PrivetRoute>
-        ),
+        element: <AllContests />,
       },
       {
         path: "/contests/:id",
-        element: (
-          <PrivetRoute>
-            <ContestDetails></ContestDetails>
-          </PrivetRoute>
-        ),
+        element: <ContestDetails></ContestDetails>,
       },
       {
         path: "contests/:contestId/lobby",
@@ -99,7 +87,6 @@ const router = createBrowserRouter([
           </PrivetRoute>
         ),
       },
-      
     ],
   },
 
@@ -147,37 +134,41 @@ const router = createBrowserRouter([
       {
         path: "manageContests",
         element: (
-          <PrivetRoute>
+          <AdminRoute>
             <ManageContests />
-          </PrivetRoute>
+          </AdminRoute>
         ),
       },
       {
-        path: "/dashboard/addProblem",
-        element: <AddProblem />,
+        path: "addProblem",
+        element: (
+          <AdminRoute>
+            <AddProblem />
+          </AdminRoute>
+        ),
       },
       {
         path: "manageContests",
         element: (
-          <PrivetRoute>
+          <AdminRoute>
             <ManageContests />
-          </PrivetRoute>
+          </AdminRoute>
         ),
       },
       {
         path: "manageTeams",
         element: (
-          <PrivetRoute>
+          <AdminRoute>
             <ManageTeams />
-          </PrivetRoute>
+          </AdminRoute>
         ),
       },
       {
         path: "manageParticipants",
         element: (
-          <PrivetRoute>
+          <AdminRoute>
             <ManageParticipants />
-          </PrivetRoute>
+          </AdminRoute>
         ),
       },
     ],

@@ -39,7 +39,7 @@ const ContestLobby: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const teamCodeFromUrl = searchParams.get("teamCode");
-  const { user } = useContext(AuthContext);
+  const { user } = useContext(AuthContext)!;
   const axiosSecure = useAxiosSecure();
 
   const [contest, setContest] = useState<Contest | null>(null);

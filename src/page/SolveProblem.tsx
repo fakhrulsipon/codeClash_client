@@ -4,28 +4,24 @@ import Editor from "@monaco-editor/react";
 import { useParams } from "react-router";
 import { useQuery } from "@tanstack/react-query";
 import toast from "react-hot-toast";
-import { 
-  PlayArrow, 
-  Send, 
-  Code, 
+import {
+  Code,
   Terminal,
   CheckCircle,
   Cancel,
-  Lightbulb,
   Schedule,
-  Error as ErrorIcon,
-  FormatListNumbered
+  FormatListNumbered,
 } from "@mui/icons-material";
-import { 
-  FaCode, 
-  FaPlay, 
-  FaCheck, 
-  FaTimes, 
+import {
+  FaCode,
+  FaPlay,
+  FaCheck,
+  FaTimes,
   FaLightbulb,
   FaRocket,
   FaUser,
   FaCalendarAlt,
-  FaExclamationTriangle
+  FaExclamationTriangle,
 } from "react-icons/fa";
 import { AuthContext } from "../provider/AuthProvider";
 import LoadingSpinner from "../components/LoadingSpinner";
@@ -53,7 +49,6 @@ interface Problem {
   testCases: TestCase[];
   createdAt: string;
 }
-
 interface RunCodeResponse {
   stdout?: string;
   stderr?: string;
@@ -62,7 +57,6 @@ interface RunCodeResponse {
   error?: string;
   status?: string;
 }
-
 interface CodeError {
   lineNumber?: number;
   message: string;
@@ -72,47 +66,38 @@ interface CodeError {
 export default function SolveProblem() {
   const { id } = useParams<{ id: string }>();
   const { user } = use(AuthContext)!;
-  const [code, setCode] = useState<string>("// Write your code here");
-  const [selectedLang, setSelectedLang] = useState<string>("javascript");
-  const [output, setOutput] = useState<string>("");
-  const [isError, setIsError] = useState<boolean>(false);
-  const [isRunning, setIsRunning] = useState<boolean>(false);
-  const [activeTab, setActiveTab] = useState<"problem" | "submissions">("problem");
+  const [code, setCode] = useState("// Write your code here");
+  const [selectedLang, setSelectedLang] = useState("javascript");
+  const [output, setOutput] = useState("");
+  const [isError, setIsError] = useState(false);
+  const [isRunning, setIsRunning] = useState(false);
   const [codeError, setCodeError] = useState<CodeError | null>(null);
-  const [nextSubmissionNumber, setNextSubmissionNumber] = useState<number>(1);
+  const [, setNextSubmissionNumber] = useState(1);
+
   const axiosSecure = useAxiosSecure();
   const { addSubmission, submissions } = useUserSubmissions();
 
   const { data: problem, isLoading, error } = useQuery<Problem>({
     queryKey: ["problem", id],
-    queryFn: async () => {
-      const res = await axiosSecure.get(`/api/problems/${id}`);
-      return res.data;
-    },
+    queryFn: async () => (await axiosSecure.get(`/api/problems/${id}`)).data,
     enabled: !!id,
   });
 
-  // Load submission history for this specific problem
   useEffect(() => {
-    if (user && problem) {
-      loadSubmissionHistory();
-    }
+    if (user && problem) loadSubmissionHistory();
   }, [user, problem]);
 
   const loadSubmissionHistory = async () => {
     try {
-      const res = await axiosSecure.get(`/api/problems/submissions/${user?.email}/${problem?._id}`);
+      const res = await axiosSecure.get(
+        `/api/problems/submissions/${user?.email}/${problem?._id}`
+      );
       const problemSubmissions = res.data || [];
       setNextSubmissionNumber(problemSubmissions.length + 1);
     } catch (error) {
       console.error("Failed to load submission history:", error);
     }
   };
-
-  // Get submissions for this specific problem
-  const problemSubmissions = submissions.filter(
-    sub => sub.problemTitle === problem?.title
-  ).slice(0, 5); // Show only last 5 submissions for this problem
 
   useEffect(() => {
     if (problem && selectedLang) {
@@ -123,74 +108,69 @@ export default function SolveProblem() {
     }
   }, [problem, selectedLang]);
 
+  const problemSubmissions = submissions
+    .filter((sub) => sub.problemTitle === problem?.title)
+    .slice(0, 5);
+
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty.toLowerCase()) {
-      case "easy": return "text-green-400";
-      case "medium": return "text-yellow-400";
-      case "hard": return "text-red-400";
-      default: return "text-blue-400";
+      case "easy":
+        return "text-green-400";
+      case "medium":
+        return "text-yellow-400";
+      case "hard":
+        return "text-red-400";
+      default:
+        return "text-blue-400";
     }
   };
-
   const getDifficultyBg = (difficulty: string) => {
     switch (difficulty.toLowerCase()) {
-      case "easy": return "bg-green-500/20 border-green-500/30";
-      case "medium": return "bg-yellow-500/20 border-yellow-500/30";
-      case "hard": return "bg-red-500/20 border-red-500/30";
-      default: return "bg-blue-500/20 border-blue-500/30";
+      case "easy":
+        return "bg-green-500/20 border-green-500/30";
+      case "medium":
+        return "bg-yellow-500/20 border-yellow-500/30";
+      case "hard":
+        return "bg-red-500/20 border-red-500/30";
+      default:
+        return "bg-blue-500/20 border-blue-500/30";
     }
   };
 
-  // 🔹 Parse Error for Line Number and Details
   const parseError = (errorMessage: string): CodeError => {
-    const errorStr = errorMessage.toLowerCase();
-    
-    // JavaScript/TypeScript error patterns
-    const jsSyntaxMatch = errorMessage.match(/at position (\d+)|line (\d+)|\((\d+):(\d+)\)/);
+    const jsSyntaxMatch = errorMessage.match(
+      /at position (\d+)|line (\d+)|\((\d+):(\d+)\)/
+    );
     if (jsSyntaxMatch) {
-      const lineNumber = jsSyntaxMatch[1] || jsSyntaxMatch[2] || jsSyntaxMatch[3];
+      const lineNumber =
+        jsSyntaxMatch[1] || jsSyntaxMatch[2] || jsSyntaxMatch[3];
       return {
         lineNumber: parseInt(lineNumber) || undefined,
         message: errorMessage,
-        type: "syntax"
+        type: "syntax",
       };
     }
-
-    // Python error patterns
     const pythonMatch = errorMessage.match(/line (\d+)/);
-    if (pythonMatch) {
+    if (pythonMatch)
       return {
         lineNumber: parseInt(pythonMatch[1]),
         message: errorMessage,
-        type: "syntax"
+        type: "syntax",
       };
-    }
-
-    // Java/C compilation errors
     const compilationMatch = errorMessage.match(/error:.*|exception:.*/i);
-    if (compilationMatch) {
-      return {
-        message: errorMessage,
-        type: "compilation"
-      };
-    }
-
-    // Generic runtime errors
-    return {
-      message: errorMessage,
-      type: "runtime"
-    };
+    if (compilationMatch) return { message: errorMessage, type: "compilation" };
+    return { message: errorMessage, type: "runtime" };
   };
 
-  // 🔹 Validate Code for console.log (for JavaScript)
   const validateCodeForConsoleLog = (): boolean => {
     if (selectedLang === "javascript" || selectedLang === "typescript") {
-      const codeWithoutComments = code.replace(/\/\/.*$/gm, '').replace(/\/\*[\s\S]*?\*\//g, '');
-      const hasConsoleLog = codeWithoutComments.includes('console.log');
-      if (!hasConsoleLog) {
+      const codeWithoutComments = code
+        .replace(/\/\/.*$/gm, "")
+        .replace(/\/\*[\s\S]*?\*\//g, "");
+      if (!codeWithoutComments.includes("console.log")) {
         setCodeError({
-          message: "❌ Please use console.log() to output your results for JavaScript/TypeScript code",
-          type: "syntax"
+          message: "❌ Please use console.log() for output",
+          type: "syntax",
         });
         toast.error("Use console.log() for output");
         return false;
@@ -200,31 +180,25 @@ export default function SolveProblem() {
     return true;
   };
 
-  // 🔹 Output Normalization
-  const normalize = (str: string) =>
-    str
-      .replace(/\r\n/g, "\n")
-      .replace(/\r/g, "\n")
-      .replace(/\t/g, " ")
-      .replace(/\s+/g, " ")
-      .trim()
-      .toLowerCase();
-
-  // 🔹 Format Output for Display
-  const formatOutput = (output: string): string => {
-    if (!output) return "";
-    return output.replace(/^"|"$/g, '').trim();
+  const normalize = (str: string) => {
+    if (!str) return "";
+    try {
+      const json = JSON.parse(str);
+      return JSON.stringify(json).toLowerCase();
+    } catch {
+      return str
+        .replace(/[\[\]\s,]+/g, "")
+        .replace(/\r?\n|\r/g, "")
+        .trim()
+        .toLowerCase();
+    }
   };
 
-  // 🔹 Run Code - Enhanced with error parsing
+  const formatOutput = (output: string) => (output ? output.replace(/^"|"$/g, "").trim() : "");
+
   const runCode = async () => {
     if (!problem) return;
-    
-    // Validate code before running
-    if (!validateCodeForConsoleLog()) {
-      return;
-    }
-
+    if (!validateCodeForConsoleLog()) return;
     setIsRunning(true);
     setOutput("");
     setIsError(false);
@@ -232,83 +206,46 @@ export default function SolveProblem() {
 
     try {
       const tc = problem.testCases[0];
-      const payload = { 
-        code, 
-        language: selectedLang, 
-        input: tc.input 
-      };
-
+      const payload = { code, language: selectedLang, input: tc.input };
       const res = await axiosSecure.post("/api/problems/run-code", payload);
       const result: RunCodeResponse = res.data;
 
       let userOutput = "";
       let errorOccurred = false;
 
-      if (result.stdout) {
-        userOutput = formatOutput(result.stdout);
-      } else if (result.stderr) {
-        userOutput = `Error: ${formatOutput(result.stderr)}`;
+      if (result.stdout) userOutput = formatOutput(result.stdout);
+      else if (result.stderr) {
+        userOutput = formatOutput(result.stderr);
         errorOccurred = true;
-        setCodeError(parseError(result.stderr));
       } else if (result.compile_output) {
-        userOutput = `Compilation Error: ${formatOutput(result.compile_output)}`;
+        userOutput = formatOutput(result.compile_output);
         errorOccurred = true;
-        setCodeError(parseError(result.compile_output));
-      } else if (result.message) {
-        userOutput = formatOutput(result.message);
-      } else if (result.error) {
-        userOutput = `Error: ${formatOutput(result.error)}`;
-        errorOccurred = true;
-        setCodeError(parseError(result.error));
-      } else {
-        userOutput = "No output received from execution engine";
-        errorOccurred = true;
-      }
+      } else if (result.message) userOutput = formatOutput(result.message);
 
-      setIsError(errorOccurred);
       setOutput(userOutput);
+      setIsError(errorOccurred);
 
-      if (errorOccurred) {
-        toast.error("Code execution failed - Check error details");
-      } else {
-        toast.success("Code executed successfully");
-      }
+      const expected = normalize(tc.expectedOutput);
+      const actual = normalize(userOutput);
 
+      if (!errorOccurred && expected === actual)
+        toast.success("🎉 Output matches expected!");
+      else if (!errorOccurred) toast("⚠️ Output does not match expected.");
     } catch (err: any) {
-      console.error("❌ Run code error:", err);
-      
-      let errorMessage = "Failed to run code";
-      
-      if (err.response?.data?.message) {
-        errorMessage = err.response.data.message;
-      } else if (err.response?.data?.error) {
-        errorMessage = err.response.data.error;
-      } else if (err.message) {
-        errorMessage = err.message;
-      }
-
-      const parsedError = parseError(errorMessage);
-      setCodeError(parsedError);
-      setOutput(`❌ ${errorMessage}`);
+      console.error(err);
+      setOutput("❌ Error running code");
       setIsError(true);
-      toast.error("Failed to execute code");
     } finally {
       setIsRunning(false);
     }
   };
 
-  // 🔹 Submit Solution - Enhanced with global submission tracking
   const handleSubmit = async () => {
     if (!problem || !user) {
       toast.error("Please log in to submit solutions");
       return;
     }
 
-    // Validate code before submission
-    if (!validateCodeForConsoleLog()) {
-      return;
-    }
-
     setIsRunning(true);
     setOutput("");
     setIsError(false);
@@ -316,117 +253,55 @@ export default function SolveProblem() {
 
     try {
       const tc = problem.testCases[0];
-      const payload = {
-        code,
-        language: selectedLang,
-        input: tc.input,
-      };
-
+      const payload = { code, language: selectedLang, input: tc.input };
       const res = await axiosSecure.post("/api/problems/run-code", payload);
       const result: RunCodeResponse = res.data;
 
       let userOutput = "";
       let errorOccurred = false;
 
-      if (result.stdout) {
-        userOutput = formatOutput(result.stdout);
-      } else if (result.stderr) {
+      if (result.stdout) userOutput = formatOutput(result.stdout);
+      else if (result.stderr) {
         userOutput = formatOutput(result.stderr);
         errorOccurred = true;
-        setCodeError(parseError(result.stderr));
       } else if (result.compile_output) {
         userOutput = formatOutput(result.compile_output);
         errorOccurred = true;
-        setCodeError(parseError(result.compile_output));
-      } else if (result.message) {
-        userOutput = formatOutput(result.message);
-      }
+      } else if (result.message) userOutput = formatOutput(result.message);
 
       setOutput(userOutput);
-
-      // Normalize for comparison
-      const expected = normalize(problem.testCases[0].expectedOutput);
+      const expected = normalize(tc.expectedOutput);
       const actual = normalize(userOutput);
+      const isCorrect = !errorOccurred && expected === actual;
+      const status: "Success" | "Failure" = isCorrect ? "Success" : "Failure";
 
-      const status: "Success" | "Failure" =
-        !errorOccurred && actual === expected ? "Success" : "Failure";
-
-      // Prepare submission data
       const submissionData = {
-        _id: Date.now().toString(), // Temporary ID, will be replaced by backend
-        userEmail: user.email,
+        _id: Date.now().toString(),
+        userEmail: user.email!,
         userName: user.displayName || "Anonymous User",
         status,
         problemTitle: problem.title,
         problemDifficulty: problem.difficulty,
         problemCategory: problem.category,
-        point: status === "Success" ? 20 : -5,
+        point: status === "Success" ? 20 : -20,
         submittedAt: new Date().toISOString(),
       };
 
-      // Save submission to database
       await axiosSecure.post("/api/problems/submissions", submissionData);
-
-      // Add to global submission state (for navbar)
       addSubmission(submissionData);
+      setNextSubmissionNumber((prev) => prev + 1);
 
-      // Update local state for problem-specific history
-      setNextSubmissionNumber(prev => prev + 1);
+      if (status === "Success") toast.success("🎉 Submission Successful! +20 points");
+      else toast.error("❌ Wrong Answer! -20 points");
 
-      // Show result to user
-      if (status === "Success") {
-        toast.success(`🎉 Submission Successful! +20 points`);
-        setIsError(false);
-      } else {
-        toast.error(`❌ Submission Failed! -5 points`);
-        setIsError(true);
-        
-        // Show detailed error information
-        if (codeError) {
-          setOutput(prev => 
-            `${prev}\n\n--- Submission Result ---\n❌ ${codeError.type.charAt(0).toUpperCase() + codeError.type.slice(1)} Error\nLine: ${codeError.lineNumber || 'N/A'}\nMessage: ${codeError.message}`
-          );
-        } else {
-          setOutput(prev => 
-            `${prev}\n\n--- Submission Result ---\n❌ Wrong Answer\nExpected: ${problem.testCases[0].expectedOutput}\nActual: ${userOutput}`
-          );
-        }
-      }
-
+      setIsError(!isCorrect);
     } catch (err: any) {
-      console.error("❌ Submission error:", err);
-      
-      let errorMessage = "Server error while submitting solution";
-      
-      if (err.response?.data?.message) {
-        errorMessage = err.response.data.message;
-      }
-
-      const parsedError = parseError(errorMessage);
-      setCodeError(parsedError);
-      setOutput(`❌ ${errorMessage}`);
+      console.error(err);
+      setOutput("❌ Submission failed");
       setIsError(true);
-      toast.error(`Submission failed`);
+      toast.error("Submission failed");
     } finally {
       setIsRunning(false);
-    }
-  };
-
-  // Test the API endpoint directly
-  const testEndpoint = async () => {
-    try {
-      const testPayload = {
-        code: "console.log('Hello World');",
-        language: "javascript",
-        input: ""
-      };
-      
-      const res = await axiosSecure.post("/api/problems/run-code", testPayload);
-      console.log("🔧 Endpoint test response:", res.data);
-      toast.success("API endpoint is working");
-    } catch (err) {
-      console.error("🔧 Endpoint test failed:", err);
-      toast.error("API endpoint test failed");
     }
   };
 
@@ -435,31 +310,18 @@ export default function SolveProblem() {
   if (!problem) return <p className="text-white text-center mt-8">Problem not found</p>;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 py-8">
-      <div className="max-w-7xl mx-auto px-4">
-        {/* Background Elements */}
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute top-0 left-0 w-80 h-80 bg-cyan-600/10 rounded-full blur-3xl animate-pulse"></div>
-          <div className="absolute top-1/2 right-0 w-96 h-96 bg-purple-600/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
-          <div className="absolute bottom-0 left-1/3 w-72 h-72 bg-blue-600/10 rounded-full blur-3xl animate-pulse delay-500"></div>
-        </div>
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 py-8 relative overflow-hidden">
+      {/* Animated Background Blobs */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute top-0 left-0 w-80 h-80 bg-cyan-600/10 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute top-1/2 right-0 w-96 h-96 bg-purple-600/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        <div className="absolute bottom-0 left-1/3 w-72 h-72 bg-blue-600/10 rounded-full blur-3xl animate-pulse delay-500"></div>
+      </div>
 
-        {/* Debug Button - Remove in production */}
-        <button 
-          onClick={testEndpoint}
-          className="fixed top-4 right-4 z-50 px-3 py-1 bg-red-500/20 text-red-300 text-xs rounded border border-red-500/30"
-        >
-          Test API
-        </button>
-
+      <div className="max-w-7xl mx-auto px-4 relative z-10">
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-8 relative z-10">
-          {/* Left Side - Problem Description */}
-          <motion.div
-            initial={{ opacity: 0, x: -50 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6 }}
-            className="xl:col-span-1"
-          >
+          {/* Left Panel - Problem Info */}
+          <motion.div initial={{ opacity: 0, x: -50 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.6 }} className="xl:col-span-1">
             <div className="bg-white/5 border border-white/10 rounded-3xl backdrop-blur-xl p-6 h-full">
               {/* Problem Header */}
               <div className="mb-6">
@@ -469,56 +331,27 @@ export default function SolveProblem() {
                     {problem.difficulty}
                   </span>
                 </div>
-                
                 <div className="flex items-center gap-4 text-sm text-gray-400 mb-4">
-                  <div className="flex items-center gap-2">
-                    <FaUser className="text-cyan-400" />
-                    <span>{user?.displayName || "Guest"}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <FaCalendarAlt className="text-purple-400" />
-                    <span>{new Date(problem.createdAt).toLocaleDateString()}</span>
-                  </div>
+                  <div className="flex items-center gap-2"><FaUser className="text-cyan-400" /><span>{user?.displayName || "Guest"}</span></div>
+                  <div className="flex items-center gap-2"><FaCalendarAlt className="text-purple-400" /><span>{new Date(problem.createdAt).toLocaleDateString()}</span></div>
                 </div>
-
                 <div className="flex items-center gap-2 px-3 py-2 bg-blue-500/10 border border-blue-500/30 rounded-xl text-blue-300 text-sm">
-                  <Code className="text-sm" />
-                  <span>{problem.category}</span>
+                  <Code className="text-sm" /> <span>{problem.category}</span>
                 </div>
               </div>
 
-              {/* Submission History for this Problem */}
+              {/* Recent Submissions */}
               {problemSubmissions.length > 0 && (
                 <div className="mb-6">
-                  <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2">
-                    <FormatListNumbered className="text-green-400" />
-                    Recent Submissions
-                  </h3>
+                  <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2"><FormatListNumbered className="text-green-400" /> Recent Submissions</h3>
                   <div className="space-y-2 max-h-40 overflow-y-auto">
-                    {problemSubmissions.map((submission, index) => (
-                      <div
-                        key={submission._id}
-                        className={`flex items-center justify-between p-2 rounded-lg border ${
-                          submission.status === "Success" 
-                            ? "bg-green-500/10 border-green-500/30" 
-                            : "bg-red-500/10 border-red-500/30"
-                        }`}
-                      >
+                    {problemSubmissions.map((submission) => (
+                      <div key={submission._id} className={`flex items-center justify-between p-2 rounded-lg border ${submission.status === "Success" ? "bg-green-500/10 border-green-500/30" : "bg-red-500/10 border-red-500/30"}`}>
                         <div className="flex items-center gap-2">
-                          {submission.status === "Success" ? (
-                            <CheckCircle className="text-green-400 text-sm" />
-                          ) : (
-                            <Cancel className="text-red-400 text-sm" />
-                          )}
-                          <span className="text-sm text-gray-300">
-                            {submission.status}
-                          </span>
+                          {submission.status === "Success" ? <CheckCircle className="text-green-400 text-sm" /> : <Cancel className="text-red-400 text-sm" />}
+                          <span className="text-sm text-gray-300">{submission.status}</span>
                         </div>
-                        <span
-                          className={`text-sm font-medium ${
-                            submission.status === "Success" ? "text-green-400" : "text-red-400"
-                          }`}
-                        >
+                        <span className={`text-sm font-medium ${submission.status === "Success" ? "text-green-400" : "text-red-400"}`}>
                           {submission.point > 0 ? `+${submission.point}` : submission.point} pts
                         </span>
                       </div>
@@ -529,53 +362,24 @@ export default function SolveProblem() {
 
               {/* Problem Description */}
               <div className="mb-6">
-                <h2 className="text-lg font-semibold text-white mb-3 flex items-center gap-2">
-                  <FaLightbulb className="text-yellow-400" />
-                  Problem Description
-                </h2>
-                <p className="text-gray-300 leading-relaxed">
-                  {problem.description}
-                </p>
+                <h2 className="text-lg font-semibold text-white mb-3 flex items-center gap-2"><FaLightbulb className="text-yellow-400" /> Problem Description</h2>
+                <p className="text-gray-300 leading-relaxed">{problem.description}</p>
               </div>
 
               {/* Sample Test Case */}
               <div className="mb-6">
-                <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2">
-                  <Terminal className="text-cyan-400" />
-                  Sample Test Case
-                </h3>
+                <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2"><Terminal className="text-cyan-400" /> Sample Test Case</h3>
                 <div className="bg-white/5 border border-white/10 rounded-xl p-4 space-y-3">
-                  <div>
-                    <strong className="text-cyan-300 text-sm">Input:</strong>
-                    <pre className="text-gray-200 text-sm mt-1 bg-black/20 p-2 rounded-lg">
-                      {problem.testCases[0].input}
-                    </pre>
-                  </div>
-                  <div>
-                    <strong className="text-green-300 text-sm">Expected Output:</strong>
-                    <pre className="text-gray-200 text-sm mt-1 bg-black/20 p-2 rounded-lg">
-                      {problem.testCases[0].expectedOutput}
-                    </pre>
-                  </div>
+                  <div><strong className="text-cyan-300 text-sm">Input:</strong> <pre className="text-gray-200 text-sm mt-1 bg-black/20 p-2 rounded-lg">{problem.testCases[0].input}</pre></div>
+                  <div><strong className="text-green-300 text-sm">Expected Output:</strong> <pre className="text-gray-200 text-sm mt-1 bg-black/20 p-2 rounded-lg">{problem.testCases[0].expectedOutput}</pre></div>
                 </div>
               </div>
 
               {/* Language Selection */}
               <div className="mb-6">
-                <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2">
-                  <FaCode className="text-purple-400" />
-                  Language
-                </h3>
-                <select
-                  value={selectedLang}
-                  onChange={(e) => setSelectedLang(e.target.value)}
-                  className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:border-cyan-500/50 focus:bg-white/10 transition-all duration-300 backdrop-blur-sm"
-                >
-                  {problem.languages.map((lang) => (
-                    <option key={lang} value={lang} className="bg-slate-900">
-                      {lang.charAt(0).toUpperCase() + lang.slice(1)}
-                    </option>
-                  ))}
+                <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2"><FaCode className="text-purple-400" /> Language</h3>
+                <select value={selectedLang} onChange={(e) => setSelectedLang(e.target.value)} className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:border-cyan-500/50 focus:bg-white/10 transition-all duration-300 backdrop-blur-sm">
+                  {problem.languages.map((lang) => (<option key={lang} value={lang} className="bg-slate-900">{lang.charAt(0).toUpperCase() + lang.slice(1)}</option>))}
                 </select>
               </div>
 
@@ -593,41 +397,22 @@ export default function SolveProblem() {
             </div>
           </motion.div>
 
-          {/* Right Side - Code Editor & Output */}
-          <motion.div
-            initial={{ opacity: 0, x: 50 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="xl:col-span-2 flex flex-col"
-          >
+          {/* Right Panel - Code Editor */}
+          <motion.div initial={{ opacity: 0, x: 50 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.6, delay: 0.2 }} className="xl:col-span-2 flex flex-col">
             <div className="bg-white/5 border border-white/10 rounded-3xl backdrop-blur-xl p-6 flex-1 flex flex-col">
+
               {/* Editor Header */}
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                  <FaRocket className="text-cyan-400" />
-                  Code Editor
-                </h2>
-                <div className="flex items-center gap-2 text-sm text-gray-400">
-                  <Code className="text-sm" />
-                  <span className="text-cyan-300">{selectedLang}</span>
-                </div>
+                <h2 className="text-xl font-bold text-white flex items-center gap-2"><FaRocket className="text-cyan-400" /> Code Editor</h2>
+                <div className="flex items-center gap-2 text-sm text-gray-400"><Code className="text-sm" /> <span className="text-cyan-300">{selectedLang}</span></div>
               </div>
 
               {/* Error Display */}
               <AnimatePresence>
                 {codeError && (
-                  <motion.div
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: "auto" }}
-                    exit={{ opacity: 0, height: 0 }}
-                    className="mb-4 p-4 bg-red-500/10 border border-red-500/30 rounded-xl"
-                  >
-                    <div className="flex items-center gap-2 text-red-400 mb-2">
-                      <FaExclamationTriangle />
-                      <span className="font-semibold">
-                        {codeError.type.charAt(0).toUpperCase() + codeError.type.slice(1)} Error
-                        {codeError.lineNumber && ` at line ${codeError.lineNumber}`}
-                      </span>
+                  <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="mb-4 p-4 bg-red-500/10 border border-red-500/30 rounded-xl">
+                    <div className="flex items-center gap-2 text-red-400 mb-2"><FaExclamationTriangle />
+                      <span className="font-semibold">{codeError.type.charAt(0).toUpperCase() + codeError.type.slice(1)} Error {codeError.lineNumber && `at line ${codeError.lineNumber}`}</span>
                     </div>
                     <p className="text-red-300 text-sm">{codeError.message}</p>
                   </motion.div>
@@ -640,10 +425,7 @@ export default function SolveProblem() {
                   height="100%"
                   language={selectedLang}
                   value={code}
-                  onChange={(value) => {
-                    setCode(value ?? "");
-                    setCodeError(null); // Clear error when user edits code
-                  }}
+                  onChange={(value) => { setCode(value ?? ""); setCodeError(null); }}
                   theme="vs-dark"
                   options={{
                     minimap: { enabled: true },
@@ -658,68 +440,27 @@ export default function SolveProblem() {
                     lineDecorationsWidth: 10,
                     lineNumbersMinChars: 3,
                     matchBrackets: "always",
-                    scrollbar: {
-                      vertical: "visible",
-                      horizontal: "visible",
-                      useShadows: false
-                    }
+                    scrollbar: { vertical: "visible", horizontal: "visible", useShadows: false },
                   }}
                 />
               </div>
 
               {/* Action Buttons */}
               <div className="flex gap-4 mb-6">
-                <motion.button
-                  onClick={runCode}
-                  disabled={isRunning}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="flex items-center gap-2 px-6 py-3 bg-cyan-500 hover:bg-cyan-600 disabled:bg-cyan-500/50 text-white font-semibold rounded-xl transition-all duration-300 flex-1 justify-center"
-                >
-                  {isRunning ? (
-                    <>
-                      <Schedule className="animate-spin" />
-                      Running...
-                    </>
-                  ) : (
-                    <>
-                      <FaPlay />
-                      Run Code
-                    </>
-                  )}
+                <motion.button onClick={runCode} disabled={isRunning} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="flex items-center gap-2 px-6 py-3 bg-cyan-500 hover:bg-cyan-600 disabled:bg-cyan-500/50 text-white font-semibold rounded-xl transition-all duration-300 flex-1 justify-center">
+                  {isRunning ? <><Schedule className="animate-spin" /> Running...</> : <><FaPlay /> Run Code</>}
                 </motion.button>
-
-                <motion.button
-                  onClick={handleSubmit}
-                  disabled={isRunning}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 disabled:opacity-50 text-white font-semibold rounded-xl transition-all duration-300 flex-1 justify-center"
-                >
-                  {isRunning ? (
-                    <>
-                      <Schedule className="animate-spin" />
-                      Submitting...
-                    </>
-                  ) : (
-                    <>
-                      <FaCheck />
-                      Submit Solution
-                    </>
-                  )}
+                <motion.button onClick={handleSubmit} disabled={isRunning} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 disabled:opacity-50 text-white font-semibold rounded-xl transition-all duration-300 flex-1 justify-center">
+                  {isRunning ? <><Schedule className="animate-spin" /> Submitting...</> : <><FaCheck /> Submit Solution</>}
                 </motion.button>
               </div>
 
               {/* Output Panel */}
               <div className="bg-black/40 border border-white/10 rounded-xl overflow-hidden flex-1 flex flex-col min-h-[200px]">
                 <div className="flex items-center justify-between p-4 bg-black/20 border-b border-white/10">
-                  <h3 className="text-lg font-semibold text-white flex items-center gap-2">
-                    <Terminal className="text-cyan-400" />
-                    Output
-                  </h3>
-                  <div className={`flex items-center gap-2 text-sm ${isError ? 'text-red-400' : output ? 'text-green-400' : 'text-gray-400'}`}>
-                    {isError ? <FaTimes /> : output ? <FaCheck /> : null}
-                    {isError ? 'Error' : output ? 'Success' : 'No output'}
+                  <h3 className="text-lg font-semibold text-white flex items-center gap-2"><Terminal className="text-cyan-400" /> Output</h3>
+                  <div className={`flex items-center gap-2 text-sm ${isError ? "text-red-400" : output ? "text-green-400" : "text-gray-400"}`}>
+                    {isError ? <FaTimes /> : output ? <FaCheck /> : null} {isError ? "Error" : output ? "Success" : "No output"}
                   </div>
                 </div>
                 <div className="flex-1 p-4 font-mono text-sm overflow-auto">

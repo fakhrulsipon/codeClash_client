@@ -5,8 +5,6 @@ import { AuthContext } from "../../provider/AuthProvider";
 import toast from "react-hot-toast";
 import ContestLeaderboard from "./ContestLeaderboard";
 import LoadingSpinner from "../../components/LoadingSpinner";
-import createIcon from "../../assets/create_icon.png";
-import groupIcon from "../../assets/group_icon.png";
 import Swal from "sweetalert2";
 import useAxiosSecure from "../../hook/useAxiosSecure";
 import { 
@@ -26,6 +24,7 @@ import {
   Shield,
   Medal
 } from "lucide-react";
+import useAxiosPublic from "../../hook/useAxiosPublic";
 
 type Problem = {
   _id: string;
@@ -56,7 +55,7 @@ type LeaderboardUser = {
 const ContestDetails: React.FC = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { user } = useContext(AuthContext);
+  const { user } = useContext(AuthContext)!;
 
   const [contest, setContest] = useState<Contest | null>(null);
   const [loading, setLoading] = useState(true);
@@ -74,14 +73,15 @@ const ContestDetails: React.FC = () => {
   // Team inputs
   const [teamName, setTeamName] = useState("");
   const [teamCode, setTeamCode] = useState("");
-  const [teamJoined, setTeamJoined] = useState(false);
+  const [, setTeamJoined] = useState(false);
   const axiosSecure = useAxiosSecure();
+  const axiosPublic = useAxiosPublic();
 
   // Fetch contest data
   useEffect(() => {
     const fetchContest = async () => {
       try {
-        const res = await axiosSecure.get<Contest>(`/api/contests/${id}`);
+        const res = await axiosPublic.get<Contest>(`/api/contests/${id}`);
         setContest(res.data);
       } catch (err) {
         console.error(err);

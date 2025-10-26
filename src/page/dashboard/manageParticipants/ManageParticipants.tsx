@@ -1,6 +1,17 @@
 import { useState, useEffect } from "react";
-import { FiSearch, FiTrash2, FiFilter, FiRefreshCw, FiEye, FiUsers, FiAlertTriangle } from "react-icons/fi";
-import { FaUserFriends, FaRegCheckCircle, FaExclamationTriangle } from "react-icons/fa";
+import {
+  FiSearch,
+  FiTrash2,
+  FiRefreshCw,
+  FiEye,
+  FiUsers,
+  FiAlertTriangle,
+} from "react-icons/fi";
+import {
+  FaUserFriends,
+  FaRegCheckCircle,
+  FaExclamationTriangle,
+} from "react-icons/fa";
 import useAxiosSecure from "../../../hook/useAxiosSecure";
 
 interface Contest {
@@ -36,23 +47,27 @@ export default function ManageParticipants() {
   const [stats, setStats] = useState<ParticipantsStats | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [contestFilter, setContestFilter] = useState("all");
-  const [typeFilter, setTypeFilter] = useState<"all" | "individual" | "team">("all");
-  const [selectedParticipant, setSelectedParticipant] = useState<Participant | null>(null);
+  const [typeFilter, setTypeFilter] = useState<"all" | "individual" | "team">(
+    "all"
+  );
+  const [selectedParticipant, setSelectedParticipant] =
+    useState<Participant | null>(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [showCleanupModal, setShowCleanupModal] = useState(false);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
-  
+
   const axiosSecure = useAxiosSecure();
 
   // Fetch participants and contests
   const fetchData = async () => {
     try {
       setLoading(true);
-      
+
       // Fetch participants first
       const participantsRes = await axiosSecure.get("/api/contestParticipants");
-      const participantsData = participantsRes.data.participants || participantsRes.data;
+      const participantsData =
+        participantsRes.data.participants || participantsRes.data;
       setParticipants(Array.isArray(participantsData) ? participantsData : []);
 
       // Try to fetch contests, but handle if the endpoint doesn't exist
@@ -61,47 +76,66 @@ export default function ManageParticipants() {
         const contestsRes = await axiosSecure.get("/api/contests"); // Use your actual contests endpoint
         contestsData = Array.isArray(contestsRes.data) ? contestsRes.data : [];
       } catch (contestError) {
-        console.log("Contests endpoint not available, extracting from participants");
+        console.log(
+          "Contests endpoint not available, extracting from participants",
+          contestError
+        );
         // Extract unique contests from participants data
-        const uniqueContestIds = [...new Set(participantsData.map((p: Participant) => p.contestId))];
-        contestsData = uniqueContestIds.map(contestId => ({
+        const uniqueContestIds = Array.from(
+          new Set(participantsData.map((p: Participant) => p.contestId))
+        ) as string[];
+
+        contestsData = uniqueContestIds.map((contestId: string) => ({
           _id: contestId,
           name: `Contest ${contestId.slice(-6)}`, // Fallback name
-          createdAt: new Date().toISOString()
+          createdAt: new Date().toISOString(),
         }));
       }
       setContests(contestsData);
 
       // Try to fetch stats, but handle if the endpoint doesn't exist
       try {
-        const statsRes = await axiosSecure.get("/api/contestParticipants/stats");
+        const statsRes = await axiosSecure.get(
+          "/api/contestParticipants/stats"
+        );
         setStats(statsRes.data);
       } catch (statsError) {
-        console.log("Stats endpoint not available, calculating manually");
+        console.log("Stats endpoint not available, calculating manually", statsError);
         // Calculate basic stats manually
         const totalParticipants = participantsData.length;
         const participantsByType = [
-          { _id: "individual", count: participantsData.filter((p: Participant) => p.type === "individual").length },
-          { _id: "team", count: participantsData.filter((p: Participant) => p.type === "team").length }
+          {
+            _id: "individual",
+            count: participantsData.filter(
+              (p: Participant) => p.type === "individual"
+            ).length,
+          },
+          {
+            _id: "team",
+            count: participantsData.filter(
+              (p: Participant) => p.type === "team"
+            ).length,
+          },
         ];
-        
+
         // Calculate duplicates manually
         const duplicateMap = new Map();
         participantsData.forEach((participant: Participant) => {
           const key = `${participant.userId}-${participant.contestId}`;
           duplicateMap.set(key, (duplicateMap.get(key) || 0) + 1);
         });
-        
-        const duplicates = Array.from(duplicateMap.values()).filter(count => count > 1).length;
+
+        const duplicates = Array.from(duplicateMap.values()).filter(
+          (count) => count > 1
+        ).length;
 
         setStats({
           totalParticipants: [{ count: totalParticipants }],
           participantsByType,
           participantsByContest: [],
-          duplicates: [{ count: duplicates }]
+          duplicates: [{ count: duplicates }],
         });
       }
-
     } catch (error) {
       console.error("Error fetching data:", error);
       // Set empty data on error
@@ -111,7 +145,7 @@ export default function ManageParticipants() {
         totalParticipants: [{ count: 0 }],
         participantsByType: [],
         participantsByContest: [],
-        duplicates: [{ count: 0 }]
+        duplicates: [{ count: 0 }],
       });
     } finally {
       setLoading(false);
@@ -123,14 +157,18 @@ export default function ManageParticipants() {
   }, []);
 
   // Filter participants
-  const filteredParticipants = participants.filter(participant => {
-    const matchesSearch = 
+  const filteredParticipants = participants.filter((participant) => {
+    const matchesSearch =
       participant.userName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (participant.userEmail && participant.userEmail.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (participant.userEmail &&
+        participant.userEmail
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase())) ||
       participant.userId.toLowerCase().includes(searchTerm.toLowerCase()) ||
       participant.contestName?.toLowerCase().includes(searchTerm.toLowerCase());
 
-    const matchesContest = contestFilter === "all" || participant.contestId === contestFilter;
+    const matchesContest =
+      contestFilter === "all" || participant.contestId === contestFilter;
     const matchesType = typeFilter === "all" || participant.type === typeFilter;
 
     return matchesSearch && matchesContest && matchesType;
@@ -140,7 +178,7 @@ export default function ManageParticipants() {
     try {
       setActionLoading(participantId);
       await axiosSecure.delete(`/api/contestParticipants/${participantId}`);
-      setParticipants(participants.filter(p => p._id !== participantId));
+      setParticipants(participants.filter((p) => p._id !== participantId));
       setShowDeleteModal(false);
       setSelectedParticipant(null);
       await fetchData(); // Refresh stats
@@ -157,14 +195,20 @@ export default function ManageParticipants() {
       setActionLoading("cleanup");
       // Try the duplicates endpoint, fallback to manual cleanup
       try {
-        const response = await axiosSecure.delete("/api/contestParticipants/duplicates");
+        const response = await axiosSecure.delete(
+          "/api/contestParticipants/duplicates"
+        );
         alert(`Success: ${response.data.message}`);
       } catch (duplicateError) {
         // Manual duplicate cleanup
-        const uniqueParticipants = participants.filter((participant, index, self) =>
-          index === self.findIndex(p => 
-            p.userId === participant.userId && p.contestId === participant.contestId
-          )
+        const uniqueParticipants = participants.filter(
+          (participant, index, self) =>
+            index ===
+            self.findIndex(
+              (p) =>
+                p.userId === participant.userId &&
+                p.contestId === participant.contestId
+            )
         );
         setParticipants(uniqueParticipants);
         alert("Duplicates cleaned up manually");
@@ -198,11 +242,12 @@ export default function ManageParticipants() {
     if (!stats?.duplicates?.[0]?.count) {
       // Calculate duplicates manually if stats not available
       const duplicateMap = new Map();
-      participants.forEach(participant => {
+      participants.forEach((participant) => {
         const key = `${participant.userId}-${participant.contestId}`;
         duplicateMap.set(key, (duplicateMap.get(key) || 0) + 1);
       });
-      return Array.from(duplicateMap.values()).filter(count => count > 1).length;
+      return Array.from(duplicateMap.values()).filter((count) => count > 1)
+        .length;
     }
     return stats.duplicates[0].count;
   };
@@ -245,7 +290,9 @@ export default function ManageParticipants() {
           <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Total Participants</p>
+                <p className="text-sm font-medium text-gray-600">
+                  Total Participants
+                </p>
                 <p className="text-2xl font-bold text-gray-900 mt-1">
                   {participants.length}
                 </p>
@@ -261,7 +308,7 @@ export default function ManageParticipants() {
               <div>
                 <p className="text-sm font-medium text-gray-600">Individual</p>
                 <p className="text-2xl font-bold text-green-600 mt-1">
-                  {participants.filter(p => p.type === "individual").length}
+                  {participants.filter((p) => p.type === "individual").length}
                 </p>
               </div>
               <div className="p-3 bg-green-100 rounded-lg">
@@ -275,7 +322,7 @@ export default function ManageParticipants() {
               <div>
                 <p className="text-sm font-medium text-gray-600">Team</p>
                 <p className="text-2xl font-bold text-purple-600 mt-1">
-                  {participants.filter(p => p.type === "team").length}
+                  {participants.filter((p) => p.type === "team").length}
                 </p>
               </div>
               <div className="p-3 bg-purple-100 rounded-lg">
@@ -322,7 +369,7 @@ export default function ManageParticipants() {
                 />
               </div>
             </div>
-            
+
             <div className="flex flex-wrap gap-2">
               <select
                 value={contestFilter}
@@ -330,7 +377,7 @@ export default function ManageParticipants() {
                 className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               >
                 <option value="all">All Contests</option>
-                {contests.map(contest => (
+                {contests.map((contest) => (
                   <option key={contest._id} value={contest._id}>
                     {contest.name}
                   </option>
@@ -355,9 +402,13 @@ export default function ManageParticipants() {
           {filteredParticipants.length === 0 ? (
             <div className="text-center py-12">
               <FiUsers className="mx-auto w-12 h-12 text-gray-400 mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">No participants found</h3>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">
+                No participants found
+              </h3>
               <p className="text-gray-500">
-                {participants.length === 0 ? "No participants have registered yet." : "No participants match your search criteria."}
+                {participants.length === 0
+                  ? "No participants have registered yet."
+                  : "No participants match your search criteria."}
               </p>
             </div>
           ) : (
@@ -384,7 +435,10 @@ export default function ManageParticipants() {
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
                   {filteredParticipants.map((participant) => (
-                    <tr key={participant._id} className="hover:bg-gray-50 transition-colors">
+                    <tr
+                      key={participant._id}
+                      className="hover:bg-gray-50 transition-colors"
+                    >
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div>
                           <div className="text-sm font-medium text-gray-900">
@@ -399,18 +453,23 @@ export default function ManageParticipants() {
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">Contest {participant.contestId.slice(-6)}</div>
+                        <div className="text-sm text-gray-900">
+                          Contest {participant.contestId.slice(-6)}
+                        </div>
                         <div className="text-sm text-gray-500">
                           {formatDate(participant.joinedAt)}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                          participant.type === "individual" 
-                            ? "bg-green-100 text-green-800" 
-                            : "bg-purple-100 text-purple-800"
-                        }`}>
-                          {participant.type.charAt(0).toUpperCase() + participant.type.slice(1)}
+                        <span
+                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                            participant.type === "individual"
+                              ? "bg-green-100 text-green-800"
+                              : "bg-purple-100 text-purple-800"
+                          }`}
+                        >
+                          {participant.type.charAt(0).toUpperCase() +
+                            participant.type.slice(1)}
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
@@ -428,7 +487,7 @@ export default function ManageParticipants() {
                           >
                             <FiEye className="w-4 h-4" />
                           </button>
-                          
+
                           <button
                             onClick={() => {
                               setSelectedParticipant(participant);
@@ -457,7 +516,9 @@ export default function ManageParticipants() {
             <div className="bg-white rounded-xl shadow-lg max-w-md w-full">
               <div className="p-6 border-b border-gray-200">
                 <div className="flex justify-between items-center">
-                  <h3 className="text-lg font-semibold text-gray-900">Participant Details</h3>
+                  <h3 className="text-lg font-semibold text-gray-900">
+                    Participant Details
+                  </h3>
                   <button
                     onClick={() => setShowDetailsModal(false)}
                     className="text-gray-400 hover:text-gray-600"
@@ -466,34 +527,58 @@ export default function ManageParticipants() {
                   </button>
                 </div>
               </div>
-              
+
               <div className="p-6 space-y-4">
                 <div>
-                  <label className="text-xs font-medium text-gray-500">Name</label>
-                  <p className="text-sm text-gray-900">{selectedParticipant.userName}</p>
+                  <label className="text-xs font-medium text-gray-500">
+                    Name
+                  </label>
+                  <p className="text-sm text-gray-900">
+                    {selectedParticipant.userName}
+                  </p>
                 </div>
                 <div>
-                  <label className="text-xs font-medium text-gray-500">Email</label>
-                  <p className="text-sm text-gray-900">{selectedParticipant.userEmail || "Not provided"}</p>
+                  <label className="text-xs font-medium text-gray-500">
+                    Email
+                  </label>
+                  <p className="text-sm text-gray-900">
+                    {selectedParticipant.userEmail || "Not provided"}
+                  </p>
                 </div>
                 <div>
-                  <label className="text-xs font-medium text-gray-500">User ID</label>
-                  <p className="text-sm text-gray-900 font-mono">{selectedParticipant.userId}</p>
+                  <label className="text-xs font-medium text-gray-500">
+                    User ID
+                  </label>
+                  <p className="text-sm text-gray-900 font-mono">
+                    {selectedParticipant.userId}
+                  </p>
                 </div>
                 <div>
-                  <label className="text-xs font-medium text-gray-500">Contest ID</label>
-                  <p className="text-sm text-gray-900 font-mono">{selectedParticipant.contestId}</p>
+                  <label className="text-xs font-medium text-gray-500">
+                    Contest ID
+                  </label>
+                  <p className="text-sm text-gray-900 font-mono">
+                    {selectedParticipant.contestId}
+                  </p>
                 </div>
                 <div>
-                  <label className="text-xs font-medium text-gray-500">Type</label>
-                  <p className="text-sm text-gray-900 capitalize">{selectedParticipant.type}</p>
+                  <label className="text-xs font-medium text-gray-500">
+                    Type
+                  </label>
+                  <p className="text-sm text-gray-900 capitalize">
+                    {selectedParticipant.type}
+                  </p>
                 </div>
                 <div>
-                  <label className="text-xs font-medium text-gray-500">Joined At</label>
-                  <p className="text-sm text-gray-900">{formatDate(selectedParticipant.joinedAt)}</p>
+                  <label className="text-xs font-medium text-gray-500">
+                    Joined At
+                  </label>
+                  <p className="text-sm text-gray-900">
+                    {formatDate(selectedParticipant.joinedAt)}
+                  </p>
                 </div>
               </div>
-              
+
               <div className="p-6 border-t border-gray-200 bg-gray-50 rounded-b-xl">
                 <div className="flex justify-end">
                   <button
@@ -517,10 +602,14 @@ export default function ManageParticipants() {
                   <div className="p-2 bg-red-100 rounded-lg">
                     <FiTrash2 className="w-6 h-6 text-red-600" />
                   </div>
-                  <h3 className="text-lg font-semibold text-gray-900">Remove Participant</h3>
+                  <h3 className="text-lg font-semibold text-gray-900">
+                    Remove Participant
+                  </h3>
                 </div>
                 <p className="text-gray-600 mb-6">
-                  Are you sure you want to remove <strong>{selectedParticipant.userName}</strong> from the contest? This action cannot be undone.
+                  Are you sure you want to remove{" "}
+                  <strong>{selectedParticipant.userName}</strong> from the
+                  contest? This action cannot be undone.
                 </p>
                 <div className="flex justify-end gap-3">
                   <button
@@ -531,11 +620,15 @@ export default function ManageParticipants() {
                     Cancel
                   </button>
                   <button
-                    onClick={() => handleDeleteParticipant(selectedParticipant._id)}
+                    onClick={() =>
+                      handleDeleteParticipant(selectedParticipant._id)
+                    }
                     disabled={actionLoading === selectedParticipant._id}
                     className="px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-lg hover:bg-red-700 disabled:opacity-50 transition-colors"
                   >
-                    {actionLoading === selectedParticipant._id ? "Removing..." : "Remove"}
+                    {actionLoading === selectedParticipant._id
+                      ? "Removing..."
+                      : "Remove"}
                   </button>
                 </div>
               </div>
@@ -552,11 +645,16 @@ export default function ManageParticipants() {
                   <div className="p-2 bg-yellow-100 rounded-lg">
                     <FiAlertTriangle className="w-6 h-6 text-yellow-600" />
                   </div>
-                  <h3 className="text-lg font-semibold text-gray-900">Clean Up Duplicates</h3>
+                  <h3 className="text-lg font-semibold text-gray-900">
+                    Clean Up Duplicates
+                  </h3>
                 </div>
                 <p className="text-gray-600 mb-6">
-                  This will remove all duplicate contest registrations (same user in same contest). 
-                  Only the earliest registration will be kept. This action affects <strong>{getDuplicateCount()} entries</strong> and cannot be undone.
+                  This will remove all duplicate contest registrations (same
+                  user in same contest). Only the earliest registration will be
+                  kept. This action affects{" "}
+                  <strong>{getDuplicateCount()} entries</strong> and cannot be
+                  undone.
                 </p>
                 <div className="flex justify-end gap-3">
                   <button
@@ -571,7 +669,9 @@ export default function ManageParticipants() {
                     disabled={actionLoading === "cleanup"}
                     className="px-4 py-2 text-sm font-medium text-white bg-yellow-600 border border-transparent rounded-lg hover:bg-yellow-700 disabled:opacity-50 transition-colors"
                   >
-                    {actionLoading === "cleanup" ? "Cleaning..." : "Clean Up Duplicates"}
+                    {actionLoading === "cleanup"
+                      ? "Cleaning..."
+                      : "Clean Up Duplicates"}
                   </button>
                 </div>
               </div>

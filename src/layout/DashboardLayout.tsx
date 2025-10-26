@@ -16,10 +16,10 @@ import {
   FaUserCheck,
 } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
-import { AuthContext } from "../provider/AuthProvider";
 import useUserRole from "../hook/useUserRole";
 import LoadingSpinner from "../components/LoadingSpinner";
 import { Home } from "lucide-react";
+import { AuthContext } from "../provider/AuthProvider";
 
 export default function DashboardLayout() {
   const [isOpen, setIsOpen] = useState(false);
@@ -27,6 +27,7 @@ export default function DashboardLayout() {
   const location = useLocation();
   const email = user?.email ?? user?.providerData?.[0]?.email;
   const { userRole, roleLoading } = useUserRole(email!);
+  console.log(userRole)
 
   if (roleLoading) {
     return <LoadingSpinner />;
@@ -169,7 +170,8 @@ export default function DashboardLayout() {
               }`}
             >
               {userRole === "admin" && <FaUserShield className="w-3 h-3" />}
-              {userRole?.charAt(0).toUpperCase() + userRole?.slice(1)}
+              {userRole ? userRole.charAt(0).toUpperCase() + userRole.slice(1) : "User"}
+
             </span>
           </div>
         </div>

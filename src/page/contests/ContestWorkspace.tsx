@@ -36,7 +36,7 @@ type Submission = {
 
 const ContestWorkspace: React.FC = () => {
   const { contestId } = useParams<{ contestId: string }>();
-  const { user } = useContext(AuthContext);
+  const { user } = useContext(AuthContext)!;
   const axiosSecure = useAxiosSecure();
 
   const [contest, setContest] = useState<Contest | null>(null);
@@ -47,7 +47,6 @@ const ContestWorkspace: React.FC = () => {
   const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [timeLeft, setTimeLeft] = useState<string>("");
 
-  
   // Ref to store latest selectedLanguage for editor focus check
   const selectedLanguageRef = useRef<string | null>(selectedLanguage);
   useEffect(() => {
@@ -187,8 +186,9 @@ const ContestWorkspace: React.FC = () => {
       problemTitle: activeProblem.title,
       problemDifficulty: activeProblem.difficulty,
       problemCategory: activeProblem.category,
-      status: status === "Accepted" ? "Success" : status,
-      point: status === "Accepted" ? 20 : -10, // adjust points
+      status,
+      point: status === "Accepted" ? 20 : -10,
+      output,
     };
 
     try {
@@ -196,7 +196,12 @@ const ContestWorkspace: React.FC = () => {
 
       setSubmissions((prev) => [
         ...prev,
-        { ...submissionData, time: new Date().toLocaleTimeString() },
+        {
+          problemId: activeProblem._id,
+          status,
+          output,
+          time: new Date().toLocaleTimeString(),
+        },
       ]);
 
       Swal.fire({
@@ -289,7 +294,7 @@ const ContestWorkspace: React.FC = () => {
         </div>
 
         {/* Monaco Editor */}
-        
+
         <div className="rounded-xl overflow-hidden shadow-lg">
           <Editor
             height="350px"

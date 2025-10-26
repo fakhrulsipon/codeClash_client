@@ -22,7 +22,7 @@ interface Props {
 }
 
 export default function ContestLeaderboard({ contestId }: Props) {
-  const { user } = useContext(AuthContext);
+  const { user } = useContext(AuthContext)!;
   const axiosSecure = useAxiosSecure();
   const [selectedUser, setSelectedUser] = useState<string | null>(null);
 

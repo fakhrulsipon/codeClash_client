@@ -1,7 +1,7 @@
-import { motion } from "framer-motion";
+import { motion, type Variants } from "framer-motion";
 import { Container, Typography } from "@mui/material";
 import { FaStar, FaQuoteLeft, FaQuoteRight } from "react-icons/fa";
-import { EmojiEvents, TrendingUp, RocketLaunch } from "@mui/icons-material";
+import { EmojiEvents, TrendingUp, } from "@mui/icons-material";
 
 const testimonials = [
   {
@@ -65,17 +65,19 @@ const Testimonial = () => {
     }
   };
 
-  const itemVariants = {
-    hidden: { opacity: 0, y: 50 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        duration: 0.6,
-        ease: "easeOut"
-      }
-    }
-  };
+  const itemVariants: Variants = {
+  hidden: { opacity: 0, y: 50 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.6,
+      ease: "easeOut" as const,
+    },
+  },
+};
+
+
 
   return (
     <section className="relative py-24 overflow-hidden">

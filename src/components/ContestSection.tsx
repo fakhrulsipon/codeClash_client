@@ -2,10 +2,8 @@ import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Container, Typography } from "@mui/material";
 import { 
-  EmojiEvents, 
-  Schedule, 
-  Code, 
-  People,
+  EmojiEvents,
+  Code,
   RocketLaunch,
   TrendingUp
 } from "@mui/icons-material";
