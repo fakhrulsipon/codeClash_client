@@ -1,11 +1,6 @@
 import { use, useState } from "react";
 import { Link, Outlet, useLocation } from "react-router";
-import {
-  FiMenu,
-  FiUser,
-  FiLogOut,
-  FiChevronRight,
-} from "react-icons/fi";
+import { FiMenu, FiUser, FiLogOut, FiChevronRight } from "react-icons/fi";
 import {
   FaUsers,
   FaPlus,
@@ -27,7 +22,7 @@ export default function DashboardLayout() {
   const location = useLocation();
   const email = user?.email ?? user?.providerData?.[0]?.email;
   const { userRole, roleLoading } = useUserRole(email!);
-  console.log(userRole)
+  console.log(userRole);
 
   if (roleLoading) {
     return <LoadingSpinner />;
@@ -45,7 +40,6 @@ export default function DashboardLayout() {
       label: "History",
       icon: <FaHistory className="w-5 h-5" />,
     },
-    
   ];
 
   // Admin-specific links
@@ -170,8 +164,9 @@ export default function DashboardLayout() {
               }`}
             >
               {userRole === "admin" && <FaUserShield className="w-3 h-3" />}
-              {userRole ? userRole.charAt(0).toUpperCase() + userRole.slice(1) : "User"}
-
+              {userRole
+                ? userRole.charAt(0).toUpperCase() + userRole.slice(1)
+                : "User"}
             </span>
           </div>
         </div>

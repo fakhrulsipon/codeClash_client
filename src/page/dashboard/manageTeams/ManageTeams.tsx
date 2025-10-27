@@ -1,7 +1,14 @@
 import { useState, useEffect } from "react";
 import { FiSearch, FiTrash2, FiRefreshCw, FiEye } from "react-icons/fi";
-import { FaUserFriends, FaRegCheckCircle, FaRegTimesCircle, FaCrown, FaUser } from "react-icons/fa";
+import {
+  FaUserFriends,
+  FaRegCheckCircle,
+  FaRegTimesCircle,
+  FaCrown,
+  FaUser,
+} from "react-icons/fa";
 import useAxiosSecure from "../../../hook/useAxiosSecure";
+import useAxiosPublic from "../../../hook/useAxiosPublic";
 
 interface TeamMember {
   userId: string;
@@ -29,19 +36,22 @@ export default function ManageTeams() {
   const [teams, setTeams] = useState<Team[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState<"all" | "waiting" | "ready" | "started" | "completed">("all");
+  const [statusFilter, setStatusFilter] = useState<
+    "all" | "waiting" | "ready" | "started" | "completed"
+  >("all");
   const [selectedTeam, setSelectedTeam] = useState<Team | null>(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
-  
+
   const axiosSecure = useAxiosSecure();
+  const axiosPublic = useAxiosPublic();
 
   // Fetch teams from API
   const fetchTeams = async () => {
     try {
       setLoading(true);
-      const response = await axiosSecure.get("/api/teams");
+      const response = await axiosPublic.get("/api/teams");
       // Handle both response formats
       const teamsData = response.data.teams || response.data;
       setTeams(Array.isArray(teamsData) ? teamsData : []);
@@ -58,15 +68,17 @@ export default function ManageTeams() {
   }, []);
 
   // Filter teams based on search and filter criteria
-  const filteredTeams = teams.filter(team => {
-    const matchesSearch = team.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         team.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         team.members.some(member => 
-                           member.userName.toLowerCase().includes(searchTerm.toLowerCase())
-                         );
-    
-    const matchesStatus = statusFilter === "all" || team.status === statusFilter;
-    
+  const filteredTeams = teams.filter((team) => {
+    const matchesSearch =
+      team.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      team.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      team.members.some((member) =>
+        member.userName.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+
+    const matchesStatus =
+      statusFilter === "all" || team.status === statusFilter;
+
     return matchesSearch && matchesStatus;
   });
 
@@ -74,7 +86,7 @@ export default function ManageTeams() {
     try {
       setActionLoading(teamId);
       await axiosSecure.delete(`/api/teams/${teamId}`);
-      setTeams(teams.filter(team => team._id !== teamId));
+      setTeams(teams.filter((team) => team._id !== teamId));
       setShowDeleteModal(false);
       setSelectedTeam(null);
     } catch (error) {
@@ -84,15 +96,22 @@ export default function ManageTeams() {
     }
   };
 
-  const handleUpdateTeamStatus = async (teamId: string, newStatus: Team["status"]) => {
+  const handleUpdateTeamStatus = async (
+    teamId: string,
+    newStatus: Team["status"]
+  ) => {
     try {
       setActionLoading(teamId);
-      await axiosSecure.patch(`/api/teams/${teamId}/status`, { status: newStatus });
-      
+      await axiosSecure.patch(`/api/teams/${teamId}/status`, {
+        status: newStatus,
+      });
+
       // Update local state
-      setTeams(teams.map(team => 
-        team._id === teamId ? { ...team, status: newStatus } : team
-      ));
+      setTeams(
+        teams.map((team) =>
+          team._id === teamId ? { ...team, status: newStatus } : team
+        )
+      );
     } catch (error) {
       console.error("Error updating team status:", error);
     } finally {
@@ -102,21 +121,31 @@ export default function ManageTeams() {
 
   const getStatusColor = (status: Team["status"]) => {
     switch (status) {
-      case "waiting": return "bg-yellow-100 text-yellow-800 border-yellow-200";
-      case "ready": return "bg-green-100 text-green-800 border-green-200";
-      case "started": return "bg-blue-100 text-blue-800 border-blue-200";
-      case "completed": return "bg-gray-100 text-gray-800 border-gray-200";
-      default: return "bg-gray-100 text-gray-800 border-gray-200";
+      case "waiting":
+        return "bg-yellow-100 text-yellow-800 border-yellow-200";
+      case "ready":
+        return "bg-green-100 text-green-800 border-green-200";
+      case "started":
+        return "bg-blue-100 text-blue-800 border-blue-200";
+      case "completed":
+        return "bg-gray-100 text-gray-800 border-gray-200";
+      default:
+        return "bg-gray-100 text-gray-800 border-gray-200";
     }
   };
 
   const getStatusIcon = (status: Team["status"]) => {
     switch (status) {
-      case "waiting": return <FaRegTimesCircle className="w-4 h-4" />;
-      case "ready": return <FaRegCheckCircle className="w-4 h-4" />;
-      case "started": return <FiRefreshCw className="w-4 h-4" />;
-      case "completed": return <FaRegCheckCircle className="w-4 h-4" />;
-      default: return <FaRegTimesCircle className="w-4 h-4" />;
+      case "waiting":
+        return <FaRegTimesCircle className="w-4 h-4" />;
+      case "ready":
+        return <FaRegCheckCircle className="w-4 h-4" />;
+      case "started":
+        return <FiRefreshCw className="w-4 h-4" />;
+      case "completed":
+        return <FaRegCheckCircle className="w-4 h-4" />;
+      default:
+        return <FaRegTimesCircle className="w-4 h-4" />;
     }
   };
 
@@ -180,7 +209,9 @@ export default function ManageTeams() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Total Teams</p>
-                <p className="text-2xl font-bold text-gray-900 mt-1">{teams.length}</p>
+                <p className="text-2xl font-bold text-gray-900 mt-1">
+                  {teams.length}
+                </p>
               </div>
               <div className="p-3 bg-blue-100 rounded-lg">
                 <FaUserFriends className="w-6 h-6 text-blue-600" />
@@ -193,7 +224,7 @@ export default function ManageTeams() {
               <div>
                 <p className="text-sm font-medium text-gray-600">Waiting</p>
                 <p className="text-2xl font-bold text-yellow-600 mt-1">
-                  {teams.filter(t => t.status === "waiting").length}
+                  {teams.filter((t) => t.status === "waiting").length}
                 </p>
               </div>
               <div className="p-3 bg-yellow-100 rounded-lg">
@@ -207,7 +238,7 @@ export default function ManageTeams() {
               <div>
                 <p className="text-sm font-medium text-gray-600">Ready</p>
                 <p className="text-2xl font-bold text-green-600 mt-1">
-                  {teams.filter(t => t.status === "ready").length}
+                  {teams.filter((t) => t.status === "ready").length}
                 </p>
               </div>
               <div className="p-3 bg-green-100 rounded-lg">
@@ -221,7 +252,7 @@ export default function ManageTeams() {
               <div>
                 <p className="text-sm font-medium text-gray-600">Started</p>
                 <p className="text-2xl font-bold text-blue-600 mt-1">
-                  {teams.filter(t => t.status === "started").length}
+                  {teams.filter((t) => t.status === "started").length}
                 </p>
               </div>
               <div className="p-3 bg-blue-100 rounded-lg">
@@ -235,7 +266,7 @@ export default function ManageTeams() {
               <div>
                 <p className="text-sm font-medium text-gray-600">Completed</p>
                 <p className="text-2xl font-bold text-gray-600 mt-1">
-                  {teams.filter(t => t.status === "completed").length}
+                  {teams.filter((t) => t.status === "completed").length}
                 </p>
               </div>
               <div className="p-3 bg-gray-100 rounded-lg">
@@ -260,7 +291,7 @@ export default function ManageTeams() {
                 />
               </div>
             </div>
-            
+
             <div className="flex flex-wrap gap-2">
               <select
                 value={statusFilter}
@@ -282,9 +313,13 @@ export default function ManageTeams() {
           {filteredTeams.length === 0 ? (
             <div className="text-center py-12">
               <FaUserFriends className="mx-auto w-12 h-12 text-gray-400 mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">No teams found</h3>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">
+                No teams found
+              </h3>
               <p className="text-gray-500">
-                {teams.length === 0 ? "No teams have been created yet." : "No teams match your search criteria."}
+                {teams.length === 0
+                  ? "No teams have been created yet."
+                  : "No teams match your search criteria."}
               </p>
             </div>
           ) : (
@@ -311,7 +346,10 @@ export default function ManageTeams() {
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
                   {filteredTeams.map((team) => (
-                    <tr key={team._id} className="hover:bg-gray-50 transition-colors">
+                    <tr
+                      key={team._id}
+                      className="hover:bg-gray-50 transition-colors"
+                    >
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div>
                           <div className="flex items-center gap-2">
@@ -345,7 +383,9 @@ export default function ManageTeams() {
                                     className="w-full h-full rounded-full"
                                   />
                                 ) : (
-                                  (member.userName?.charAt(0) || "U").toUpperCase()
+                                  (
+                                    member.userName?.charAt(0) || "U"
+                                  ).toUpperCase()
                                 )}
                               </div>
                             ))}
@@ -356,12 +396,15 @@ export default function ManageTeams() {
                             )}
                           </div>
                           <span className="text-sm text-gray-500">
-                            {team.members?.length || 0} member{(team.members?.length || 0) !== 1 ? 's' : ''}
+                            {team.members?.length || 0} member
+                            {(team.members?.length || 0) !== 1 ? "s" : ""}
                           </span>
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium border ${getStatusColor(team.status)}`}>
+                        <span
+                          className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium border ${getStatusColor(team.status)}`}
+                        >
                           {getStatusIcon(team.status)}
                           {safeUpperCase(team.status)}
                         </span>
@@ -381,11 +424,13 @@ export default function ManageTeams() {
                           >
                             <FiEye className="w-4 h-4" />
                           </button>
-                          
+
                           {/* Status Update Buttons */}
                           {team.status !== "completed" && (
                             <button
-                              onClick={() => handleUpdateTeamStatus(team._id, "completed")}
+                              onClick={() =>
+                                handleUpdateTeamStatus(team._id, "completed")
+                              }
                               disabled={actionLoading === team._id}
                               className="text-green-600 hover:text-green-900 p-1 rounded transition-colors disabled:opacity-50"
                               title="Mark as Completed"
@@ -393,7 +438,7 @@ export default function ManageTeams() {
                               <FaRegCheckCircle className="w-4 h-4" />
                             </button>
                           )}
-                          
+
                           <button
                             onClick={() => {
                               setSelectedTeam(team);
@@ -421,7 +466,9 @@ export default function ManageTeams() {
             <div className="bg-white rounded-xl shadow-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
               <div className="p-6 border-b border-gray-200">
                 <div className="flex justify-between items-center">
-                  <h3 className="text-lg font-semibold text-gray-900">Team Details</h3>
+                  <h3 className="text-lg font-semibold text-gray-900">
+                    Team Details
+                  </h3>
                   <button
                     onClick={() => setShowDetailsModal(false)}
                     className="text-gray-400 hover:text-gray-600"
@@ -430,40 +477,63 @@ export default function ManageTeams() {
                   </button>
                 </div>
               </div>
-              
+
               <div className="p-6 space-y-6">
                 {/* Team Info */}
                 <div>
-                  <h4 className="text-sm font-medium text-gray-500 mb-2">Team Information</h4>
+                  <h4 className="text-sm font-medium text-gray-500 mb-2">
+                    Team Information
+                  </h4>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label className="text-xs font-medium text-gray-500">Team Name</label>
-                      <p className="text-sm text-gray-900">{selectedTeam.name || "N/A"}</p>
+                      <label className="text-xs font-medium text-gray-500">
+                        Team Name
+                      </label>
+                      <p className="text-sm text-gray-900">
+                        {selectedTeam.name || "N/A"}
+                      </p>
                     </div>
                     <div>
-                      <label className="text-xs font-medium text-gray-500">Team Code</label>
-                      <p className="text-sm text-gray-900 font-mono">{selectedTeam.code || "N/A"}</p>
+                      <label className="text-xs font-medium text-gray-500">
+                        Team Code
+                      </label>
+                      <p className="text-sm text-gray-900 font-mono">
+                        {selectedTeam.code || "N/A"}
+                      </p>
                     </div>
                     <div>
-                      <label className="text-xs font-medium text-gray-500">Status</label>
-                      <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium border ${getStatusColor(selectedTeam.status)}`}>
+                      <label className="text-xs font-medium text-gray-500">
+                        Status
+                      </label>
+                      <span
+                        className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium border ${getStatusColor(selectedTeam.status)}`}
+                      >
                         {getStatusIcon(selectedTeam.status)}
                         {safeUpperCase(selectedTeam.status)}
                       </span>
                     </div>
                     <div>
-                      <label className="text-xs font-medium text-gray-500">Created</label>
-                      <p className="text-sm text-gray-900">{formatDate(selectedTeam.createdAt)}</p>
+                      <label className="text-xs font-medium text-gray-500">
+                        Created
+                      </label>
+                      <p className="text-sm text-gray-900">
+                        {formatDate(selectedTeam.createdAt)}
+                      </p>
                     </div>
                   </div>
                 </div>
 
                 {/* Members List */}
                 <div>
-                  <h4 className="text-sm font-medium text-gray-500 mb-3">Team Members</h4>
+                  <h4 className="text-sm font-medium text-gray-500 mb-3">
+                    Team Members
+                  </h4>
                   <div className="space-y-2">
                     {selectedTeam.members?.map((member) => (
-                      <div key={member.userId} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                      <div
+                        key={member.userId}
+                        className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                      >
                         <div className="flex items-center gap-3">
                           <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center text-sm font-medium text-gray-700">
                             {member.userImage ? (
@@ -489,15 +559,27 @@ export default function ManageTeams() {
                           </div>
                         </div>
                         <div className="flex items-center gap-2">
-                          <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${
-                            member.ready ? "bg-green-100 text-green-800" : "bg-yellow-100 text-yellow-800"
-                          }`}>
+                          <span
+                            className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${
+                              member.ready
+                                ? "bg-green-100 text-green-800"
+                                : "bg-yellow-100 text-yellow-800"
+                            }`}
+                          >
                             {member.ready ? "Ready" : "Not Ready"}
                           </span>
-                          <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${
-                            member.role === "leader" ? "bg-purple-100 text-purple-800" : "bg-blue-100 text-blue-800"
-                          }`}>
-                            {member.role === "leader" ? <FaCrown className="w-3 h-3" /> : <FaUser className="w-3 h-3" />}
+                          <span
+                            className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${
+                              member.role === "leader"
+                                ? "bg-purple-100 text-purple-800"
+                                : "bg-blue-100 text-blue-800"
+                            }`}
+                          >
+                            {member.role === "leader" ? (
+                              <FaCrown className="w-3 h-3" />
+                            ) : (
+                              <FaUser className="w-3 h-3" />
+                            )}
                             {safeUpperCase(member.role)}
                           </span>
                         </div>
@@ -506,7 +588,7 @@ export default function ManageTeams() {
                   </div>
                 </div>
               </div>
-              
+
               <div className="p-6 border-t border-gray-200 bg-gray-50 rounded-b-xl">
                 <div className="flex justify-end gap-3">
                   <button
@@ -530,10 +612,14 @@ export default function ManageTeams() {
                   <div className="p-2 bg-red-100 rounded-lg">
                     <FiTrash2 className="w-6 h-6 text-red-600" />
                   </div>
-                  <h3 className="text-lg font-semibold text-gray-900">Delete Team</h3>
+                  <h3 className="text-lg font-semibold text-gray-900">
+                    Delete Team
+                  </h3>
                 </div>
                 <p className="text-gray-600 mb-6">
-                  Are you sure you want to delete the team <strong>"{selectedTeam.name}"</strong>? This action cannot be undone and all team data will be permanently removed.
+                  Are you sure you want to delete the team{" "}
+                  <strong>"{selectedTeam.name}"</strong>? This action cannot be
+                  undone and all team data will be permanently removed.
                 </p>
                 <div className="flex justify-end gap-3">
                   <button
@@ -548,7 +634,9 @@ export default function ManageTeams() {
                     disabled={actionLoading === selectedTeam._id}
                     className="px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-lg hover:bg-red-700 disabled:opacity-50 transition-colors"
                   >
-                    {actionLoading === selectedTeam._id ? "Deleting..." : "Delete Team"}
+                    {actionLoading === selectedTeam._id
+                      ? "Deleting..."
+                      : "Delete Team"}
                   </button>
                 </div>
               </div>

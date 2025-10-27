@@ -13,6 +13,7 @@ import {
   FaExclamationTriangle,
 } from "react-icons/fa";
 import useAxiosSecure from "../../../hook/useAxiosSecure";
+import useAxiosPublic from "../../../hook/useAxiosPublic";
 
 interface Contest {
   _id: string;
@@ -56,7 +57,7 @@ export default function ManageParticipants() {
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [showCleanupModal, setShowCleanupModal] = useState(false);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
-
+  const axiosPublic = useAxiosPublic();
   const axiosSecure = useAxiosSecure();
 
   // Fetch participants and contests
@@ -65,7 +66,7 @@ export default function ManageParticipants() {
       setLoading(true);
 
       // Fetch participants first
-      const participantsRes = await axiosSecure.get("/api/contestParticipants");
+      const participantsRes = await axiosPublic.get("/api/contestParticipants");
       const participantsData =
         participantsRes.data.participants || participantsRes.data;
       setParticipants(Array.isArray(participantsData) ? participantsData : []);
@@ -73,7 +74,7 @@ export default function ManageParticipants() {
       // Try to fetch contests, but handle if the endpoint doesn't exist
       let contestsData: Contest[] = [];
       try {
-        const contestsRes = await axiosSecure.get("/api/contests"); // Use your actual contests endpoint
+        const contestsRes = await axiosPublic.get("/api/contests"); // Use your actual contests endpoint
         contestsData = Array.isArray(contestsRes.data) ? contestsRes.data : [];
       } catch (contestError) {
         console.log(
@@ -95,7 +96,7 @@ export default function ManageParticipants() {
 
       // Try to fetch stats, but handle if the endpoint doesn't exist
       try {
-        const statsRes = await axiosSecure.get(
+        const statsRes = await axiosPublic.get(
           "/api/contestParticipants/stats"
         );
         setStats(statsRes.data);

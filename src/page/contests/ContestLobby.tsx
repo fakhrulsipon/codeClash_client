@@ -4,6 +4,7 @@ import { AuthContext } from "../../provider/AuthProvider";
 import LoadingSpinner from "../../components/LoadingSpinner";
 import toast from "react-hot-toast";
 import useAxiosSecure from "../../hook/useAxiosSecure";
+import useAxiosPublic from "../../hook/useAxiosPublic";
 
 interface Contest {
   _id: string;
@@ -41,6 +42,7 @@ const ContestLobby: React.FC = () => {
   const teamCodeFromUrl = searchParams.get("teamCode");
   const { user } = useContext(AuthContext)!;
   const axiosSecure = useAxiosSecure();
+  const axiosPublic = useAxiosPublic();
 
   const [contest, setContest] = useState<Contest | null>(null);
   const [team, setTeam] = useState<Team | null>(null);
@@ -53,7 +55,7 @@ const ContestLobby: React.FC = () => {
   useEffect(() => {
     const fetchContest = async () => {
       try {
-        const { data } = await axiosSecure.get(`/api/contests/${contestId}`);
+        const { data } = await axiosPublic.get(`/api/contests/${contestId}`);
         setContest(data);
       } catch (error) {
         console.error("Error fetching contest:", error);
@@ -63,7 +65,7 @@ const ContestLobby: React.FC = () => {
       }
     };
     fetchContest();
-  }, [axiosSecure, contestId]);
+  }, [axiosPublic, contestId]);
 
   // Fetch team info
   useEffect(() => {
@@ -80,7 +82,7 @@ const ContestLobby: React.FC = () => {
             url = `/api/teams/user/${user.uid}?contestId=${contestId}`;
           }
 
-          const { data } = await axiosSecure.get(url);
+          const { data } = await axiosPublic.get(url);
           setTeam(data);
 
           if (data.status === "started") {
@@ -103,7 +105,7 @@ const ContestLobby: React.FC = () => {
       const interval = setInterval(fetchTeam, 2000);
       return () => clearInterval(interval);
     }
-  }, [contest, contestId, user, navigate, teamCodeFromUrl, axiosSecure]);
+  }, [contest, contestId, user, navigate, teamCodeFromUrl, axiosPublic]);
 
   // Countdown for individual contests
   useEffect(() => {
@@ -153,7 +155,6 @@ const ContestLobby: React.FC = () => {
       toast.error(error.response?.data?.message || "Failed to start contest");
     }
   };
-
   const handleCopyTeamCode = () => {
     if (team?.code) {
       navigator.clipboard.writeText(team.code);
