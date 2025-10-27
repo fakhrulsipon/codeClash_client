@@ -6,6 +6,8 @@ import {
   FiLogOut,
   FiChevronRight,
   FiHome,
+  FiBarChart2,
+  FiAward,
 } from "react-icons/fi";
 import {
   FaUsers,
@@ -27,13 +29,21 @@ export default function DashboardLayout() {
   const location = useLocation();
   const email = user?.email ?? user?.providerData?.[0]?.email;
   const { userRole, roleLoading } = useUserRole(email!);
-  console.log(userRole);
 
   if (roleLoading) {
     return <LoadingSpinner />;
   }
 
-  // User-specific links
+  // Dashboard Home link (for all users)
+  const dashboardLinks = [
+    {
+      path: "/dashboard",
+      label: "Dashboard Home",
+      icon: <FiBarChart2 className="w-5 h-5" />,
+    },
+  ];
+
+  // User-specific links (for both regular users and admins)
   const userLinks = [
     {
       path: "/dashboard/profile",
@@ -44,6 +54,11 @@ export default function DashboardLayout() {
       path: "/dashboard/history",
       label: "History",
       icon: <FaHistory className="w-5 h-5" />,
+    },
+    {
+      path: "/dashboard/leaderboard",
+      label: "Leaderboard",
+      icon: <FiAward className="w-5 h-5" />,
     },
   ];
 
@@ -82,8 +97,9 @@ export default function DashboardLayout() {
   ];
 
   const allLinks = [
+    ...dashboardLinks,
     ...(userRole === "admin" ? adminLinks : []),
-    ...(userRole === "user" ? userLinks : []),
+    ...userLinks, // Leaderboard is available for all users
   ];
 
   const isActiveLink = (path: string) => {
@@ -118,7 +134,9 @@ export default function DashboardLayout() {
       <span className="font-medium">{label}</span>
       <FiChevronRight
         className={`ml-auto transition-transform duration-200 ${
-          isActiveLink(path) ? "rotate-90 text-white" : "text-gray-400 group-hover:text-cyan-300 group-hover:translate-x-1"
+          isActiveLink(path)
+            ? "rotate-90 text-white"
+            : "text-gray-400 group-hover:text-cyan-300 group-hover:translate-x-1"
         }`}
       />
     </Link>
@@ -314,10 +332,10 @@ export default function DashboardLayout() {
                 <div className="absolute top-1/2 right-0 w-96 h-96 bg-purple-600/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
                 <div className="absolute bottom-0 left-1/3 w-72 h-72 bg-blue-600/10 rounded-full blur-3xl animate-pulse delay-500"></div>
               </div>
-              
+
               {/* Content */}
               <div className="relative z-10">
-                <Outlet />
+                <Outlet context={{ user }} />
               </div>
             </div>
           </main>

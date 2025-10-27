@@ -9,6 +9,7 @@ import LoadingSpinner from "../../../components/LoadingSpinner";
 import { motion } from "framer-motion";
 import { FiSearch, FiUser, FiMail, FiShield, FiUserCheck, FiUserX } from "react-icons/fi";
 import Swal from "sweetalert2";
+import useAxiosPublic from "../../../hook/useAxiosPublic";
 
 interface User {
   _id: string;

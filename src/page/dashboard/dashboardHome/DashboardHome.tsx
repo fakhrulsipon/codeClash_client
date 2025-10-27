@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { FiRefreshCw, FiPlus, FiUsers, FiAlertTriangle, FiCheckCircle, FiClock, FiBarChart2, FiTrendingUp, FiActivity, FiCode, FiAward, FiAlertCircle } from "react-icons/fi";
+import { FiRefreshCw, FiPlus, FiUsers, FiAlertTriangle, FiCheckCircle, FiTrendingUp, FiActivity, FiCode, FiAward, FiAlertCircle } from "react-icons/fi";
 import { FaCode, FaUserCheck, FaChartLine, FaDatabase, FaUserFriends, FaTrophy } from "react-icons/fa";
 import { motion } from "framer-motion";
 import { Link } from "react-router";
@@ -14,8 +14,6 @@ interface DashboardStats {
   acceptanceRate: number;
   activeUsers: number;
   pendingReviews: number;
-  avgSolveTime: string;
-  topLanguage: string;
   recentSubmissions: Submission[];
   userGrowth: number;
   submissionGrowth: number;
@@ -99,7 +97,7 @@ export const AdminDashboardHome: React.FC = () => {
       console.error("❌ Error fetching dashboard data:", error);
       setError(error.response?.data?.message || "Failed to load dashboard data");
       
-      // Fallback to empty state
+      // Fallback to empty state without avgSolveTime and topLanguage
       setStats({
         totalUsers: 0,
         totalProblems: 0,
@@ -109,8 +107,6 @@ export const AdminDashboardHome: React.FC = () => {
         acceptanceRate: 0,
         activeUsers: 0,
         pendingReviews: 0,
-        avgSolveTime: "0m 0s",
-        topLanguage: "N/A",
         recentSubmissions: [],
         userGrowth: 0,
         submissionGrowth: 0
@@ -245,232 +241,317 @@ export const AdminDashboardHome: React.FC = () => {
         </details>
       )}
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 lg:gap-4 mb-8">
-        {/* Total Users */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="bg-slate-800/50 border border-white/10 rounded-xl p-4 lg:p-4"
-        >
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs lg:text-sm font-medium text-gray-400">Total Users</p>
-              <p className="text-xl lg:text-2xl font-bold text-blue-400 mt-1">
-                {stats?.totalUsers?.toLocaleString() || "0"}
-              </p>
-              <p className="text-xs text-gray-500 mt-1">registered users</p>
-            </div>
-            <div className="p-2 lg:p-2 rounded-lg border bg-blue-500/20 border-blue-500/30">
-              <FiUsers className="w-4 h-4 lg:w-5 lg:h-5 text-blue-400" />
-            </div>
-          </div>
-          <div className="flex items-center justify-between mt-3">
-            <span className={`text-xs font-medium ${getDeltaColor(stats?.userGrowth || 0)}`}>
-              {formatDelta(stats?.userGrowth || 0)}
-            </span>
-            <div className="w-20 text-gray-500">
-              <FiTrendingUp className="w-4 h-4" />
-            </div>
-          </div>
-        </motion.div>
+      {/* Main Content Grid */}
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+        {/* Left Column - Stats Grid */}
+        <div className="xl:col-span-2">
+          {/* Stats Grid */}
+          <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 lg:gap-4 mb-8">
+            {/* Total Users */}
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="bg-slate-800/50 border border-white/10 rounded-xl p-4 lg:p-4"
+            >
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs lg:text-sm font-medium text-gray-400">Total Users</p>
+                  <p className="text-xl lg:text-2xl font-bold text-blue-400 mt-1">
+                    {stats?.totalUsers?.toLocaleString() || "0"}
+                  </p>
+                  <p className="text-xs text-gray-500 mt-1">registered users</p>
+                </div>
+                <div className="p-2 lg:p-2 rounded-lg border bg-blue-500/20 border-blue-500/30">
+                  <FiUsers className="w-4 h-4 lg:w-5 lg:h-5 text-blue-400" />
+                </div>
+              </div>
+              <div className="flex items-center justify-between mt-3">
+                <span className={`text-xs font-medium ${getDeltaColor(stats?.userGrowth || 0)}`}>
+                  {formatDelta(stats?.userGrowth || 0)}
+                </span>
+                <div className="w-20 text-gray-500">
+                  <FiTrendingUp className="w-4 h-4" />
+                </div>
+              </div>
+            </motion.div>
 
-        {/* Total Problems */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="bg-slate-800/50 border border-white/10 rounded-xl p-4 lg:p-4"
-        >
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs lg:text-sm font-medium text-gray-400">Problems</p>
-              <p className="text-xl lg:text-2xl font-bold text-green-400 mt-1">
-                {stats?.totalProblems?.toLocaleString() || "0"}
-              </p>
-              <p className="text-xs text-gray-500 mt-1">available problems</p>
-            </div>
-            <div className="p-2 lg:p-2 rounded-lg border bg-green-500/20 border-green-500/30">
-              <FaCode className="w-4 h-4 lg:w-5 lg:h-5 text-green-400" />
-            </div>
-          </div>
-          <div className="flex items-center justify-between mt-3">
-            <span className="text-xs font-medium text-gray-400">—</span>
-            <div className="w-20 text-gray-500">
-              <FaDatabase className="w-4 h-4" />
-            </div>
-          </div>
-        </motion.div>
+            {/* Total Problems */}
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="bg-slate-800/50 border border-white/10 rounded-xl p-4 lg:p-4"
+            >
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs lg:text-sm font-medium text-gray-400">Problems</p>
+                  <p className="text-xl lg:text-2xl font-bold text-green-400 mt-1">
+                    {stats?.totalProblems?.toLocaleString() || "0"}
+                  </p>
+                  <p className="text-xs text-gray-500 mt-1">available problems</p>
+                </div>
+                <div className="p-2 lg:p-2 rounded-lg border bg-green-500/20 border-green-500/30">
+                  <FaCode className="w-4 h-4 lg:w-5 lg:h-5 text-green-400" />
+                </div>
+              </div>
+              <div className="flex items-center justify-between mt-3">
+                <span className="text-xs font-medium text-gray-400">—</span>
+                <div className="w-20 text-gray-500">
+                  <FaDatabase className="w-4 h-4" />
+                </div>
+              </div>
+            </motion.div>
 
-        {/* Submissions Today */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="bg-slate-800/50 border border-white/10 rounded-xl p-4 lg:p-4"
-        >
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs lg:text-sm font-medium text-gray-400">Submissions Today</p>
-              <p className="text-xl lg:text-2xl font-bold text-purple-400 mt-1">
-                {stats?.submissionsToday?.toLocaleString() || "0"}
-              </p>
-              <p className="text-xs text-gray-500 mt-1">24h period</p>
-            </div>
-            <div className="p-2 lg:p-2 rounded-lg border bg-purple-500/20 border-purple-500/30">
-              <FaChartLine className="w-4 h-4 lg:w-5 lg:h-5 text-purple-400" />
-            </div>
-          </div>
-          <div className="flex items-center justify-between mt-3">
-            <span className={`text-xs font-medium ${getDeltaColor(stats?.submissionGrowth || 0)}`}>
-              {formatDelta(stats?.submissionGrowth || 0)}
-            </span>
-            <div className="w-20 text-gray-500">
-              <FiActivity className="w-4 h-4" />
-            </div>
-          </div>
-        </motion.div>
+            {/* Submissions Today */}
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+              className="bg-slate-800/50 border border-white/10 rounded-xl p-4 lg:p-4"
+            >
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs lg:text-sm font-medium text-gray-400">Submissions Today</p>
+                  <p className="text-xl lg:text-2xl font-bold text-purple-400 mt-1">
+                    {stats?.submissionsToday?.toLocaleString() || "0"}
+                  </p>
+                  <p className="text-xs text-gray-500 mt-1">24h period</p>
+                </div>
+                <div className="p-2 lg:p-2 rounded-lg border bg-purple-500/20 border-purple-500/30">
+                  <FaChartLine className="w-4 h-4 lg:w-5 lg:h-5 text-purple-400" />
+                </div>
+              </div>
+              <div className="flex items-center justify-between mt-3">
+                <span className={`text-xs font-medium ${getDeltaColor(stats?.submissionGrowth || 0)}`}>
+                  {formatDelta(stats?.submissionGrowth || 0)}
+                </span>
+                <div className="w-20 text-gray-500">
+                  <FiActivity className="w-4 h-4" />
+                </div>
+              </div>
+            </motion.div>
 
-        {/* Acceptance Rate */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-          className="bg-slate-800/50 border border-white/10 rounded-xl p-4 lg:p-4"
-        >
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs lg:text-sm font-medium text-gray-400">Acceptance Rate</p>
-              <p className="text-xl lg:text-2xl font-bold text-cyan-400 mt-1">
-                {stats?.acceptanceRate?.toFixed(1) || "0"}%
-              </p>
-              <p className="text-xs text-gray-500 mt-1">global average</p>
-            </div>
-            <div className="p-2 lg:p-2 rounded-lg border bg-cyan-500/20 border-cyan-500/30">
-              <FaUserCheck className="w-4 h-4 lg:w-5 lg:h-5 text-cyan-400" />
-            </div>
-          </div>
-          <div className="flex items-center justify-between mt-3">
-            <span className="text-xs font-medium text-gray-400">—</span>
-            <div className="w-20 text-gray-500">
-              <FiBarChart2 className="w-4 h-4" />
-            </div>
-          </div>
-        </motion.div>
+            {/* Acceptance Rate */}
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 }}
+              className="bg-slate-800/50 border border-white/10 rounded-xl p-4 lg:p-4"
+            >
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs lg:text-sm font-medium text-gray-400">Acceptance Rate</p>
+                  <p className="text-xl lg:text-2xl font-bold text-cyan-400 mt-1">
+                    {stats?.acceptanceRate?.toFixed(1) || "0"}%
+                  </p>
+                  <p className="text-xs text-gray-500 mt-1">global average</p>
+                </div>
+                <div className="p-2 lg:p-2 rounded-lg border bg-cyan-500/20 border-cyan-500/30">
+                  <FaUserCheck className="w-4 h-4 lg:w-5 lg:h-5 text-cyan-400" />
+                </div>
+              </div>
+              <div className="flex items-center justify-between mt-3">
+                <span className="text-xs font-medium text-gray-400">—</span>
+                <div className="w-20 text-gray-500">
+                  <FiActivity className="w-4 h-4" />
+                </div>
+              </div>
+            </motion.div>
 
-        {/* Active Users */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
-          className="bg-slate-800/50 border border-white/10 rounded-xl p-4 lg:p-4"
-        >
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs lg:text-sm font-medium text-gray-400">Active Users</p>
-              <p className="text-xl lg:text-2xl font-bold text-blue-400 mt-1">
-                {stats?.activeUsers?.toLocaleString() || "0"}
-              </p>
-              <p className="text-xs text-gray-500 mt-1">last 1 hour</p>
-            </div>
-            <div className="p-2 lg:p-2 rounded-lg border bg-blue-500/20 border-blue-500/30">
-              <FiUsers className="w-4 h-4 lg:w-5 lg:h-5 text-blue-400" />
-            </div>
-          </div>
-          <div className="flex items-center justify-between mt-3">
-            <span className="text-xs font-medium text-gray-400">—</span>
-            <div className="w-20 text-gray-500">
-              <FiActivity className="w-4 h-4" />
-            </div>
-          </div>
-        </motion.div>
+            {/* Active Users */}
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5 }}
+              className="bg-slate-800/50 border border-white/10 rounded-xl p-4 lg:p-4"
+            >
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs lg:text-sm font-medium text-gray-400">Active Users</p>
+                  <p className="text-xl lg:text-2xl font-bold text-blue-400 mt-1">
+                    {stats?.activeUsers?.toLocaleString() || "0"}
+                  </p>
+                  <p className="text-xs text-gray-500 mt-1">last 1 hour</p>
+                </div>
+                <div className="p-2 lg:p-2 rounded-lg border bg-blue-500/20 border-blue-500/30">
+                  <FiUsers className="w-4 h-4 lg:w-5 lg:h-5 text-blue-400" />
+                </div>
+              </div>
+              <div className="flex items-center justify-between mt-3">
+                <span className="text-xs font-medium text-gray-400">—</span>
+                <div className="w-20 text-gray-500">
+                  <FiActivity className="w-4 h-4" />
+                </div>
+              </div>
+            </motion.div>
 
-        {/* Total Contests */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6 }}
-          className="bg-slate-800/50 border border-white/10 rounded-xl p-4 lg:p-4"
-        >
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs lg:text-sm font-medium text-gray-400">Total Contests</p>
-              <p className="text-xl lg:text-2xl font-bold text-purple-400 mt-1">
-                {stats?.totalContests?.toLocaleString() || "0"}
-              </p>
-              <p className="text-xs text-gray-500 mt-1">created contests</p>
-            </div>
-            <div className="p-2 lg:p-2 rounded-lg border bg-purple-500/20 border-purple-500/30">
-              <FaTrophy className="w-4 h-4 lg:w-5 lg:h-5 text-purple-400" />
-            </div>
+            {/* Total Contests */}
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.6 }}
+              className="bg-slate-800/50 border border-white/10 rounded-xl p-4 lg:p-4"
+            >
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs lg:text-sm font-medium text-gray-400">Total Contests</p>
+                  <p className="text-xl lg:text-2xl font-bold text-purple-400 mt-1">
+                    {stats?.totalContests?.toLocaleString() || "0"}
+                  </p>
+                  <p className="text-xs text-gray-500 mt-1">created contests</p>
+                </div>
+                <div className="p-2 lg:p-2 rounded-lg border bg-purple-500/20 border-purple-500/30">
+                  <FaTrophy className="w-4 h-4 lg:w-5 lg:h-5 text-purple-400" />
+                </div>
+              </div>
+              <div className="flex items-center justify-between mt-3">
+                <span className="text-xs font-medium text-gray-400">—</span>
+                <div className="w-20 text-gray-500">
+                  <FaTrophy className="w-4 h-4" />
+                </div>
+              </div>
+            </motion.div>
           </div>
-          <div className="flex items-center justify-between mt-3">
-            <span className="text-xs font-medium text-gray-400">—</span>
-            <div className="w-20 text-gray-500">
-              <FaTrophy className="w-4 h-4" />
-            </div>
-          </div>
-        </motion.div>
 
-        {/* Total Teams */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.7 }}
-          className="bg-slate-800/50 border border-white/10 rounded-xl p-4 lg:p-4"
-        >
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs lg:text-sm font-medium text-gray-400">Total Teams</p>
-              <p className="text-xl lg:text-2xl font-bold text-green-400 mt-1">
-                {stats?.totalTeams?.toLocaleString() || "0"}
-              </p>
-              <p className="text-xs text-gray-500 mt-1">registered teams</p>
+          {/* Recent Submissions Table */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.8 }}
+            className="bg-slate-800/50 border border-white/10 rounded-xl p-6"
+          >
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-semibold text-white flex items-center gap-2">
+                <FiActivity className="w-5 h-5 text-cyan-400" />
+                Recent Submissions
+              </h2>
+              <span className="text-sm text-gray-400">
+                {stats?.recentSubmissions?.length || 0} submissions
+              </span>
             </div>
-            <div className="p-2 lg:p-2 rounded-lg border bg-green-500/20 border-green-500/30">
-              <FaUserFriends className="w-4 h-4 lg:w-5 lg:h-5 text-green-400" />
-            </div>
-          </div>
-          <div className="flex items-center justify-between mt-3">
-            <span className="text-xs font-medium text-gray-400">—</span>
-            <div className="w-20 text-gray-500">
-              <FaUserFriends className="w-4 h-4" />
-            </div>
-          </div>
-        </motion.div>
 
-        {/* Pending Reviews */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.8 }}
-          className="bg-slate-800/50 border border-white/10 rounded-xl p-4 lg:p-4"
-        >
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs lg:text-sm font-medium text-gray-400">Pending Reviews</p>
-              <p className="text-xl lg:text-2xl font-bold text-yellow-400 mt-1">
-                {stats?.pendingReviews?.toLocaleString() || "0"}
-              </p>
-              <p className="text-xs text-gray-500 mt-1">awaiting action</p>
+            {stats?.recentSubmissions && stats.recentSubmissions.length > 0 ? (
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-white/10">
+                      <th className="text-left py-3 px-4 text-gray-400 font-medium">User</th>
+                      <th className="text-left py-3 px-4 text-gray-400 font-medium">Problem</th>
+                      <th className="text-left py-3 px-4 text-gray-400 font-medium">Language</th>
+                      <th className="text-left py-3 px-4 text-gray-400 font-medium">Result</th>
+                      <th className="text-left py-3 px-4 text-gray-400 font-medium">Time</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {stats.recentSubmissions.slice(0, 5).map((submission, index) => (
+                      <tr key={submission._id} className="border-b border-white/5 hover:bg-white/5 transition-colors">
+                        <td className="py-3 px-4 text-white">{submission.userName}</td>
+                        <td className="py-3 px-4 text-gray-300">{submission.problemName}</td>
+                        <td className="py-3 px-4 text-gray-400">{submission.language}</td>
+                        <td className="py-3 px-4">
+                          <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                            submission.result === "Success" 
+                              ? "bg-green-500/20 text-green-400 border border-green-500/30"
+                              : "bg-red-500/20 text-red-400 border border-red-500/30"
+                          }`}>
+                            {submission.result === "Success" ? (
+                              <FiCheckCircle className="w-3 h-3 mr-1" />
+                            ) : (
+                              <FiAlertTriangle className="w-3 h-3 mr-1" />
+                            )}
+                            {submission.result}
+                          </span>
+                        </td>
+                        <td className="py-3 px-4 text-gray-400 text-sm">
+                          {formatDate(submission.submittedAt)}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <div className="text-center py-8 text-gray-400">
+                <FiActivity className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                <p>No recent submissions</p>
+              </div>
+            )}
+          </motion.div>
+        </div>
+
+        {/* Right Column - Quick Actions */}
+        <div className="xl:col-span-1">
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.7 }}
+            className="bg-slate-800/50 border border-white/10 rounded-xl p-6 sticky top-6"
+          >
+            <h2 className="text-xl font-semibold text-white mb-6 flex items-center gap-2">
+              <FiPlus className="w-5 h-5 text-cyan-400" />
+              Quick Actions
+            </h2>
+            
+            <div className="space-y-3">
+              {quickActions.map((action, index) => (
+                <motion.div
+                  key={action.path}
+                  initial={{ opacity: 0, x: 10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.8 + index * 0.1 }}
+                >
+                  <Link to={action.path}>
+                    <motion.div
+                      whileHover={{ scale: 1.02, x: 5 }}
+                      whileTap={{ scale: 0.98 }}
+                      className={`flex items-center gap-3 p-4 border rounded-xl transition-all duration-200 hover:shadow-lg ${getColorClasses(action.color)}`}
+                    >
+                      <div className="p-2 rounded-lg border bg-current/20">
+                        <action.icon className="w-4 h-4" />
+                      </div>
+                      <span className="font-medium">{action.label}</span>
+                    </motion.div>
+                  </Link>
+                </motion.div>
+              ))}
             </div>
-            <div className="p-2 lg:p-2 rounded-lg border bg-yellow-500/20 border-yellow-500/30">
-              <FiAlertTriangle className="w-4 h-4 lg:w-5 lg:h-5 text-yellow-400" />
+
+            {/* Additional Stats Cards */}
+            <div className="mt-8 space-y-4">
+              {/* Total Teams */}
+              <div className="bg-slate-700/50 border border-white/10 rounded-xl p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-gray-400">Total Teams</p>
+                    <p className="text-lg font-bold text-white mt-1">
+                      {stats?.totalTeams?.toLocaleString() || "0"}
+                    </p>
+                  </div>
+                  <div className="p-2 rounded-lg border bg-green-500/20 border-green-500/30">
+                    <FaUserFriends className="w-4 h-4 text-green-400" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Pending Reviews */}
+              <div className="bg-slate-700/50 border border-white/10 rounded-xl p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-gray-400">Pending Reviews</p>
+                    <p className="text-lg font-bold text-white mt-1">
+                      {stats?.pendingReviews?.toLocaleString() || "0"}
+                    </p>
+                  </div>
+                  <div className="p-2 rounded-lg border bg-yellow-500/20 border-yellow-500/30">
+                    <FiAlertTriangle className="w-4 h-4 text-yellow-400" />
+                  </div>
+                </div>
+              </div>
             </div>
-          </div>
-          <div className="flex items-center justify-between mt-3">
-            <span className="text-xs font-medium text-gray-400">—</span>
-            <div className="w-20 text-gray-500">
-              <FiAlertTriangle className="w-4 h-4" />
-            </div>
-          </div>
-        </motion.div>
+          </motion.div>
+        </div>
       </div>
-
-      {/* Rest of the component remains the same... */}
-      {/* ... (keep the larger panels and recent submissions table from previous code) ... */}
-
     </motion.div>
   );
 };
