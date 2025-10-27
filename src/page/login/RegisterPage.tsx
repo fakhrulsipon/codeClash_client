@@ -53,6 +53,8 @@ const RegisterPage: React.FC = () => {
   };
 
   const onSubmit = (data: RegisterFormData) => {
+
+    
     if (data.password !== data.confirmPassword) {
       alert("Passwords do not match!");
       return;

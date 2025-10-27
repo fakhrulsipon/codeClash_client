@@ -40,6 +40,12 @@ export default function DashboardLayout() {
       label: "History",
       icon: <FaHistory className="w-5 h-5" />,
     },
+    {
+      path: "/dashboard/leaderboard",
+      label: "Leaderboard",
+      icon: <FaHistory className="w-5 h-5" />,
+    },
+    
   ];
 
   // Admin-specific links

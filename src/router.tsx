@@ -6,7 +6,6 @@ import LoginPage from "./page/login/LoginPage";
 import RegisterPage from "./page/login/RegisterPage";
 import Problems from "./page/Problems/Problems";
 import DashboardLayout from "./layout/DashboardLayout";
-import DashboardHome from "./page/dashboard/dashboardHome/DashboardHome";
 import Error from "./page/error/Error";
 import AddContest from "./page/dashboard/addContest/AddContest";
 import PrivetRoute from "./route/PrivetRoute";
@@ -24,6 +23,7 @@ import ManageUsers from "./page/dashboard/manageUsers/ManageUsers";
 import ManageTeams from "./page/dashboard/manageTeams/ManageTeams";
 import ManageParticipants from "./page/dashboard/manageParticipants/ManageParticipants";
 import History from "./page/History";
+import Leaderboard from "./page/dashboard/Leaderboard";
 
 const router = createBrowserRouter([
   {
@@ -96,8 +96,12 @@ const router = createBrowserRouter([
     element: <DashboardLayout />,
     children: [
       {
-        index: true,
-        element: <DashboardHome />,
+        path: "leaderboard",
+        element: (
+          <PrivetRoute>
+            <Leaderboard />
+          </PrivetRoute>
+        ),
       },
       {
         path: "profile",

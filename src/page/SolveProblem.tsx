@@ -27,6 +27,7 @@ import { AuthContext } from "../provider/AuthProvider";
 import LoadingSpinner from "../components/LoadingSpinner";
 import useAxiosSecure from "../hook/useAxiosSecure";
 import { useUserSubmissions } from "../hook/useUserSubmissions";
+import useAxiosPublic from "../hook/useAxiosPublic";
 
 interface StarterCode {
   javascript: string;
@@ -73,8 +74,10 @@ export default function SolveProblem() {
   const [isRunning, setIsRunning] = useState(false);
   const [codeError, setCodeError] = useState<CodeError | null>(null);
   const [, setNextSubmissionNumber] = useState(1);
+  const email = user?.email || user?.providerData[0]?.email
 
   const axiosSecure = useAxiosSecure();
+  const axiosPublic = useAxiosPublic();
   const { addSubmission, submissions } = useUserSubmissions();
 
   const { data: problem, isLoading, error } = useQuery<Problem>({
@@ -88,16 +91,24 @@ export default function SolveProblem() {
   }, [user, problem]);
 
   const loadSubmissionHistory = async () => {
-    try {
-      const res = await axiosSecure.get(
-        `/api/problems/submissions/${user?.email}/${problem?._id}`
-      );
-      const problemSubmissions = res.data || [];
-      setNextSubmissionNumber(problemSubmissions.length + 1);
-    } catch (error) {
+  try {
+    const res = await axiosPublic.get(
+      `/api/problems/submissions/${email}/${problem?._id}`
+    );
+
+    const problemSubmissions = res.data || [];
+    setNextSubmissionNumber(problemSubmissions.length + 1);
+  } catch (error: any) {
+    
+    if (error.response && error.response.status === 404) {
+      console.log("No submissions found yet for this user/problem.");
+      setNextSubmissionNumber(1);
+    } else {
       console.error("Failed to load submission history:", error);
     }
-  };
+  }
+};
+
 
   useEffect(() => {
     if (problem && selectedLang) {
@@ -207,7 +218,7 @@ export default function SolveProblem() {
     try {
       const tc = problem.testCases[0];
       const payload = { code, language: selectedLang, input: tc.input };
-      const res = await axiosSecure.post("/api/problems/run-code", payload);
+      const res = await axiosPublic.post("/api/problems/run-code", payload);
       const result: RunCodeResponse = res.data;
 
       let userOutput = "";
@@ -254,7 +265,7 @@ export default function SolveProblem() {
     try {
       const tc = problem.testCases[0];
       const payload = { code, language: selectedLang, input: tc.input };
-      const res = await axiosSecure.post("/api/problems/run-code", payload);
+      const res = await axiosPublic.post("/api/problems/run-code", payload);
       const result: RunCodeResponse = res.data;
 
       let userOutput = "";
@@ -277,8 +288,9 @@ export default function SolveProblem() {
 
       const submissionData = {
         _id: Date.now().toString(),
-        userEmail: user.email!,
+        userEmail: email!,
         userName: user.displayName || "Anonymous User",
+        userPhoto: user.photoURL,
         status,
         problemTitle: problem.title,
         problemDifficulty: problem.difficulty,
@@ -286,6 +298,7 @@ export default function SolveProblem() {
         point: status === "Success" ? 20 : -20,
         submittedAt: new Date().toISOString(),
       };
+
 
       await axiosSecure.post("/api/problems/submissions", submissionData);
       addSubmission(submissionData);
