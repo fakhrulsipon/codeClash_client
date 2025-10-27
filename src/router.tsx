@@ -121,19 +121,11 @@ const router = createBrowserRouter([
       },
       {
         path: "addContest",
-        element: (
-          <AdminRoute>
-            <AddContest />
-          </AdminRoute>
-        ),
+        element: <AddContest />,
       },
       {
         path: "manage-users",
-        element: (
-          <AdminRoute>
-            <ManageUsers />
-          </AdminRoute>
-        ),
+        element: <ManageUsers />,
       },
       {
         path: "manageContests",
