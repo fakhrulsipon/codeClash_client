@@ -2,19 +2,16 @@ import { useEffect, useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Container, Typography } from "@mui/material";
 import { 
-  Search, 
-  FilterList, 
-  Code, 
   TrendingUp,
   EmojiEvents,
   Schedule,
   Star,
   Clear
 } from "@mui/icons-material";
-import { FaCode, FaSearch, FaFilter, FaFire, FaSeedling, FaChartLine, FaRocket } from "react-icons/fa";
+import { FaCode, FaSearch, FaFire, FaSeedling, FaChartLine, FaRocket } from "react-icons/fa";
 import LoadingSpinner from "../../components/LoadingSpinner";
 import { useNavigate } from "react-router";
-import useAxiosSecure from "../../hook/useAxiosSecure";
+import useAxiosPublic from "../../hook/useAxiosPublic";
 
 // Debounce hook
 const useDebounce = (value: string, delay: number) => {
@@ -49,7 +46,7 @@ interface Problem {
   _id: string;
   title: string;
   description: string;
-  difficulty: string;
+  difficulty: "easy" | "medium" | "hard";
   category: string;
   languages: string[];
   starterCode: StarterCode;
@@ -58,6 +55,7 @@ interface Problem {
   solvedCount?: number;
   acceptanceRate?: number;
 }
+
 
 const Problems = () => {
   const [problems, setProblems] = useState<Problem[]>([]);
@@ -69,7 +67,7 @@ const Problems = () => {
   const [sortBy, setSortBy] = useState("newest");
   const [isTyping, setIsTyping] = useState(false);
   
-  const axiosSecure = useAxiosSecure();
+  const axiosPublic = useAxiosPublic();
   const navigate = useNavigate();
 
   // Use debounced search with 500ms delay
@@ -83,8 +81,8 @@ const Problems = () => {
       if (difficulty !== "all") params.append("difficulty", difficulty);
       if (category !== "all") params.append("category", category);
 
-      const res = await axiosSecure(`/api/problems?${params.toString()}`);
-      let sortedProblems = res.data;
+      const res = await axiosPublic(`/api/problems?${params.toString()}`);
+      const sortedProblems = res.data;
 
       // Sort problems
       switch (sortBy) {
@@ -116,7 +114,7 @@ const Problems = () => {
       setLoading(false);
       setIsTyping(false);
     }
-  }, [axiosSecure, debouncedSearch, difficulty, category, sortBy]);
+  }, [axiosPublic, debouncedSearch, difficulty, category, sortBy]);
 
   useEffect(() => {
     fetchProblems();

@@ -38,23 +38,27 @@ export default function ManageParticipants() {
   const [stats, setStats] = useState<ParticipantsStats | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [contestFilter, setContestFilter] = useState("all");
-  const [typeFilter, setTypeFilter] = useState<"all" | "individual" | "team">("all");
-  const [selectedParticipant, setSelectedParticipant] = useState<Participant | null>(null);
+  const [typeFilter, setTypeFilter] = useState<"all" | "individual" | "team">(
+    "all"
+  );
+  const [selectedParticipant, setSelectedParticipant] =
+    useState<Participant | null>(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [showCleanupModal, setShowCleanupModal] = useState(false);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
-  
+  const axiosPublic = useAxiosPublic();
   const axiosSecure = useAxiosSecure();
 
   // Fetch participants and contests
   const fetchData = async () => {
     try {
       setLoading(true);
-      
+
       // Fetch participants first
-      const participantsRes = await axiosSecure.get("/api/contestParticipants");
-      const participantsData = participantsRes.data.participants || participantsRes.data;
+      const participantsRes = await axiosPublic.get("/api/contestParticipants");
+      const participantsData =
+        participantsRes.data.participants || participantsRes.data;
       setParticipants(Array.isArray(participantsData) ? participantsData : []);
 
       // Try to fetch contests, but handle if the endpoint doesn't exist
@@ -63,10 +67,16 @@ export default function ManageParticipants() {
         const contestsRes = await axiosSecure.get("/api/contests");
         contestsData = Array.isArray(contestsRes.data) ? contestsRes.data : [];
       } catch (contestError) {
-        console.log("Contests endpoint not available, extracting from participants");
+        console.log(
+          "Contests endpoint not available, extracting from participants",
+          contestError
+        );
         // Extract unique contests from participants data
-        const uniqueContestIds = [...new Set(participantsData.map((p: Participant) => p.contestId))];
-        contestsData = uniqueContestIds.map(contestId => ({
+        const uniqueContestIds = Array.from(
+          new Set(participantsData.map((p: Participant) => p.contestId))
+        ) as string[];
+
+        contestsData = uniqueContestIds.map((contestId: string) => ({
           _id: contestId,
           name: `Contest ${contestId.slice(-6)}`,
           createdAt: new Date().toISOString()
@@ -76,34 +86,47 @@ export default function ManageParticipants() {
 
       // Try to fetch stats, but handle if the endpoint doesn't exist
       try {
-        const statsRes = await axiosSecure.get("/api/contestParticipants/stats");
+        const statsRes = await axiosPublic.get(
+          "/api/contestParticipants/stats"
+        );
         setStats(statsRes.data);
       } catch (statsError) {
-        console.log("Stats endpoint not available, calculating manually");
+        console.log("Stats endpoint not available, calculating manually", statsError);
         // Calculate basic stats manually
         const totalParticipants = participantsData.length;
         const participantsByType = [
-          { _id: "individual", count: participantsData.filter((p: Participant) => p.type === "individual").length },
-          { _id: "team", count: participantsData.filter((p: Participant) => p.type === "team").length }
+          {
+            _id: "individual",
+            count: participantsData.filter(
+              (p: Participant) => p.type === "individual"
+            ).length,
+          },
+          {
+            _id: "team",
+            count: participantsData.filter(
+              (p: Participant) => p.type === "team"
+            ).length,
+          },
         ];
-        
+
         // Calculate duplicates manually
         const duplicateMap = new Map();
         participantsData.forEach((participant: Participant) => {
           const key = `${participant.userId}-${participant.contestId}`;
           duplicateMap.set(key, (duplicateMap.get(key) || 0) + 1);
         });
-        
-        const duplicates = Array.from(duplicateMap.values()).filter(count => count > 1).length;
+
+        const duplicates = Array.from(duplicateMap.values()).filter(
+          (count) => count > 1
+        ).length;
 
         setStats({
           totalParticipants: [{ count: totalParticipants }],
           participantsByType,
           participantsByContest: [],
-          duplicates: [{ count: duplicates }]
+          duplicates: [{ count: duplicates }],
         });
       }
-
     } catch (error) {
       console.error("Error fetching data:", error);
       // Set empty data on error
@@ -113,7 +136,7 @@ export default function ManageParticipants() {
         totalParticipants: [{ count: 0 }],
         participantsByType: [],
         participantsByContest: [],
-        duplicates: [{ count: 0 }]
+        duplicates: [{ count: 0 }],
       });
     } finally {
       setLoading(false);
@@ -125,14 +148,18 @@ export default function ManageParticipants() {
   }, []);
 
   // Filter participants
-  const filteredParticipants = participants.filter(participant => {
-    const matchesSearch = 
+  const filteredParticipants = participants.filter((participant) => {
+    const matchesSearch =
       participant.userName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (participant.userEmail && participant.userEmail.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (participant.userEmail &&
+        participant.userEmail
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase())) ||
       participant.userId.toLowerCase().includes(searchTerm.toLowerCase()) ||
       participant.contestName?.toLowerCase().includes(searchTerm.toLowerCase());
 
-    const matchesContest = contestFilter === "all" || participant.contestId === contestFilter;
+    const matchesContest =
+      contestFilter === "all" || participant.contestId === contestFilter;
     const matchesType = typeFilter === "all" || participant.type === typeFilter;
 
     return matchesSearch && matchesContest && matchesType;
@@ -265,11 +292,12 @@ export default function ManageParticipants() {
     if (!stats?.duplicates?.[0]?.count) {
       // Calculate duplicates manually if stats not available
       const duplicateMap = new Map();
-      participants.forEach(participant => {
+      participants.forEach((participant) => {
         const key = `${participant.userId}-${participant.contestId}`;
         duplicateMap.set(key, (duplicateMap.get(key) || 0) + 1);
       });
-      return Array.from(duplicateMap.values()).filter(count => count > 1).length;
+      return Array.from(duplicateMap.values()).filter((count) => count > 1)
+        .length;
     }
     return stats.duplicates[0].count;
   };

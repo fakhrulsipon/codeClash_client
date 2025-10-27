@@ -30,7 +30,7 @@ const AddContest = () => {
     };
 
     try {
-      const res = await fetch("http://localhost:3000/api/contests", {
+      const res = await fetch("https://code-clash-server-rust.vercel.app/api/contests", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(newContest),
