@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { use, useState } from "react";
 import { Link, Outlet, useLocation } from "react-router";
 import {
   FiMenu,
@@ -19,11 +19,11 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import useUserRole from "../hook/useUserRole";
 import LoadingSpinner from "../components/LoadingSpinner";
-import { useContext } from "react";
+import { AuthContext } from "../provider/AuthProvider";
 
 export default function DashboardLayout() {
   const [isOpen, setIsOpen] = useState(false);
-  const { user } = useContext(AuthContext)!;
+  const { user } = use(AuthContext)!;
   const location = useLocation();
   const email = user?.email ?? user?.providerData?.[0]?.email;
   const { userRole, roleLoading } = useUserRole(email!);
