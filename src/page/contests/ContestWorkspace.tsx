@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, useContext } from "react";
+import React, { useEffect, useState, useRef, use } from "react";
 import { useParams } from "react-router";
 import LoadingSpinner from "../../components/LoadingSpinner";
 import Editor from "@monaco-editor/react";
@@ -6,6 +6,7 @@ import Swal from "sweetalert2";
 import "sweetalert2/dist/sweetalert2.min.css";
 import { AuthContext } from "../../provider/AuthProvider";
 import useAxiosSecure from "../../hook/useAxiosSecure";
+import useAxiosPublic from "../../hook/useAxiosPublic";
 
 type Problem = {
   _id: string;
@@ -36,8 +37,9 @@ type Submission = {
 
 const ContestWorkspace: React.FC = () => {
   const { contestId } = useParams<{ contestId: string }>();
-  const { user } = useContext(AuthContext)!;
+  const { user } = use(AuthContext)!;
   const axiosSecure = useAxiosSecure();
+  const axiosPublic = useAxiosPublic();
 
   const [contest, setContest] = useState<Contest | null>(null);
   const [loading, setLoading] = useState(true);
@@ -58,7 +60,7 @@ const ContestWorkspace: React.FC = () => {
     if (!contestId) return;
     const fetchContest = async () => {
       try {
-        const res = await axiosSecure.get<Contest>(
+        const res = await axiosPublic.get<Contest>(
           `/api/contests/${contestId}`
         );
         setContest(res.data);
@@ -69,7 +71,7 @@ const ContestWorkspace: React.FC = () => {
       }
     };
     fetchContest();
-  }, [contestId, axiosSecure]);
+  }, [contestId, axiosPublic]);
 
   // Timer: 3 minutes per problem
   useEffect(() => {

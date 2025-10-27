@@ -4,6 +4,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { FiEdit, FiPause, FiPlay, FiTrash2, FiSearch } from "react-icons/fi";
 import useAxiosSecure from "../../../hook/useAxiosSecure";
+import useAxiosPublic from "../../../hook/useAxiosPublic";
 
 // ✅ Contest type
 interface Problem {
@@ -22,6 +23,7 @@ interface Contest {
 const ManageContests = () => {
   const [search, setSearch] = useState("");
   const axiosSecure = useAxiosSecure();
+  const axiosPublic = useAxiosPublic();
 
   const {
     data: contests = [],
@@ -30,7 +32,7 @@ const ManageContests = () => {
   } = useQuery<Contest[]>({
     queryKey: ["contests"],
     queryFn: async () => {
-      const res = await axiosSecure.get<Contest[]>(
+      const res = await axiosPublic.get<Contest[]>(
         "/api/contests"
       );
       return res.data;

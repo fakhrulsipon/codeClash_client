@@ -9,7 +9,7 @@ import {
 } from "@mui/icons-material";
 import { FaCalendarAlt, FaClock, FaUsers, FaTrophy, FaPlay } from "react-icons/fa";
 import LoadingSpinner from "./LoadingSpinner";
-import useAxiosSecure from "../hook/useAxiosSecure";
+import useAxiosPublic from "../hook/useAxiosPublic";
 
 type Problem = {
   _id: string;
@@ -33,12 +33,12 @@ const ContestSection: React.FC = () => {
   const [contests, setContests] = useState<Contest[]>([]);
   const [loading, setLoading] = useState(true);
   const [hoveredContest, setHoveredContest] = useState<string | null>(null);
-  const axiosSecure = useAxiosSecure();
+  const axiosPublic = useAxiosPublic();
 
   useEffect(() => {
     const fetchContests = async () => {
       try {
-        const res = await axiosSecure.get<Contest[]>("/api/contests");
+        const res = await axiosPublic.get<Contest[]>("/api/contests");
         const sorted = res.data
           .sort(
             (a, b) =>
@@ -53,7 +53,7 @@ const ContestSection: React.FC = () => {
       }
     };
     fetchContests();
-  }, [axiosSecure]);
+  }, [axiosPublic]);
 
   const getTimeRemaining = (startTime: string) => {
     const now = new Date().getTime();
