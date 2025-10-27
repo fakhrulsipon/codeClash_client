@@ -6,7 +6,6 @@ import LoginPage from "./page/login/LoginPage";
 import RegisterPage from "./page/login/RegisterPage";
 import Problems from "./page/Problems/Problems";
 import DashboardLayout from "./layout/DashboardLayout";
-import DashboardHome from "./page/dashboard/dashboardHome/DashboardHome";
 import Error from "./page/error/Error";
 import AddContest from "./page/dashboard/addContest/AddContest";
 import PrivetRoute from "./route/PrivetRoute";
@@ -24,6 +23,7 @@ import ManageUsers from "./page/dashboard/manageUsers/ManageUsers";
 import ManageTeams from "./page/dashboard/manageTeams/ManageTeams";
 import ManageParticipants from "./page/dashboard/manageParticipants/ManageParticipants";
 import History from "./page/History";
+import Leaderboard from "./page/dashboard/Leaderboard";
 
 const router = createBrowserRouter([
   {
@@ -37,27 +37,15 @@ const router = createBrowserRouter([
       },
       {
         path: "problems",
-        element: (
-          <PrivetRoute>
-            <Problems />
-          </PrivetRoute>
-        ),
+        element: <Problems />,
       },
       {
         path: "all-contests",
-        element: (
-          <PrivetRoute>
-            <AllContests />
-          </PrivetRoute>
-        ),
+        element: <AllContests />,
       },
       {
         path: "/contests/:id",
-        element: (
-          <PrivetRoute>
-            <ContestDetails></ContestDetails>
-          </PrivetRoute>
-        ),
+        element: <ContestDetails></ContestDetails>,
       },
       {
         path: "contests/:contestId/lobby",
@@ -108,8 +96,12 @@ const router = createBrowserRouter([
     element: <DashboardLayout />,
     children: [
       {
-        index: true,
-        element: <DashboardHome />,
+        path: "leaderboard",
+        element: (
+          <PrivetRoute>
+            <Leaderboard />
+          </PrivetRoute>
+        ),
       },
       {
         path: "profile",
@@ -138,37 +130,41 @@ const router = createBrowserRouter([
       {
         path: "manageContests",
         element: (
-          <PrivetRoute>
+          <AdminRoute>
             <ManageContests />
-          </PrivetRoute>
+          </AdminRoute>
         ),
       },
       {
-        path: "/dashboard/addProblem",
-        element: <AddProblem />,
+        path: "addProblem",
+        element: (
+          <AdminRoute>
+            <AddProblem />
+          </AdminRoute>
+        ),
       },
       {
         path: "manageContests",
         element: (
-          <PrivetRoute>
+          <AdminRoute>
             <ManageContests />
-          </PrivetRoute>
+          </AdminRoute>
         ),
       },
       {
         path: "manageTeams",
         element: (
-          <PrivetRoute>
+          <AdminRoute>
             <ManageTeams />
-          </PrivetRoute>
+          </AdminRoute>
         ),
       },
       {
         path: "manageParticipants",
         element: (
-          <PrivetRoute>
+          <AdminRoute>
             <ManageParticipants />
-          </PrivetRoute>
+          </AdminRoute>
         ),
       },
     ],

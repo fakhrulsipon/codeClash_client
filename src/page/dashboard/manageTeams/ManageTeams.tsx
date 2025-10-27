@@ -4,6 +4,7 @@ import { FaUserFriends, FaRegCheckCircle, FaRegTimesCircle, FaCrown, FaUser } fr
 import { motion } from "framer-motion";
 import useAxiosSecure from "../../../hook/useAxiosSecure";
 import Swal from "sweetalert2";
+import useAxiosPublic from "../../../hook/useAxiosPublic";
 
 interface TeamMember {
   userId: string;
@@ -31,13 +32,16 @@ export default function ManageTeams() {
   const [teams, setTeams] = useState<Team[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState<"all" | "waiting" | "ready" | "started" | "completed">("all");
+  const [statusFilter, setStatusFilter] = useState<
+    "all" | "waiting" | "ready" | "started" | "completed"
+  >("all");
   const [selectedTeam, setSelectedTeam] = useState<Team | null>(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
-  
+
   const axiosSecure = useAxiosSecure();
+  const axiosPublic = useAxiosPublic();
 
   const fetchTeams = async () => {
     try {
@@ -113,7 +117,10 @@ export default function ManageTeams() {
     }
   };
 
-  const handleUpdateTeamStatus = async (teamId: string, newStatus: Team["status"]) => {
+  const handleUpdateTeamStatus = async (
+    teamId: string,
+    newStatus: Team["status"]
+  ) => {
     try {
       setActionLoading(teamId);
       await axiosSecure.patch(`/api/teams/${teamId}/status`, { status: newStatus });
@@ -367,7 +374,9 @@ export default function ManageTeams() {
                                     className="w-full h-full rounded-full"
                                   />
                                 ) : (
-                                  (member.userName?.charAt(0) || "U").toUpperCase()
+                                  (
+                                    member.userName?.charAt(0) || "U"
+                                  ).toUpperCase()
                                 )}
                               </div>
                             ))}

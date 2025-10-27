@@ -9,6 +9,7 @@ import LoadingSpinner from "../../../components/LoadingSpinner";
 import { motion } from "framer-motion";
 import { FiSearch, FiUser, FiMail, FiShield, FiUserCheck, FiUserX } from "react-icons/fi";
 import Swal from "sweetalert2";
+import useAxiosPublic from "../../../hook/useAxiosPublic";
 
 interface User {
   _id: string;
@@ -26,6 +27,7 @@ interface UsersResponse {
 const ManageUsers: React.FC = () => {
   const axiosSecure = useAxiosSecure();
   const queryClient = useQueryClient();
+  const axiosPublic = useAxiosPublic();
 
   const [search, setSearch] = useState<string>("");
   const [page, setPage] = useState<number>(1);
@@ -34,7 +36,7 @@ const ManageUsers: React.FC = () => {
   const { data, isLoading } = useQuery<UsersResponse>({
     queryKey: ["users", search, page],
     queryFn: async (): Promise<UsersResponse> => {
-      const res = await axiosSecure.get(
+      const res = await axiosPublic.get(
         `/api/users?search=${search}&page=${page}&limit=${limit}`
       );
       return res.data as UsersResponse;

@@ -1,8 +1,8 @@
 import { useForm, useFieldArray } from "react-hook-form";
 import { useState } from "react";
-import axios from "axios";
 import Swal from "sweetalert2";
 import { motion } from "framer-motion";
+import useAxiosSecure from "../../../hook/useAxiosSecure";
 
 type TestCase = { input: string; expectedOutput: string };
 
@@ -22,6 +22,7 @@ type FormData = {
 };
 
 export default function AddProblem() {
+  const axiosSecure = useAxiosSecure();
   const { register, handleSubmit, reset, control } = useForm<FormData>({
     defaultValues: {
       starterCode: { javascript: "", python: "", java: "", c: "" },
@@ -52,7 +53,7 @@ export default function AddProblem() {
         createdAt: new Date(),
       };
   
-      await axios.post("http://localhost:3000/api/problems", payload);
+      await axiosSecure.post("/api/problems", payload);
   
       Swal.fire({
         icon: 'success',

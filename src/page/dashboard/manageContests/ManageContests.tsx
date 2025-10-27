@@ -4,6 +4,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { FiEdit, FiPause, FiPlay, FiTrash2, FiSearch, FiAlertCircle } from "react-icons/fi";
 import useAxiosSecure from "../../../hook/useAxiosSecure";
+import useAxiosPublic from "../../../hook/useAxiosPublic";
 
 // ✅ Contest type
 interface Problem {
@@ -25,6 +26,7 @@ interface Contest {
 const ManageContests = () => {
   const [search, setSearch] = useState("");
   const axiosSecure = useAxiosSecure();
+  const axiosPublic = useAxiosPublic();
 
   const {
     data: contests = [],
