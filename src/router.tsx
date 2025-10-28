@@ -105,10 +105,6 @@ const router = createBrowserRouter([
           </PrivetRoute>
         ),
       },
-      {
-        path: "leaderboard",
-        element: <Leaderboard />,
-      },
     ],
   },
 
@@ -133,7 +129,11 @@ const router = createBrowserRouter([
         path: "history",
         element: <History />,
       },
-      
+      {
+        path: "leaderboard",
+        element: <Leaderboard />,
+      },
+
       // ========= Admin Only Routes =========
       {
         path: "admin",
