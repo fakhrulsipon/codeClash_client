@@ -1,5 +1,5 @@
 import { use, useState } from "react";
-import { Link, Outlet, useLocation } from "react-router";
+import { Link, Outlet, useLocation, useNavigate } from "react-router";
 import {
   FiMenu,
   FiUser,
@@ -22,13 +22,27 @@ import { motion, AnimatePresence } from "framer-motion";
 import useUserRole from "../hook/useUserRole";
 import LoadingSpinner from "../components/LoadingSpinner";
 import { AuthContext } from "../provider/AuthProvider";
+import { signOut } from "firebase/auth";
+import { auth } from "../firebase/firebase.init";
 
 export default function DashboardLayout() {
   const [isOpen, setIsOpen] = useState(false);
   const { user } = use(AuthContext)!;
   const location = useLocation();
+  const navigate = useNavigate();
   const email = user?.email ?? user?.providerData?.[0]?.email;
   const { userRole, roleLoading } = useUserRole(email!);
+
+  // Logout function
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      // Redirect to home page after logout
+      navigate("/");
+    } catch (error) {
+      console.error("Error signing out:", error);
+    }
+  };
 
   if (roleLoading) {
     return <LoadingSpinner />;
@@ -144,10 +158,7 @@ export default function DashboardLayout() {
 
   const LogoutButton = () => (
     <button
-      onClick={() => {
-        // Handle logout logic here
-        window.location.href = "/dashboard/logout";
-      }}
+      onClick={handleLogout}
       className="flex items-center gap-3 px-4 py-3 rounded-xl text-red-400 hover:bg-red-500/20 hover:text-red-300 border border-red-500/30 hover:border-red-400/50 transition-all duration-200 group mt-auto"
     >
       <FiLogOut className="w-5 h-5" />
@@ -249,7 +260,7 @@ export default function DashboardLayout() {
                 onClick={() => setIsOpen(false)}
               />
 
-              {/* Sliding aside - FIXED SCROLL */}
+              {/* Sliding aside */}
               <motion.aside
                 className="fixed left-0 top-0 w-80 h-full bg-gradient-to-b from-slate-800 to-slate-900 shadow-2xl z-50 lg:hidden flex flex-col border-r border-white/10"
                 initial={{ x: -320 }}

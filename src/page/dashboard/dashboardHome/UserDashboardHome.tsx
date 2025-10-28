@@ -67,28 +67,11 @@ export const UserDashboardHome: React.FC = () => {
     },
     {
       label: "Join Contest",
-      path: "/contests",
+      path: "/all-contests",
       icon: FaTrophy,
       color: "purple",
     },
-    {
-      label: "View Leaderboard",
-      path: "/leaderboard",
-      icon: FiTrendingUp,
-      color: "cyan",
-    },
-    {
-      label: "My Submissions",
-      path: "/history",
-      icon: FiActivity,
-      color: "green",
-    },
-    {
-      label: "My Profile",
-      path: "/profile",
-      icon: FaUser,
-      color: "yellow",
-    },
+    
   ];
 
   const fetchUserStats = async () => {
