@@ -28,6 +28,8 @@ import Leaderboard from "./page/dashboard/Leaderboard";
 import AIAgent from "./page/aiAgent/AIAgent";
 
 
+import UserDashboardHome from "./page/dashboard/dashboardHome/UserDashboardHome";
+import AdminDashboardHome from "./page/dashboard/dashboardHome/DashboardHome";
 
 const router = createBrowserRouter([
   {
@@ -97,22 +99,6 @@ const router = createBrowserRouter([
           </PrivetRoute>
         ),
       },
-    ],
-  },
-
-  // ========= admin dashboard ===========
-  {
-    path: "/dashboard",
-    element: <DashboardLayout />,
-    children: [
-      {
-        path: "leaderboard",
-        element: (
-          <PrivetRoute>
-            <Leaderboard />
-          </PrivetRoute>
-        ),
-      },
       {
         path: "profile",
         element: (
@@ -129,16 +115,54 @@ const router = createBrowserRouter([
           </PrivetRoute>
         ),
       },
+    ],
+  },
+
+  // ========= Dashboard Routes ===========
+  {
+    path: "/dashboard",
+    element: (
+      <PrivetRoute>
+        <DashboardLayout />
+      </PrivetRoute>
+    ),
+    children: [
       {
-        path: "addContest",
-        element: <AddContest />,
+        index: true,
+        element: <UserDashboardHome />,
       },
       {
-        path: "manage-users",
-        element: <ManageUsers />,
+        path: "profile",
+        element: <Profile />,
       },
       {
-        path: "manageContests",
+        path: "history",
+        element: <History />,
+      },
+      {
+        path: "leaderboard",
+        element: <Leaderboard />,
+      },
+
+      // ========= Admin Only Routes =========
+      {
+        path: "admin",
+        element: (
+          <AdminRoute>
+            <AdminDashboardHome />
+          </AdminRoute>
+        ),
+      },
+      {
+        path: "admin/manage-users",
+        element: (
+          <AdminRoute>
+            <ManageUsers />
+          </AdminRoute>
+        ),
+      },
+      {
+        path: "admin/manage-contests",
         element: (
           <AdminRoute>
             <ManageContests />
@@ -146,7 +170,7 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: "addProblem",
+        path: "admin/add-problem",
         element: (
           <AdminRoute>
             <AddProblem />
@@ -154,15 +178,7 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: "manageContests",
-        element: (
-          <AdminRoute>
-            <ManageContests />
-          </AdminRoute>
-        ),
-      },
-      {
-        path: "manageTeams",
+        path: "admin/manage-teams",
         element: (
           <AdminRoute>
             <ManageTeams />
@@ -170,10 +186,18 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: "manageParticipants",
+        path: "admin/manage-participants",
         element: (
           <AdminRoute>
             <ManageParticipants />
+          </AdminRoute>
+        ),
+      },
+      {
+        path: "admin/add-contest",
+        element: (
+          <AdminRoute>
+            <AddContest />
           </AdminRoute>
         ),
       },

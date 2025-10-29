@@ -4,6 +4,7 @@ import { FaUserFriends, FaRegCheckCircle, FaExclamationTriangle, FaUser, FaUsers
 import { motion } from "framer-motion";
 import useAxiosSecure from "../../../hook/useAxiosSecure";
 import Swal from "sweetalert2";
+import useAxiosPublic from "../../../hook/useAxiosPublic";
 
 interface Contest {
   _id: string;

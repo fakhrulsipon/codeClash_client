@@ -1,11 +1,13 @@
 import { use, useState } from "react";
-import { Link, Outlet, useLocation } from "react-router";
+import { Link, Outlet, useLocation, useNavigate } from "react-router";
 import {
   FiMenu,
   FiUser,
   FiLogOut,
   FiChevronRight,
   FiHome,
+  FiBarChart2,
+  FiAward,
 } from "react-icons/fi";
 import {
   FaUsers,
@@ -20,20 +22,42 @@ import { motion, AnimatePresence } from "framer-motion";
 import useUserRole from "../hook/useUserRole";
 import LoadingSpinner from "../components/LoadingSpinner";
 import { AuthContext } from "../provider/AuthProvider";
+import { signOut } from "firebase/auth";
+import { auth } from "../firebase/firebase.init";
 
 export default function DashboardLayout() {
   const [isOpen, setIsOpen] = useState(false);
   const { user } = use(AuthContext)!;
   const location = useLocation();
+  const navigate = useNavigate();
   const email = user?.email ?? user?.providerData?.[0]?.email;
   const { userRole, roleLoading } = useUserRole(email!);
-  console.log(userRole);
+
+  // Logout function
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      // Redirect to home page after logout
+      navigate("/");
+    } catch (error) {
+      console.error("Error signing out:", error);
+    }
+  };
 
   if (roleLoading) {
     return <LoadingSpinner />;
   }
 
-  // User-specific links
+  // Dashboard Home link (for all users)
+  const dashboardLinks = [
+    {
+      path: "/dashboard",
+      label: "Dashboard Home",
+      icon: <FiBarChart2 className="w-5 h-5" />,
+    },
+  ];
+
+  // User-specific links (for both regular users and admins)
   const userLinks = [
     {
       path: "/dashboard/profile",
@@ -44,6 +68,11 @@ export default function DashboardLayout() {
       path: "/dashboard/history",
       label: "History",
       icon: <FaHistory className="w-5 h-5" />,
+    },
+    {
+      path: "/dashboard/leaderboard",
+      label: "Leaderboard",
+      icon: <FiAward className="w-5 h-5" />,
     },
   ];
 
@@ -82,8 +111,9 @@ export default function DashboardLayout() {
   ];
 
   const allLinks = [
+    ...dashboardLinks,
     ...(userRole === "admin" ? adminLinks : []),
-    ...(userRole === "user" ? userLinks : []),
+    ...userLinks, // Leaderboard is available for all users
   ];
 
   const isActiveLink = (path: string) => {
@@ -118,7 +148,9 @@ export default function DashboardLayout() {
       <span className="font-medium">{label}</span>
       <FiChevronRight
         className={`ml-auto transition-transform duration-200 ${
-          isActiveLink(path) ? "rotate-90 text-white" : "text-gray-400 group-hover:text-cyan-300 group-hover:translate-x-1"
+          isActiveLink(path)
+            ? "rotate-90 text-white"
+            : "text-gray-400 group-hover:text-cyan-300 group-hover:translate-x-1"
         }`}
       />
     </Link>
@@ -126,10 +158,7 @@ export default function DashboardLayout() {
 
   const LogoutButton = () => (
     <button
-      onClick={() => {
-        // Handle logout logic here
-        window.location.href = "/dashboard/logout";
-      }}
+      onClick={handleLogout}
       className="flex items-center gap-3 px-4 py-3 rounded-xl text-red-400 hover:bg-red-500/20 hover:text-red-300 border border-red-500/30 hover:border-red-400/50 transition-all duration-200 group mt-auto"
     >
       <FiLogOut className="w-5 h-5" />
@@ -231,7 +260,7 @@ export default function DashboardLayout() {
                 onClick={() => setIsOpen(false)}
               />
 
-              {/* Sliding aside - FIXED SCROLL */}
+              {/* Sliding aside */}
               <motion.aside
                 className="fixed left-0 top-0 w-80 h-full bg-gradient-to-b from-slate-800 to-slate-900 shadow-2xl z-50 lg:hidden flex flex-col border-r border-white/10"
                 initial={{ x: -320 }}
@@ -314,10 +343,10 @@ export default function DashboardLayout() {
                 <div className="absolute top-1/2 right-0 w-96 h-96 bg-purple-600/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
                 <div className="absolute bottom-0 left-1/3 w-72 h-72 bg-blue-600/10 rounded-full blur-3xl animate-pulse delay-500"></div>
               </div>
-              
+
               {/* Content */}
               <div className="relative z-10">
-                <Outlet />
+                <Outlet context={{ user }} />
               </div>
             </div>
           </main>
