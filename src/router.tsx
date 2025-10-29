@@ -24,6 +24,10 @@ import ManageTeams from "./page/dashboard/manageTeams/ManageTeams";
 import ManageParticipants from "./page/dashboard/manageParticipants/ManageParticipants";
 import History from "./page/History";
 import Leaderboard from "./page/dashboard/Leaderboard";
+// miskaran's contribution
+import AIAgent from "./page/aiAgent/AIAgent";
+
+
 
 const router = createBrowserRouter([
   {
@@ -39,6 +43,12 @@ const router = createBrowserRouter([
         path: "problems",
         element: <Problems />,
       },
+      // miskaran's contribution
+      {
+        path: "ai-agent",
+        element: <AIAgent />,
+      },
+
       {
         path: "all-contests",
         element: <AllContests />,

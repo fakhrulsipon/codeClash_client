@@ -21,6 +21,7 @@ import {
   Home,
   Info,
   History as HistoryIcon,
+  SmartToy,
 } from "@mui/icons-material";
 import { Badge, Typography, useMediaQuery, useTheme } from "@mui/material";
 import LogoutIcon from '@mui/icons-material/Logout';
@@ -37,7 +38,7 @@ function Navbar() {
   const location = useLocation();
   const { totalSubmissions } =
     useUserSubmissions();
-  
+
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
@@ -45,7 +46,7 @@ function Navbar() {
     setAnchorElNav(event.currentTarget);
   };
 
-  
+
 
   const handleCloseNavMenu = () => {
     setAnchorElNav(null);
@@ -73,6 +74,13 @@ function Navbar() {
       path: "/problems",
       icon: <Code sx={{ fontSize: 20 }} />,
     },
+    // miskaran's contribution
+    {
+      name: "AI Agent",
+      path: "/ai-agent",
+      icon: <SmartToy sx={{ fontSize: 20 }} />, 
+    },
+
     {
       name: "Contests",
       path: "/all-contests",
@@ -83,13 +91,13 @@ function Navbar() {
 
   const pages = user
     ? [
-        ...basePages,
-        {
-          name: "Dashboard",
-          path: "/dashboard",
-          icon: <Dashboard sx={{ fontSize: 20 }} />,
-        },
-      ]
+      ...basePages,
+      {
+        name: "Dashboard",
+        path: "/dashboard",
+        icon: <Dashboard sx={{ fontSize: 20 }} />,
+      },
+    ]
     : basePages;
 
   const isActiveLink = (path: string) => {
@@ -198,18 +206,18 @@ function Navbar() {
             {/* User Avatar & Menu */}
             {user ? (
               <>
-                
-                  {user?.photoURL ? (
-                    <img
-                      className="w-8 h-8 rounded-full"
-                      src={user.photoURL}
-                      alt={user.displayName || "User"}
-                      referrerPolicy="no-referrer"
-                    />
-                  ) : (
-                    <AccountCircle sx={{ color: "white", fontSize: 32 }} />
-                  )}
-               
+
+                {user?.photoURL ? (
+                  <img
+                    className="w-8 h-8 rounded-full"
+                    src={user.photoURL}
+                    alt={user.displayName || "User"}
+                    referrerPolicy="no-referrer"
+                  />
+                ) : (
+                  <AccountCircle sx={{ color: "white", fontSize: 32 }} />
+                )}
+
 
                 <Menu
                   sx={{ mt: "45px" }}
@@ -396,7 +404,7 @@ function Navbar() {
                 </Box>
               </MenuItem>
             ))}
-            
+
             {/* Logout in mobile nav menu */}
             {user && isMobile && (
               <MenuItem
