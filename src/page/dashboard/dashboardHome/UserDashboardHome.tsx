@@ -10,7 +10,7 @@ import {
 } from "react-icons/fi";
 import { FaCode, FaTrophy, FaUser, FaChartLine } from "react-icons/fa";
 import { motion } from "framer-motion";
-import { Link, useOutletContext } from "react-router"; // Add useOutletContext
+import { Link, useOutletContext } from "react-router";
 import useAxiosSecure from "../../../hook/useAxiosSecure";
 
 interface UserStats {

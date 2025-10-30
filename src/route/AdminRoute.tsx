@@ -1,3 +1,4 @@
+// src/route/AdminRoute.tsx
 import { Navigate } from "react-router";
 import { use } from "react";
 import { AuthContext } from "../provider/AuthProvider";
@@ -14,7 +15,7 @@ const AdminRoute: React.FC<AdminRouteProps> = ({ children }) => {
   const email = user?.email || user?.providerData?.[0]?.email;
   
   // Always call the hook at the top level
-  const { userRole, roleLoading } = useUserRole(email || "");
+  const { userRole, roleLoading } = useUserRole(email);
 
   // Show loading when any loading state is true
   if (loading || roleLoading) {
@@ -26,9 +27,9 @@ const AdminRoute: React.FC<AdminRouteProps> = ({ children }) => {
     return <Navigate to="/" replace />;
   }
 
-  // If userRole is not admin, redirect to home
+  // If userRole is not admin, redirect to dashboard home
   if (userRole !== "admin") {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/dashboard" replace />;
   }
 
   // If everything is fine, render children

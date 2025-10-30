@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Container, Typography } from "@mui/material";
+import { Container, Typography, useMediaQuery, useTheme } from "@mui/material";
 import { 
   TrendingUp,
   EmojiEvents,
@@ -56,7 +56,6 @@ interface Problem {
   acceptanceRate?: number;
 }
 
-
 const Problems = () => {
   const [problems, setProblems] = useState<Problem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -69,6 +68,8 @@ const Problems = () => {
   
   const axiosPublic = useAxiosPublic();
   const navigate = useNavigate();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
   // Use debounced search with 500ms delay
   const debouncedSearch = useDebounce(search, 500);
@@ -158,6 +159,15 @@ const Problems = () => {
       case "medium": return "bg-yellow-500/10 border-yellow-500/30";
       case "hard": return "bg-red-500/10 border-red-500/30";
       default: return "bg-blue-500/10 border-blue-500/30";
+    }
+  };
+
+  const getDifficultyColor = (difficulty: string) => {
+    switch (difficulty.toLowerCase()) {
+      case "easy": return "text-green-400";
+      case "medium": return "text-yellow-400";
+      case "hard": return "text-red-400";
+      default: return "text-blue-400";
     }
   };
 
@@ -404,98 +414,193 @@ const Problems = () => {
           )}
         </motion.div>
 
-        {/* Problems Grid */}
+        {/* Problems Display - Table for Desktop, Cards for Mobile */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.8, delay: 0.4 }}
-          className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 relative z-10"
+          className="relative z-10"
         >
-          <AnimatePresence>
-            {problems.map((problem, index) => (
-              <motion.div
-                key={problem._id}
-                initial={{ opacity: 0, y: 50 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -50 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                whileHover={{ y: -8, scale: 1.02 }}
-                className="group relative"
-              >
-                {/* Problem Card */}
-                <div className="relative rounded-3xl overflow-hidden backdrop-blur-xl border border-white/10 bg-gradient-to-br from-white/5 to-white/10 p-6 h-full transition-all duration-500 group-hover:border-cyan-500/30">
-                  
-                  {/* Shine Effect */}
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -skew-x-12 transform translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
-
-                  <div className="relative z-10 h-full flex flex-col">
-                    {/* Difficulty Badge */}
-                    <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold mb-4 ${getDifficultyBg(problem.difficulty)}`}>
-                      {getDifficultyIcon(problem.difficulty)}
-                      <span className="capitalize">{problem.difficulty}</span>
-                    </div>
-
-                    {/* Title */}
-                    <Typography
-                      variant="h6"
-                      className="font-bold text-white mb-3 group-hover:text-cyan-300 transition-colors duration-300 line-clamp-2"
-                    >
-                      {problem.title}
-                    </Typography>
-
-                    {/* Description */}
-                    <Typography
-                      variant="body2"
-                      className="text-gray-300 mb-4 flex-1 line-clamp-3 leading-relaxed"
-                    >
-                      {problem.description}
-                    </Typography>
-
-                    {/* Category & Stats */}
-                    <div className="flex items-center justify-between mb-6">
-                      <span className="px-3 py-1 bg-blue-500/10 border border-blue-500/30 text-blue-300 rounded-full text-xs font-medium">
-                        {problem.category}
-                      </span>
+          {isMobile ? (
+            /* Mobile Card View */
+            <div className="grid gap-6">
+              <AnimatePresence>
+                {problems.map((problem, index) => (
+                  <motion.div
+                    key={problem._id}
+                    initial={{ opacity: 0, y: 50 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -50 }}
+                    transition={{ duration: 0.5, delay: index * 0.1 }}
+                    whileHover={{ y: -4 }}
+                    className="group"
+                  >
+                    {/* Problem Card */}
+                    <div className="relative rounded-3xl overflow-hidden backdrop-blur-xl border border-white/10 bg-gradient-to-br from-white/5 to-white/10 p-6 transition-all duration-500 group-hover:border-cyan-500/30">
                       
-                      <div className="flex items-center gap-1 text-gray-400 text-xs">
-                        <Star className="text-yellow-400 text-sm" />
-                        <span>{problem.acceptanceRate || "80"}% Acceptance</span>
+                      {/* Shine Effect */}
+                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -skew-x-12 transform translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
+
+                      <div className="relative z-10">
+                        {/* Difficulty Badge */}
+                        <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold mb-4 ${getDifficultyBg(problem.difficulty)}`}>
+                          {getDifficultyIcon(problem.difficulty)}
+                          <span className="capitalize">{problem.difficulty}</span>
+                        </div>
+
+                        {/* Title */}
+                        <Typography
+                          variant="h6"
+                          className="font-bold text-white mb-3 group-hover:text-cyan-300 transition-colors duration-300 line-clamp-2"
+                        >
+                          {problem.title}
+                        </Typography>
+
+                        {/* Description */}
+                        <Typography
+                          variant="body2"
+                          className="text-gray-300 mb-4 line-clamp-3 leading-relaxed"
+                        >
+                          {problem.description}
+                        </Typography>
+
+                        {/* Category & Stats */}
+                        <div className="flex items-center justify-between mb-6">
+                          <span className="px-3 py-1 bg-blue-500/10 border border-blue-500/30 text-blue-300 rounded-full text-xs font-medium">
+                            {problem.category}
+                          </span>
+                          
+                          <div className="flex items-center gap-1 text-gray-400 text-xs">
+                            <Star className="text-yellow-400 text-sm" />
+                            <span>{problem.acceptanceRate || "80"}% Acceptance</span>
+                          </div>
+                        </div>
+
+                        {/* Solve Button */}
+                        <motion.button
+                          onClick={() => setSelectedProblem(problem)}
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          className={`w-full py-3 rounded-xl font-bold text-white bg-gradient-to-r ${getDifficultyGradient(problem.difficulty)} hover:shadow-2xl transition-all duration-300 flex items-center justify-center gap-2`}
+                        >
+                          <FaRocket className="text-sm" />
+                          Solve Challenge
+                        </motion.button>
                       </div>
                     </div>
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+            </div>
+          ) : (
+            /* Desktop Table View */
+            <div className="bg-white/5 border border-white/10 rounded-3xl backdrop-blur-xl overflow-hidden">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-white/10">
+                    <th className="text-left py-6 px-6 text-gray-300 font-semibold text-sm">Problem</th>
+                    <th className="text-left py-6 px-6 text-gray-300 font-semibold text-sm">Difficulty</th>
+                    <th className="text-left py-6 px-6 text-gray-300 font-semibold text-sm">Category</th>
+                    <th className="text-left py-6 px-6 text-gray-300 font-semibold text-sm">Acceptance</th>
+                    <th className="text-left py-6 px-6 text-gray-300 font-semibold text-sm">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <AnimatePresence>
+                    {problems.map((problem, index) => (
+                      <motion.tr
+                        key={problem._id}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -20 }}
+                        transition={{ duration: 0.3, delay: index * 0.05 }}
+                        className="border-b border-white/5 hover:bg-white/5 transition-all duration-300 group"
+                      >
+                        {/* Problem Title & Description */}
+                        <td className="py-5 px-6">
+                          <div className="flex flex-col">
+                            <Typography
+                              variant="subtitle1"
+                              className="font-bold text-white group-hover:text-cyan-300 transition-colors duration-300 mb-1"
+                            >
+                              {problem.title}
+                            </Typography>
+                            <Typography
+                              variant="body2"
+                              className="text-gray-400 line-clamp-2 text-sm"
+                            >
+                              {problem.description}
+                            </Typography>
+                          </div>
+                        </td>
 
-                    {/* Solve Button */}
-                    <motion.button
-                      onClick={() => setSelectedProblem(problem)}
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      className={`w-full py-3 rounded-xl font-bold text-white bg-gradient-to-r ${getDifficultyGradient(problem.difficulty)} hover:shadow-2xl transition-all duration-300 flex items-center justify-center gap-2`}
-                    >
-                      <FaRocket className="text-sm" />
-                      Solve Challenge
-                    </motion.button>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </AnimatePresence>
+                        {/* Difficulty */}
+                        <td className="py-5 px-6">
+                          <div className={`flex items-center gap-2 ${getDifficultyColor(problem.difficulty)} font-medium`}>
+                            {getDifficultyIcon(problem.difficulty)}
+                            <span className="capitalize">{problem.difficulty}</span>
+                          </div>
+                        </td>
+
+                        {/* Category */}
+                        <td className="py-5 px-6">
+                          <span className="px-3 py-1 bg-blue-500/10 border border-blue-500/30 text-blue-300 rounded-full text-xs font-medium">
+                            {problem.category}
+                          </span>
+                        </td>
+
+                        {/* Acceptance Rate */}
+                        <td className="py-5 px-6">
+                          <div className="flex items-center gap-2">
+                            <div className="w-16 bg-gray-700 rounded-full h-2">
+                              <div 
+                                className="h-2 rounded-full bg-gradient-to-r from-green-400 to-cyan-400"
+                                style={{ width: `${problem.acceptanceRate || 80}%` }}
+                              ></div>
+                            </div>
+                            <span className="text-gray-300 text-sm font-medium">
+                              {problem.acceptanceRate || 80}%
+                            </span>
+                          </div>
+                        </td>
+
+                        {/* Action Button */}
+                        <td className="py-5 px-6">
+                          <motion.button
+                            onClick={() => setSelectedProblem(problem)}
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            className={`py-2 px-6 rounded-xl font-bold text-white bg-gradient-to-r ${getDifficultyGradient(problem.difficulty)} hover:shadow-2xl transition-all duration-300 flex items-center justify-center gap-2 text-sm`}
+                          >
+                            <FaRocket className="text-xs" />
+                            Solve
+                          </motion.button>
+                        </td>
+                      </motion.tr>
+                    ))}
+                  </AnimatePresence>
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          {/* No Results Message */}
+          {problems.length === 0 && !loading && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="text-center py-16"
+            >
+              <div className="text-6xl mb-4">🔍</div>
+              <Typography variant="h5" className="text-white mb-2">
+                No problems found
+              </Typography>
+              <Typography variant="body1" className="text-gray-400">
+                Try adjusting your search criteria or filters
+              </Typography>
+            </motion.div>
+          )}
         </motion.div>
-
-        {/* No Results Message */}
-        {problems.length === 0 && !loading && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="text-center py-16"
-          >
-            <div className="text-6xl mb-4">🔍</div>
-            <Typography variant="h5" className="text-white mb-2">
-              No problems found
-            </Typography>
-            <Typography variant="body1" className="text-gray-400">
-              Try adjusting your search criteria or filters
-            </Typography>
-          </motion.div>
-        )}
 
         {/* Confirmation Modal */}
         <AnimatePresence>

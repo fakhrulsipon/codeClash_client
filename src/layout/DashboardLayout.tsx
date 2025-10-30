@@ -17,6 +17,8 @@ import {
   FaUserShield,
   FaUserFriends,
   FaUserCheck,
+  FaListAlt,
+  FaTrophy,
 } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
 import useUserRole from "../hook/useUserRole";
@@ -89,9 +91,14 @@ export default function DashboardLayout() {
       icon: <FaPlus className="w-5 h-5" />,
     },
     {
+      path: "/dashboard/manageProblems",
+      label: "Manage Problems",
+      icon: <FaListAlt className="w-5 h-5" />,
+    },
+    {
       path: "/dashboard/manageContests",
       label: "Manage Contests",
-      icon: <FaList className="w-5 h-5" />,
+      icon: <FaTrophy className="w-5 h-5" />,
     },
     {
       path: "/dashboard/manage-users",
