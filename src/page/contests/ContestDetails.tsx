@@ -6,7 +6,6 @@ import toast from "react-hot-toast";
 import ContestLeaderboard from "./ContestLeaderboard";
 import LoadingSpinner from "../../components/LoadingSpinner";
 import Swal from "sweetalert2";
-import useAxiosSecure from "../../hook/useAxiosSecure";
 import { 
   Calendar, 
   Clock, 
@@ -24,6 +23,8 @@ import {
   Shield,
   Medal
 } from "lucide-react";
+import useAxiosPublic from "../../hook/useAxiosPublic";
+import useAxiosSecure from "../../hook/useAxiosSecure";
 
 type Problem = {
   _id: string;
@@ -73,13 +74,14 @@ const ContestDetails: React.FC = () => {
   const [teamName, setTeamName] = useState("");
   const [teamCode, setTeamCode] = useState("");
   const [, setTeamJoined] = useState(false);
+  const axiosPublic = useAxiosPublic();
   const axiosSecure = useAxiosSecure();
 
   // Fetch contest data
   useEffect(() => {
     const fetchContest = async () => {
       try {
-        const res = await axiosSecure.get<Contest>(`/api/contests/${id}`);
+        const res = await axiosPublic.get<Contest>(`/api/contests/${id}`);
         setContest(res.data);
       } catch (err) {
         console.error(err);
@@ -90,7 +92,7 @@ const ContestDetails: React.FC = () => {
 
     const fetchLeaderboard = async () => {
       try {
-        const res = await axiosSecure.get(
+        const res = await axiosPublic.get(
           `/api/contestSubmissions/leaderboard/${id}`
         );
         setLeaderboard(res.data);
@@ -103,7 +105,7 @@ const ContestDetails: React.FC = () => {
 
     fetchContest();
     fetchLeaderboard();
-  }, [id]);
+  }, [id, axiosPublic]);
 
   // Countdown timer
   useEffect(() => {

@@ -1,14 +1,11 @@
 import axios from "axios";
 
-
 const axiosSecure = axios.create({
-  baseURL: "https://code-clash-server-rust.vercel.app",
-});
+    baseURL: `http://localhost:3000`
+})
 
 const useAxiosSecure = () => {
-  
-
-  return axiosSecure;
+    return axiosSecure;
 };
 
 export default useAxiosSecure;

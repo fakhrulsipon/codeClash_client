@@ -21,9 +21,10 @@ import {
   Home,
   Info,
   History as HistoryIcon,
+  SmartToy,
 } from "@mui/icons-material";
 import { Badge, Typography, useMediaQuery, useTheme } from "@mui/material";
-import LogoutIcon from '@mui/icons-material/Logout';
+import LogoutIcon from "@mui/icons-material/Logout";
 import { useUserSubmissions } from "../../hook/useUserSubmissions";
 
 function Navbar() {
@@ -35,17 +36,20 @@ function Navbar() {
   );
   const { user, logoutUser } = React.use(AuthContext)!;
   const location = useLocation();
-  const { totalSubmissions } =
-    useUserSubmissions();
-  
+  const { totalSubmissions } = useUserSubmissions();
+
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const isTablet = useMediaQuery(theme.breakpoints.between("md", "lg"));
+  const isDesktop = useMediaQuery(theme.breakpoints.up("lg"));
 
   const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorElNav(event.currentTarget);
   };
 
-  
+  const handleOpenUserMenu = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorElUser(event.currentTarget);
+  };
 
   const handleCloseNavMenu = () => {
     setAnchorElNav(null);
@@ -67,28 +71,17 @@ function Navbar() {
   };
 
   const basePages = [
-    { name: "Home", path: "/", icon: <Home sx={{ fontSize: 20 }} /> },
-    {
-      name: "Problem Set",
-      path: "/problems",
-      icon: <Code sx={{ fontSize: 20 }} />,
-    },
-    {
-      name: "Contests",
-      path: "/all-contests",
-      icon: <EmojiEvents sx={{ fontSize: 20 }} />,
-    },
-    { name: "About", path: "/about", icon: <Info sx={{ fontSize: 20 }} /> },
+    { name: "Home", path: "/", icon: <Home /> },
+    { name: "Problems", path: "/problems", icon: <Code /> },
+    { name: "AI Agent", path: "/ai-agent", icon: <SmartToy /> },
+    { name: "Contests", path: "/all-contests", icon: <EmojiEvents /> },
+    { name: "About", path: "/about", icon: <Info /> },
   ];
 
   const pages = user
     ? [
         ...basePages,
-        {
-          name: "Dashboard",
-          path: "/dashboard",
-          icon: <Dashboard sx={{ fontSize: 20 }} />,
-        },
+        { name: "Dashboard", path: "/dashboard", icon: <Dashboard /> },
       ]
     : basePages;
 
@@ -106,19 +99,32 @@ function Navbar() {
         borderBottom: "1px solid rgba(255,255,255,0.1)",
       }}
     >
-      <Container maxWidth="xl">
-        <Toolbar disableGutters sx={{ py: 1 }}>
+      <Container maxWidth="xl" sx={{ px: { xs: 2, sm: 3, md: 4 } }}>
+        <Toolbar
+          disableGutters
+          sx={{
+            py: 0.5,
+            minHeight: { xs: "56px", md: "64px" },
+          }}
+        >
           {/* Logo - Desktop */}
-          <Box sx={{ display: { xs: "none", md: "flex" }, mr: 4 }}>
+          <Box
+            sx={{
+              display: { xs: "none", md: "flex" },
+              mr: { md: 2, lg: 3 },
+              alignItems: "center",
+              flexShrink: 0,
+            }}
+          >
             <Logo />
           </Box>
 
-          {/* Mobile Menu */}
+          {/* Mobile Menu Button & Logo */}
           <Box
             sx={{
               display: { xs: "flex", md: "none" },
-              flexGrow: 1,
               alignItems: "center",
+              flexGrow: 1,
             }}
           >
             <IconButton
@@ -128,13 +134,16 @@ function Navbar() {
               sx={{
                 color: "white",
                 "&:hover": { backgroundColor: "rgba(255,255,255,0.1)" },
+                mr: 1,
               }}
             >
               <MenuIcon />
             </IconButton>
 
             {/* Logo for Mobile */}
-            <Box sx={{ ml: 2 }}>
+            <Box
+              sx={{ flexGrow: 1, display: "flex", justifyContent: "center" }}
+            >
               <Logo />
             </Box>
           </Box>
@@ -142,10 +151,15 @@ function Navbar() {
           {/* Navigation Links - Desktop */}
           <Box
             sx={{
-              flexGrow: 1,
               display: { xs: "none", md: "flex" },
-              justifyContent: "center",
-              gap: 1,
+              alignItems: "center",
+              gap: { md: 0.5, lg: 1, xl: 1.5 },
+              // Center for logged out users, flex-start for logged in users
+              flexGrow: user ? { md: 1, lg: 0 } : 1,
+              justifyContent: user ? { md: "center", lg: "flex-start" } : "center",
+              ml: user ? { md: 1, lg: 2 } : 0,
+              flexWrap: "nowrap",
+              overflow: "hidden",
             }}
           >
             {pages.map((page) => (
@@ -153,18 +167,24 @@ function Navbar() {
                 key={page.name}
                 component={Link}
                 to={page.path}
-                startIcon={page.icon}
+                startIcon={React.cloneElement(page.icon, {
+                  sx: { fontSize: { md: 18, lg: 20 } },
+                })}
                 onClick={handleCloseNavMenu}
                 sx={{
-                  my: 1,
                   color: "white",
                   fontWeight: isActiveLink(page.path) ? "700" : "500",
                   backgroundColor: isActiveLink(page.path)
                     ? "rgba(255,255,255,0.2)"
                     : "transparent",
-                  borderRadius: "12px",
-                  px: 3,
-                  py: 1,
+                  borderRadius: "8px",
+                  px: { md: 1.5, lg: 2, xl: 2.5 },
+                  py: 0.75,
+                  minWidth: "auto",
+                  fontSize: { md: "0.8rem", lg: "0.875rem", xl: "0.9rem" },
+                  whiteSpace: "nowrap",
+                  lineHeight: 1.2,
+                  flexShrink: 0,
                   "&:hover": {
                     backgroundColor: "rgba(255,255,255,0.15)",
                     transform: "translateY(-1px)",
@@ -174,6 +194,9 @@ function Navbar() {
                   border: isActiveLink(page.path)
                     ? "1px solid rgba(255,255,255,0.3)"
                     : "1px solid transparent",
+                  "& .MuiButton-startIcon": {
+                    marginRight: { md: 0.5, lg: 0.75 },
+                  },
                 }}
               >
                 {page.name}
@@ -182,37 +205,75 @@ function Navbar() {
           </Box>
 
           {/* Right Section - User Menu & Actions */}
-          <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-            {/* Notification Bell */}
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              gap: { xs: 1, sm: 1.5, md: 1, lg: 1.5 },
+              ml: user ? "auto" : { md: 2, lg: 3 }, // Adjust margin for logged out users
+              flexShrink: 0,
+            }}
+          >
+            {/* Notification Bell - Only for logged in users */}
             {user && (
               <IconButton
                 sx={{
                   color: "white",
                   "&:hover": { backgroundColor: "rgba(255,255,255,0.1)" },
+                  padding: { xs: 0.5, md: 0.75 },
                 }}
+                size="small"
               >
-                <Notifications />
+                <Notifications
+                  sx={{
+                    fontSize: { xs: 20, md: 22, lg: 24 },
+                  }}
+                />
               </IconButton>
             )}
 
-            {/* User Avatar & Menu */}
+            {/* User Avatar & Menu for logged in users */}
             {user ? (
               <>
-                
+                <IconButton
+                  onClick={handleOpenUserMenu}
+                  sx={{
+                    padding: 0.5,
+                    "&:hover": { backgroundColor: "rgba(255,255,255,0.1)" },
+                  }}
+                  size="small"
+                >
                   {user?.photoURL ? (
                     <img
-                      className="w-8 h-8 rounded-full"
                       src={user.photoURL}
                       alt={user.displayName || "User"}
                       referrerPolicy="no-referrer"
+                      style={{
+                        width: "32px",
+                        height: "32px",
+                        borderRadius: "50%",
+                        border: "2px solid rgba(255,255,255,0.3)",
+                      }}
                     />
                   ) : (
-                    <AccountCircle sx={{ color: "white", fontSize: 32 }} />
+                    <AccountCircle
+                      sx={{
+                        color: "white",
+                        fontSize: { xs: 28, md: 30, lg: 32 },
+                      }}
+                    />
                   )}
-               
+                </IconButton>
 
+                {/* User Menu */}
                 <Menu
-                  sx={{ mt: "45px" }}
+                  sx={{
+                    mt: { xs: "36px", md: "40px" },
+                    "& .MuiPaper-root": {
+                      minWidth: "180px",
+                      maxWidth: "220px",
+                    },
+                  }}
                   anchorEl={anchorElUser}
                   anchorOrigin={{
                     vertical: "top",
@@ -232,11 +293,11 @@ function Navbar() {
                       border: "1px solid rgba(255,255,255,0.2)",
                       borderRadius: "12px",
                       overflow: "hidden",
-                      mt: 1,
+                      mt: 0.5,
+                      py: 0.5,
                     },
                   }}
                 >
-                  {/* History MenuItem with Submission Stats */}
                   <MenuItem
                     onClick={handleCloseUserMenu}
                     component={Link}
@@ -244,7 +305,8 @@ function Navbar() {
                     sx={{
                       color: "white",
                       "&:hover": { backgroundColor: "rgba(255,255,255,0.1)" },
-                      py: 2,
+                      py: 1.25,
+                      minHeight: "auto",
                     }}
                   >
                     <Box
@@ -265,16 +327,16 @@ function Navbar() {
                             border: "2px solid white",
                             fontSize: "0.7rem",
                             fontWeight: "bold",
+                            minWidth: "20px",
+                            height: "20px",
                           },
                         }}
                       >
-                        <HistoryIcon />
+                        <HistoryIcon sx={{ fontSize: 20 }} />
                       </Badge>
-                      <Box sx={{ flexGrow: 1 }}>
-                        <Typography variant="body1" fontWeight="medium">
-                          History
-                        </Typography>
-                      </Box>
+                      <Typography variant="body2" fontWeight="medium">
+                        History
+                      </Typography>
                     </Box>
                   </MenuItem>
 
@@ -285,7 +347,8 @@ function Navbar() {
                     sx={{
                       color: "white",
                       "&:hover": { backgroundColor: "rgba(255,255,255,0.1)" },
-                      py: 2,
+                      py: 1.25,
+                      minHeight: "auto",
                     }}
                   >
                     <Box
@@ -295,8 +358,8 @@ function Navbar() {
                         width: "100%",
                       }}
                     >
-                      <Dashboard sx={{ mr: 2 }} />
-                      <Typography variant="body1" fontWeight="medium">
+                      <Dashboard sx={{ mr: 2, fontSize: 20 }} />
+                      <Typography variant="body2" fontWeight="medium">
                         Dashboard
                       </Typography>
                     </Box>
@@ -309,7 +372,8 @@ function Navbar() {
                       sx={{
                         color: "white",
                         "&:hover": { backgroundColor: "rgba(255,255,255,0.1)" },
-                        py: 2,
+                        py: 1.25,
+                        minHeight: "auto",
                       }}
                     >
                       <Box
@@ -319,8 +383,8 @@ function Navbar() {
                           width: "100%",
                         }}
                       >
-                        <LogoutIcon sx={{ mr: 2 }} />
-                        <Typography variant="body1" fontWeight="medium">
+                        <LogoutIcon sx={{ mr: 2, fontSize: 20 }} />
+                        <Typography variant="body2" fontWeight="medium">
                           Logout
                         </Typography>
                       </Box>
@@ -332,22 +396,42 @@ function Navbar() {
                 {!isMobile && (
                   <button
                     onClick={handleLogout}
-                    className="hidden sm:block px-4 py-2 bg-yellow-400 text-blue-900 font-semibold rounded-lg hover:bg-yellow-500 transition-all duration-300 hover:scale-105 hover:shadow-lg cursor-pointer"
+                    className="px-3 py-1.5 bg-yellow-400 text-blue-900 font-semibold rounded-lg hover:bg-yellow-500 transition-all duration-300 hover:scale-105 hover:shadow-lg cursor-pointer text-sm"
                   >
                     Logout
                   </button>
                 )}
               </>
             ) : (
-              <Link to="/login">
-                <button className="px-4 py-2 bg-gradient-to-r from-yellow-400 to-yellow-500 text-blue-900 font-bold rounded-lg hover:from-yellow-500 hover:to-yellow-600 transition-all duration-300 hover:scale-105 hover:shadow-lg cursor-pointer">
-                  Login
-                </button>
-              </Link>
+              // Login Button for logged out users
+              <Button
+                component={Link}
+                to="/login"
+                variant="contained"
+                sx={{
+                  px: { xs: 2, md: 2.5, lg: 3 },
+                  py: { xs: 0.75, md: 1 },
+                  background: "linear-gradient(to right, #f59e0b, #eab308)",
+                  color: "blue.900",
+                  fontWeight: "bold",
+                  fontSize: { xs: "0.8rem", md: "0.875rem" },
+                  minWidth: "auto",
+                  whiteSpace: "nowrap",
+                  "&:hover": {
+                    background: "linear-gradient(to right, #eab308, #ca8a04)",
+                    transform: "scale(1.05)",
+                    boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
+                  },
+                  transition: "all 0.3s ease",
+                  borderRadius: "8px",
+                }}
+              >
+                Login
+              </Button>
             )}
           </Box>
 
-          {/* Mobile Menu */}
+          {/* Mobile Navigation Menu */}
           <Menu
             id="menu-appbar"
             anchorEl={anchorElNav}
@@ -362,14 +446,21 @@ function Navbar() {
             }}
             open={Boolean(anchorElNav)}
             onClose={handleCloseNavMenu}
-            sx={{ display: { xs: "block", md: "none" } }}
+            sx={{
+              display: { xs: "block", md: "none" },
+              "& .MuiPaper-root": {
+                minWidth: "200px",
+                maxWidth: "calc(100vw - 32px)",
+              },
+            }}
             PaperProps={{
               sx: {
                 background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
                 border: "1px solid rgba(255,255,255,0.2)",
                 borderRadius: "12px",
                 overflow: "hidden",
-                mt: 1,
+                mt: 0.5,
+                py: 0.5,
               },
             }}
           >
@@ -385,18 +476,24 @@ function Navbar() {
                     ? "rgba(255,255,255,0.2)"
                     : "transparent",
                   "&:hover": { backgroundColor: "rgba(255,255,255,0.1)" },
-                  py: 2,
+                  py: 1.5,
+                  minHeight: "auto",
+                  whiteSpace: "nowrap",
                 }}
               >
-                <Box sx={{ display: "flex", alignItems: "center", width: "100%" }}>
-                  <Box sx={{ mr: 2 }}>{page.icon}</Box>
-                  <Typography variant="body1" fontWeight="medium">
+                <Box
+                  sx={{ display: "flex", alignItems: "center", width: "100%" }}
+                >
+                  <Box sx={{ mr: 2, display: "flex", alignItems: "center" }}>
+                    {React.cloneElement(page.icon, { sx: { fontSize: 20 } })}
+                  </Box>
+                  <Typography variant="body2" fontWeight="medium">
                     {page.name}
                   </Typography>
                 </Box>
               </MenuItem>
             ))}
-            
+
             {/* Logout in mobile nav menu */}
             {user && isMobile && (
               <MenuItem
@@ -404,12 +501,16 @@ function Navbar() {
                 sx={{
                   color: "white",
                   "&:hover": { backgroundColor: "rgba(255,255,255,0.1)" },
-                  py: 2,
+                  py: 1.5,
+                  minHeight: "auto",
+                  whiteSpace: "nowrap",
                 }}
               >
-                <Box sx={{ display: "flex", alignItems: "center", width: "100%" }}>
-                  <LogoutIcon sx={{ mr: 2 }} />
-                  <Typography variant="body1" fontWeight="medium">
+                <Box
+                  sx={{ display: "flex", alignItems: "center", width: "100%" }}
+                >
+                  <LogoutIcon sx={{ mr: 2, fontSize: 20 }} />
+                  <Typography variant="body2" fontWeight="medium">
                     Logout
                   </Typography>
                 </Box>
