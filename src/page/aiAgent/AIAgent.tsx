@@ -1,4 +1,4 @@
-import { useEffect, useState, useContext, useRef } from "react";
+import { useEffect, useState, useRef, use } from "react";
 import {
   MoreVertical,
   Bot,
@@ -113,7 +113,7 @@ const AIAgent = () => {
   } | null>(null);
   const [isDropdownHovered, setIsDropdownHovered] = useState(false);
 
-  const { user } = useContext(AuthContext);
+  const { user } = use(AuthContext)!;
   const dropdownRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
   const dropdownContentRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -249,9 +249,10 @@ const AIAgent = () => {
   }, [activeDropdown, isDropdownHovered]);
 
   const fetchChatSessions = async () => {
-    if (!user?.email) return setChatSessions([]);
+    const email = user?.email || user?.providerData[0]?.email
+    if (!email) return setChatSessions([]);
     try {
-      const data = await aiAgentService.getHistory(user.email);
+      const data = await aiAgentService.getHistory(email);
       setChatSessions(data);
     } catch (err) {
       console.error("Error loading sessions:", err);
@@ -259,7 +260,8 @@ const AIAgent = () => {
   };
 
   useEffect(() => {
-    if (user?.email) fetchChatSessions();
+    const email = user?.email || user?.providerData[0]?.email
+    if (!email) fetchChatSessions();
     else {
       setChatSessions([]);
       setMessages([]);
@@ -269,7 +271,8 @@ const AIAgent = () => {
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user?.email) return showAuthError("Please log in first");
+    const email = user?.email || user?.providerData[0]?.email
+    if (!email) return showAuthError("Please log in first");
     if (!query.trim()) return;
     if (currentChatId && messages.length >= MAX_MESSAGES_PER_CHAT) {
       setShowLimitWarning(true);
@@ -298,7 +301,7 @@ const AIAgent = () => {
     try {
       const data = await aiAgentService.sendQuery(
         query,
-        user.email,
+        email,
         currentChatId
       );
       const answer = data.answer || "No response found";
@@ -343,9 +346,10 @@ const AIAgent = () => {
   };
 
   const handleRename = async () => {
-    if (!renameId || !renameValue.trim() || !user?.email) return;
+    const email = user?.email || user?.providerData[0]?.email
+    if (!renameId || !renameValue.trim() || !email) return;
     try {
-      await aiAgentService.renameChat(renameId, renameValue, user.email);
+      await aiAgentService.renameChat(renameId, renameValue, email);
       await fetchChatSessions();
       setShowRenameModal(false);
       setRenameValue("");
@@ -375,6 +379,7 @@ const AIAgent = () => {
       confirmButtonText: "Yes, delete it!",
     });
     if (result.isConfirmed) {
+      
       try {
         await aiAgentService.deleteChat(id, user.email);
         await fetchChatSessions();
@@ -395,9 +400,10 @@ const AIAgent = () => {
   };
 
   const handleSelectChat = async (chat: ChatSession) => {
-    if (!user?.email) return;
+    const email = user?.email || user?.providerData[0]?.email
+    if (!email) return;
     try {
-      const fullChat = await aiAgentService.getChat(chat._id, user.email);
+      const fullChat = await aiAgentService.getChat(chat._id, email);
 
       // Fix: Ensure all timestamps are properly converted to Date objects
       const fixedMessages = (fullChat.messages || []).map((msg) => ({
@@ -415,7 +421,8 @@ const AIAgent = () => {
   };
 
   const handleNewChat = () => {
-    if (!user?.email) return showAuthError("Please log in to start a chat");
+    const email = user?.email || user?.providerData[0]?.email
+    if (!email) return showAuthError("Please log in to start a chat");
     setCurrentChatId(null);
     setMessages([]);
     setQuery("");
@@ -455,8 +462,8 @@ const AIAgent = () => {
 
   const isLimitReached =
     currentChatId && messages.length >= MAX_MESSAGES_PER_CHAT;
-
-  if (!user?.email)
+const email = user?.email || user?.providerData[0]?.email
+  if (!email)
     return (
       <div className="flex items-center justify-center h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
         <div className="text-center p-8 bg-slate-800/50 backdrop-blur-xl rounded-3xl border border-white/10 max-w-md">
