@@ -24,12 +24,9 @@ import ManageTeams from "./page/dashboard/manageTeams/ManageTeams";
 import ManageParticipants from "./page/dashboard/manageParticipants/ManageParticipants";
 import History from "./page/History";
 import Leaderboard from "./page/dashboard/Leaderboard";
-// miskaran's contribution
 import AIAgent from "./page/aiAgent/AIAgent";
-
-
-import UserDashboardHome from "./page/dashboard/dashboardHome/UserDashboardHome";
-import AdminDashboardHome from "./page/dashboard/dashboardHome/DashboardHome";
+import DashboardHome from "./page/dashboard/dashboardHome/DashboardHome";
+import ManageProblems from "./page/dashboard/manageProblems/ManageProblems";
 
 const router = createBrowserRouter([
   {
@@ -50,7 +47,6 @@ const router = createBrowserRouter([
         path: "ai-agent",
         element: <AIAgent />,
       },
-
       {
         path: "all-contests",
         element: <AllContests />,
@@ -129,7 +125,7 @@ const router = createBrowserRouter([
     children: [
       {
         index: true,
-        element: <UserDashboardHome />,
+        element: <DashboardHome />,
       },
       {
         path: "profile",
@@ -146,15 +142,15 @@ const router = createBrowserRouter([
 
       // ========= Admin Only Routes =========
       {
-        path: "admin",
+        path: "manageProblems",
         element: (
           <AdminRoute>
-            <AdminDashboardHome />
+            <ManageProblems /> 
           </AdminRoute>
         ),
       },
       {
-        path: "admin/manage-users",
+        path: "manage-users",
         element: (
           <AdminRoute>
             <ManageUsers />
@@ -162,7 +158,7 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: "admin/manage-contests",
+        path: "manageContests",
         element: (
           <AdminRoute>
             <ManageContests />
@@ -170,7 +166,7 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: "admin/add-problem",
+        path: "addProblem",
         element: (
           <AdminRoute>
             <AddProblem />
@@ -178,7 +174,7 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: "admin/manage-teams",
+        path: "manageTeams",
         element: (
           <AdminRoute>
             <ManageTeams />
@@ -186,7 +182,7 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: "admin/manage-participants",
+        path: "manageParticipants",
         element: (
           <AdminRoute>
             <ManageParticipants />
@@ -194,7 +190,7 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: "admin/add-contest",
+        path: "addContest",
         element: (
           <AdminRoute>
             <AddContest />

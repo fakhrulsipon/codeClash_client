@@ -1,3 +1,4 @@
+// src/hook/useUserRole.tsx
 import { useQuery } from '@tanstack/react-query'
 import useAxiosPublic from './useAxiosPublic'
 
@@ -6,7 +7,7 @@ interface UserRoleResponse {
 }
 
 const useUserRole = (email?: string) => {
-    const axiosPublic = useAxiosPublic()
+  const axiosPublic = useAxiosPublic()
   const {
     data,
     isLoading,
@@ -19,10 +20,12 @@ const useUserRole = (email?: string) => {
       return res.data
     },
     enabled: !!email,
+    retry: 2,
+    staleTime: 5 * 60 * 1000,
   })
 
   return {
-    userRole: data?.role || null,
+    userRole: data?.role || 'user',
     roleLoading: isLoading,
     roleError: error,
   }
