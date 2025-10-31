@@ -42,7 +42,6 @@ const router = createBrowserRouter([
         path: "problems",
         element: <Problems />,
       },
-      // miskaran's contribution
       {
         path: "ai-agent",
         element: <AIAgent />,
